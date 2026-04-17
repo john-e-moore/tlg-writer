@@ -1,0 +1,4 @@
+.venv/
+data/raw/pieces/dups/
+data/raw/pieces/unlabeled/
+data/processed/pieces/labeled/
