@@ -81,6 +81,15 @@ Until modules land, keep scripts in `scripts/` (`extract_docx_metadata.py` is th
 - Observable at every step: deterministic artifacts, stable schemas, rerunnable steps.
 - No secrets in code, commits, or emitted JSON.
 
+## Early feedback loops (pipeline work)
+
+When implementing the editorial pipeline (not one-off corpus scripts), optimize for **early, inspectable runs**:
+
+1. **Vertical slice first:** before investing heavily in retrieval quality or full labeling coverage, ship a path that creates `artifacts/runs/<run_id>/` with the stage directories in this file, top-level `manifest.json`, and something readable under `final/`. Stubs and fixture-driven `output.json` files are valid; quality can come later. See `.agent/SPEC.md` §18 Phase 0.
+2. **`assigned` mode:** `topic_selection/` may record an explicit skip or stub (summarized in `summary.md` / manifest) rather than pretending auto-topic ran.
+3. **Tests default to mocks:** integration tests prove directory layout, manifest fields, and schema validation without live API calls unless explicitly opt-in (see `.agent/SPEC.md` §16.2).
+4. **Parallel work:** archive labeling, feature extraction, and gold-set curation can proceed alongside the skeleton; they must not be treated as a prerequisite to having a runnable, debuggable run directory.
+
 ## Non-negotiables
 
 - Every meaningful pipeline step writes inspectable files under a single **timestamped** `artifacts/runs/<run_id>/`.
@@ -95,13 +104,13 @@ For non-trivial work:
 
 1. Read `.agent/SPEC.md`.
 2. Add `.agent/features/<YYYY-MM-DD>-<feature-slug>/SPEC.md` when behavior is net-new.
-3. Add or extend an ExecPlan in `.agent/PLANS.md` for multi-step or cross-cutting work (see `.agent/PLANS.md` for entry format).
-4. Implement in small, testable slices.
+3. Add or extend an ExecPlan in `.agent/PLANS.md` for multi-step or cross-cutting work (see `.agent/PLANS.md` for entry format). For **new pipeline behavior**, the first merged slice should usually satisfy **Early feedback loops** (inspectable `artifacts/runs/…`, mocks OK) before large quality expansions.
+4. Implement in small, testable slices—each slice should leave **traces** (files, manifest updates, or explicit skip records) an operator can open.
 5. Run tests; paste concise evidence into the PR / ExecPlan.
 6. Update docs touched by behavior.
 7. Confirm new artifacts stay readable and attributable (`run_id`, `stage`, `agent` in logs and metrics).
 
-Do not stop at partial delivery unless blocked (credentials, missing inputs, network, or explicit user stop).
+Do not stop at partial delivery unless blocked (credentials, missing inputs, network, or explicit user stop). Partial **pipeline** delivery is acceptable when the ExecPlan scope is explicitly “skeleton + mocks”; it is not acceptable when stages claim to run but omit outputs without documentation.
 
 ## Feature branch flow
 
@@ -116,6 +125,8 @@ Feature briefs stay local to the feature; they do not duplicate the whole spec.
 ## When to use an ExecPlan
 
 Default for work that touches multiple pipeline stages, schemas, artifact contracts, run layout, agent orchestration, retrieval/labeling/evaluation, observability, or ingestion. Skip for typos, one-off test tweaks, or single-file fixes.
+
+For **new editorial pipeline work**, the first ExecPlan should typically cover **Phase 0** (skeleton run, mocks, inspectable `artifacts/runs/…`) per `.agent/SPEC.md` §18 and `.agent/PLANS.md` **Early vertical slices**.
 
 ## Module boundaries (keep separated)
 

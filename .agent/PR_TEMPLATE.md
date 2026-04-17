@@ -22,13 +22,14 @@ Use for features and substantial refactors. Keep it short, evidence-based, and a
 
 - [ ] …
 - [ ] …
+- [ ] If this PR adds or changes editorial **pipeline** stages: a sample `artifacts/runs/<run_id>/` exists (real run or **test fixture path** under `tests/fixtures/`) demonstrating the new layout or behavior—or N/A with one-line reason
 
 ## Validation evidence
 
 - [ ] Lint/format (if configured)
 - [ ] `pytest` (note scope: full / subset / skipped)
-- [ ] Sample `artifacts/runs/<run_id>/` inspected (or N/A)
-- [ ] Smoke: pipeline or script path (or documented skip)
+- [ ] Sample `artifacts/runs/<run_id>/` inspected (or fixture path; or N/A)
+- [ ] Smoke: pipeline or script path (or documented skip); note if run used **mocked** LLM only
 - [ ] Re-run idempotence checked where outputs are written
 
 Commands (from repo root):

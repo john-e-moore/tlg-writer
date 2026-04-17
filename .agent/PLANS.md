@@ -8,6 +8,12 @@ Create or update an ExecPlan before or during implementation when work is comple
 
 Optional for tiny fixes (typos, single-test edits, comment-only changes).
 
+## Early vertical slices (pipeline work)
+
+When adding or extending the editorial pipeline, treat **operator-visible feedback** as the default first milestone: a command that produces a new `artifacts/runs/<run_id>/` tree through `final/` (see `.agent/SPEC.md` §18 Phase 0 and `.agent/AGENTS.md` **Early feedback loops**). Stubs, fixtures, and **mocked** LLM responses are encouraged until contracts stabilize; do not block this on exhaustive archive labeling or gold-set completion.
+
+**First** ExecPlan for greenfield pipeline work should usually be titled like: `ExecPlan: Assigned-topic skeleton run (mocked LLM) — <YYYY-MM-DD>`, with acceptance criteria that name concrete paths under `artifacts/runs/…` and the tests that lock them.
+
 ## Links to other docs
 
 - Baseline requirements: `.agent/SPEC.md`
@@ -34,6 +40,7 @@ Keep **Progress**, **Surprises & Discoveries**, **Decision Log**, and **Outcomes
 - **Outcome-focused**: observable behavior and artifacts when done.
 - **Executable**: concrete steps, commands, expected signals.
 - **Observable**: names `artifacts/runs/<run_id>/` paths and any new `data/` outputs.
+- **Feedback-friendly**: where pipeline work is involved, the plan’s first “done” slice should be inspectable under `artifacts/runs/…` (mocks OK) before large quality investments.
 - **Living**: edit in place; do not fork duplicate plans.
 - **Safe**: idempotence and recovery spelled out.
 
@@ -63,7 +70,7 @@ Each ExecPlan section must contain (headings may be `###` under the plan `##`):
 
 ## Acceptance bar (this repo)
 
-Done means: scoped behavior works end-to-end, emitted artifacts under `artifacts/runs/…` are inspectable, tests cover important new logic, rerun behavior is known, and `.agent/SPEC.md` / `.agent/AGENTS.md` stay accurate if contracts changed.
+Done means: scoped behavior works end-to-end (or end-to-end **with mocks** when that is the declared scope), emitted artifacts under `artifacts/runs/…` are inspectable, tests cover important new logic, rerun behavior is known, and `.agent/SPEC.md` / `.agent/AGENTS.md` stay accurate if contracts changed.
 
 If live models or APIs are unavailable: document mocks used and list follow-up checks when keys exist.
 

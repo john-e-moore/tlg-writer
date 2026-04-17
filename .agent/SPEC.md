@@ -1,6 +1,6 @@
 # SPEC.md
 
-Agent execution details and path tables: **`.agent/AGENTS.md`**. This document is the product/requirements baseline; keep the two in sync when contracts change.
+Agent execution details and path tables: **`.agent/AGENTS.md`**. This document is the product/requirements baseline; keep the two in sync when contracts change. For **early feedback loops** (runnable, inspectable `artifacts/runs/` before exhaustive archive work), see **§18 Phase 0**, **§19**, and **§21**.
 
 ## Project
 Build an editorial system that produces high-quality macroeconomic advisory **pieces** in a recognizable house style, with strong observability, reproducible runs, and clear intermediate artifacts.
@@ -791,6 +791,27 @@ JSON Schemas stay in **`schemas/json/`** (not inside `src/`) so scripts and test
 
 ## 18. Phased implementation plan
 
+Phases below are ordered by **dependency for eventual quality**, not by mandatory calendar sequence. For **early feedback loops**, land **Phase 0** as soon as manifests, artifact I/O, and minimal schemas exist so operators can run something, open `artifacts/runs/<run_id>/`, and debug stage boundaries **before** archive labeling (Phase 1) or retrieval quality work is exhaustive. Phase 0 and Phase 1 may proceed **in parallel** once the run harness is real.
+
+### Phase 0: runnable assigned-topic skeleton (vertical slice)
+
+Goal:
+
+Exercise run registration, stage boundaries, artifact writers, schemas, and tests **without** blocking on full corpus labeling, gold sets, or high-quality retrieval.
+
+Deliverables:
+
+- A documented entry point (CLI under `scripts/` and/or library in `src/` as the repo evolves) that creates a timestamped `artifacts/runs/<run_id>/` with top-level `manifest.json` (and `config.json` when used) and the stage directories named in §12 and `.agent/AGENTS.md`.
+- **`assigned` mode path**: `topic_selection/` may contain only a stub or skip artifact, with the manifest and/or stage `summary.md` stating that auto-topic selection did not run—never silent omission of a stage directory when the pipeline claims it ran.
+- Stages may use **fixtures, stubs, or mocked LLM responses**; CI must not require live API keys for the default test path.
+- A human-openable deliverable under `final/` (quality may be intentionally low; stage summaries should state limitations honestly).
+
+Acceptance criteria:
+
+- From repo root, a documented command produces a new run directory with predictable layout (fresh `run_id` or a documented fixture run id for tests).
+- Failures surface in `logs/`, `metrics.json`, and/or manifest status without dropping stages silently.
+- `pytest` asserts expected paths, manifest fields, and schema validation for fixture outputs—**mocked** provider tests by default (see §16.2).
+
 ### Phase 1: archive understanding and taxonomy
 Goal:
 Create a structured understanding of historical pieces and how the firm writes them.
@@ -814,7 +835,7 @@ Acceptance criteria:
 
 ### Phase 2: assigned-topic pipeline
 Goal:
-Build a first end-to-end editorial workflow for user-specified topics and sources.
+Build a first end-to-end editorial workflow for user-specified topics and sources—**deepening Phase 0** from mocked or stub stages toward real prompts, retrieval integration, and rubric-worthy outputs where applicable.
 
 Deliverables:
 - intake flow,
@@ -885,10 +906,11 @@ Acceptance criteria:
 Start with the smallest architecture that can reveal real failure modes.
 
 That means prioritizing:
-- labeling and feature extraction,
+- a thin **assigned-topic vertical slice** (Phase 0): full run directory shape, mocked or stubbed stages, readable `final/`, so the **piece-creation loop is runnable and inspectable early**,
+- **in parallel** (once the run harness exists): labeling and feature extraction,
 - explicit archetypes,
 - assigned-topic mode before auto-topic mode,
-- direct API calls with narrow prompts,
+- direct API calls with narrow prompts (live calls optional locally; tests stay mocked by default per §16.2),
 - heavy observability,
 - schema validation,
 - testability.
@@ -914,13 +936,14 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 
 ## 21. Immediate next steps
 
-1. Formalize `schemas/json/` for piece labels and extracted features.
-2. Implement feature extraction and labeling scripts under `scripts/` (read/write under `data/processed/pieces/`).
-3. Add batch-run artifact output for those scripts under `artifacts/runs/<run_id>/` with manifests.
-4. Define the first version of the editorial archetype taxonomy.
-5. Build the gold set.
-6. Implement the assigned-topic pipeline with observability from day one.
-7. Add pytest coverage for each stage and artifact writer.
+1. **Phase 0 — vertical slice:** minimal `schemas/json/` for `run_manifest` and any stub stage outputs the skeleton needs; runnable **assigned-topic** path that writes a complete `artifacts/runs/<run_id>/` tree through `final/` using mocks/fixtures; `pytest` for layout, manifest, and schema contracts without live models by default.
+2. Formalize remaining `schemas/json/` for piece labels and extracted features as those scripts land.
+3. Implement feature extraction and labeling scripts under `scripts/` (read/write under `data/processed/pieces/`).
+4. Add batch-run artifact output for those scripts under `artifacts/runs/<run_id>/` with manifests.
+5. Define the first version of the editorial archetype taxonomy.
+6. Build the gold set.
+7. **Deepen** the assigned-topic pipeline (real stages, prompts, retrieval) with observability—each increment still leaving inspectable artifacts per §12.
+8. Add and extend `pytest` coverage for each stage and artifact writer.
 
 ---
 
@@ -937,4 +960,4 @@ Its core differentiators should be:
 - and a clean, testable pipeline architecture.
 
 The immediate priority is not “make the smartest writer.”
-The immediate priority is to build the structure that lets the system make better editorial decisions and makes those decisions legible to you.
+The immediate priority is to build the structure that lets the system make better editorial decisions and makes those decisions legible to you—and to **run and inspect that structure end-to-end early** (Phase 0), then improve quality stage by stage rather than debugging everything at once after a big bang.
