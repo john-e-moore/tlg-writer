@@ -140,7 +140,8 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — done (PR #4 merged) — agent`
 - `2026-04-21 — ExecPlan: Gold set index (v1 contract) — done (PR #5 merged) — agent`
 - `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — done (PR #6 merged) — agent`
-- `2026-04-21 — ExecPlan: Framing + retrieval artifacts (v1 schemas) — in_progress (PR #7) — agent`
+- `2026-04-21 — ExecPlan: Framing + retrieval artifacts (v1 schemas) — done (PR #7 merged) — agent`
+- `2026-04-21 — ExecPlan: Stage + artifact writer pytest coverage — in_progress — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -586,7 +587,7 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 
 Links: branch `feature/framing-retrieval-schemas`; brief `.agent/features/2026-04-21-framing-retrieval-schemas/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/7`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -609,7 +610,7 @@ Ship SPEC §13 `framing_decision` and `retrieval_result` contracts plus assigned
 
 ### Outcomes & retrospective
 
-Opened PR #7 (`https://github.com/john-e-moore/tlg-writer/pull/7`); merge will flip Status to `done`.
+Merged via PR #7 (`https://github.com/john-e-moore/tlg-writer/pull/7`).
 
 ### Context and orientation
 
@@ -651,4 +652,73 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 
 - **Library:** `tlg_writer.framing_decision.build_stub_framing_decision_assigned`, `tlg_writer.retrieval_result.build_stub_retrieval_result_assigned`, `tlg_writer.retrieval_result.ranked_piece_references`.
 - **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
+- **External:** none.
+
+---
+
+## ExecPlan: Stage + artifact writer pytest coverage — 2026-04-21
+
+Links: branch `feature/stage-pytest-coverage`; brief `.agent/features/2026-04-21-stage-pytest-coverage/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Deliver `.agent/SPEC.md` §21 step 8 as an operator-safe **test-only** slice: every Phase 0 skeleton stage’s `output.json` and `metrics.json` is asserted against the correct JSON Schema in integration tests; corpus stub gets deterministic stem coverage and an empty-batch path so artifact writers stay regression-locked without changing runtime behavior.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [ ] (2026-04-21) Implementation
+- [ ] (2026-04-21) Validation + docs
+
+### Surprises & discoveries
+
+- (none yet)
+
+### Decision log
+
+- Decision: Keep schema-per-stage mapping in tests (not a new production registry) — Rationale: avoids duplicating contract source of truth in `src/` until a shared helper is needed — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+(pending PR)
+
+### Context and orientation
+
+Touch points: `tests/integration/test_skeleton_pipeline.py`, `tests/integration/test_corpus_batch_stub.py`, `tests/unit/test_corpus_batch_artifacts.py` (new), `src/tlg_writer/skeleton_pipeline.py`, `src/tlg_writer/corpus_batch_stub.py`, `schemas/json/`, `.agent/SPEC.md` §21.
+
+### Plan of work
+
+1. Add per-stage `validate_file` loop for assigned skeleton runs (domain vs `skeleton_stage_output`).
+2. Assert manifest `stages_executed` matches `STAGE_DIRS` and `config.json` shape.
+3. Corpus: `piece_artifact_stem` unit tests; empty batch integration test; run log assertions.
+4. SPEC §21 step 8 shipped note; finalize this ExecPlan + optional index.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_assigned_skeleton.py --help
+python scripts/extract_docx_metadata.py --help
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes with new tests (note total count in PR).
+- Smoke: `--help` for skeleton and metadata CLIs unchanged.
+
+### Idempotence and recovery
+
+Tests only; no artifact contract changes.
+
+### Artifacts and notes
+
+- N/A for new `artifacts/runs/` paths (tests use `tmp_path`).
+
+### Interfaces and dependencies
+
 - **External:** none.
