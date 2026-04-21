@@ -114,11 +114,23 @@ Do not stop at partial delivery unless blocked (credentials, missing inputs, net
 
 ## Feature branch flow
 
+Target flow: **new branch → implement in logical commits → test → open PR when the scoped work is done** (not a standing pile of uncommitted work).
+
 1. Branch from `main`.
 2. Feature brief: `.agent/features/<YYYY-MM-DD>-<feature-slug>/SPEC.md`.
-3. ExecPlan in `.agent/PLANS.md` linking that brief.
+3. ExecPlan in `.agent/PLANS.md` linking that brief (include **branch name** and **PR** in the plan header when known).
 4. Implement in reviewable chunks; keep the ExecPlan current.
 5. PR body from `.agent/PR_TEMPLATE.md`.
+
+**Branch naming:** prefer `feature/<short-slug>` (kebab-case slug, tied to the feature brief slug when practical). Use another prefix only if the team standard differs.
+
+**Branches and PRs:** one **topic branch** per **mergeable unit of review**—typically one open PR per branch. Do not stack unrelated work on the same branch. If the user explicitly asks for stacked or dependent PRs, follow that session instruction.
+
+**Merge bar:** merge to `main` only when CI (if present) is green and the checks in **Before “done”** and the ExecPlan’s validation section have been run (or skips documented). Record concise evidence in the PR and ExecPlan.
+
+**Phased / roadmap work:** align branches with **vertical slices** you would merge independently (see **Early feedback loops**), not necessarily one git branch per numbered subsection of `.agent/SPEC.md`. Split a large spec phase across **multiple PRs** when review or rollback boundaries warrant it; prefer **frequent small merges** to `main` over one long-lived mega-branch or bulk unreviewed work on `main`.
+
+**Communicating to the agent:** defaults live in this file (**Instruction priority**). Each session should still name the **branch**, **PR link** (if updating an existing PR), and **scope** (what is in/out) so the active request can override safely—no need to repeat full branching policy every prompt if this section stays current.
 
 Feature briefs stay local to the feature; they do not duplicate the whole spec.
 
