@@ -1,0 +1,16 @@
+{
+  "schema_version": "v1",
+  "run_id": "2026-04-21T12-00-00Z__assigned__fixture",
+  "pass": false,
+  "recommendation": "human_review_required",
+  "scorecard": {
+    "voice_match": null,
+    "framing_quality": null,
+    "originality": null,
+    "macro_soundness": null,
+    "evidence_usage": null,
+    "conversational_quality": null,
+    "sendability": null
+  },
+  "summary": "Fixture: unevaluated scorecard for schema tests."
+}

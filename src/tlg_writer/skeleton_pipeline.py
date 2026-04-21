@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from tlg_writer.critique_result import build_stub_critique_result_assigned
+from tlg_writer.evaluation_result import build_stub_evaluation_result_assigned
 from tlg_writer.revision_result import build_stub_revision_result_assigned
 from tlg_writer.framing_decision import build_stub_framing_decision_assigned
 from tlg_writer.json_schema import validate
@@ -305,20 +306,17 @@ def run_assigned_skeleton(
         output_schema="revision_result",
     )
 
-    # --- evaluation ---
-    eval_out: dict[str, Any] = {
-        "schema_version": "0.1",
-        "stage": "evaluation",
-        "status": "stub",
-        "message": "Pass/fail rubric not run.",
-        "payload": {"recommendation": "human_review_required", "pass": False},
-    }
+    # --- evaluation (canonical evaluation_result on output.json) ---
+    evaluation_doc = build_stub_evaluation_result_assigned(run_id=rid)
+    validate(evaluation_doc, "evaluation_result")
     _write_stage(
         run_dir,
         "evaluation",
         {"schema_version": "0.1", "revision_result": revision_doc},
-        eval_out,
-        "## evaluation\n\nExplicit **human_review_required** (stub).\n",
+        evaluation_doc,
+        "## evaluation\n\nStructured **evaluation_result** (`schemas/json/evaluation_result.schema.json`); "
+        "explicit **human_review_required** until a real evaluator runs.\n",
+        output_schema="evaluation_result",
     )
 
     # --- final (human-readable deliverable) ---
@@ -340,7 +338,7 @@ def run_assigned_skeleton(
     _write_stage(
         run_dir,
         "final",
-        {"schema_version": "0.1", "evaluation": eval_out["payload"]},
+        {"schema_version": "0.1", "evaluation_result": evaluation_doc},
         final_out,
         "## final\n\nDeliverable is intentionally weak; "
         "see `piece.md` and manifest `limitations`.\n",
@@ -372,8 +370,8 @@ def run_assigned_skeleton(
         },
         "limitations": [
             "No live LLM calls.",
-            "framing/, retrieval/, brief/, critique/, and revision/ use v1 domain schemas; "
-            "drafting/, evaluation/, and final/ remain generic stubs.",
+            "framing/, retrieval/, brief/, critique/, revision/, and evaluation/ use v1 domain schemas; "
+            "drafting/ and final/ remain generic stubs.",
         ],
     }
     gc = _git_commit()
