@@ -141,7 +141,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Gold set index (v1 contract) — done (PR #5 merged) — agent`
 - `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — done (PR #6 merged) — agent`
 - `2026-04-21 — ExecPlan: Framing + retrieval artifacts (v1 schemas) — done (PR #7 merged) — agent`
-- `2026-04-21 — ExecPlan: Stage + artifact writer pytest coverage — in_progress (PR pending) — agent`
+- `2026-04-21 — ExecPlan: Stage + artifact writer pytest coverage — in_progress (PR #8) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -658,7 +658,7 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 
 ## ExecPlan: Stage + artifact writer pytest coverage — 2026-04-21
 
-Links: branch `feature/stage-pytest-coverage`; brief `.agent/features/2026-04-21-stage-pytest-coverage/SPEC.md`; PR `pending`.
+Links: branch `feature/stage-pytest-coverage`; brief `.agent/features/2026-04-21-stage-pytest-coverage/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/8`.
 
 Status: `in_progress`
 
@@ -683,7 +683,7 @@ Deliver `.agent/SPEC.md` §21 step 8 as an operator-safe **test-only** slice: ev
 
 ### Outcomes & retrospective
 
-Shipped test-only coverage for SPEC §21 step 8: per-stage schema validation on assigned skeleton runs; corpus `piece_artifact_stem` unit tests; empty-batch manifest path; `run.log` smoke. Open PR replaces `pending` in Links header; merge flips Status to `done`.
+Shipped test-only coverage for SPEC §21 step 8: per-stage schema validation on assigned skeleton runs; corpus `piece_artifact_stem` unit tests; empty-batch manifest path; `run.log` smoke. Opened PR #8 (`https://github.com/john-e-moore/tlg-writer/pull/8`); merge flips Status to `done`.
 
 ### Context and orientation
 
