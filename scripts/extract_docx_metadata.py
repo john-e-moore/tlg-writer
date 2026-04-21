@@ -12,6 +12,8 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
+from tlg_writer.json_schema import validate
+
 NS = {
     "cp": "http://schemas.openxmlformats.org/package/2006/metadata/core-properties",
     "dc": "http://purl.org/dc/elements/1.1/",
@@ -98,6 +100,9 @@ def extract_docx(path: Path) -> dict:
             "size_bytes": st.st_size,
             "mtime_utc": mtime,
         },
+        "core": {},
+        "app": {},
+        "body": {},
     }
     try:
         with zipfile.ZipFile(path, "r") as z:
@@ -105,16 +110,10 @@ def extract_docx(path: Path) -> dict:
             if "docProps/core.xml" in names:
                 record["core"] = parse_core(ET.fromstring(z.read("docProps/core.xml")))
                 mask_core_pii(record["core"])
-            else:
-                record["core"] = {}
             if "docProps/app.xml" in names:
                 record["app"] = parse_app(ET.fromstring(z.read("docProps/app.xml")))
-            else:
-                record["app"] = {}
             if "word/document.xml" in names:
                 record["body"] = body_stats_from_document(z)
-            else:
-                record["body"] = {}
     except Exception as e:  # noqa: BLE001 — per-file capture
         record["error"] = f"{type(e).__name__}: {e}"
     return record
@@ -156,6 +155,7 @@ def main() -> int:
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M")
     combined = output_dir / f"pieces_metadata_{stamp}.json"
+    validate(records, "pieces_metadata_batch")
     with combined.open("w", encoding="utf-8") as fh:
         json.dump(records, fh, indent=2, ensure_ascii=False)
 

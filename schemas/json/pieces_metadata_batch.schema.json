@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "pieces_metadata_batch",
+  "description": "Array written as data/raw/pieces/metadata/pieces_metadata_<YYYYMMDDHHMM>.json (UTC). Each item matches $defs.piece_docx_metadata_record.",
+  "$defs": {
+    "piece_docx_metadata_record": {
+      "title": "piece_docx_metadata_record",
+      "description": "One row from scripts/extract_docx_metadata.py before batch write (includes relative_to_repo).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_path",
+        "relative_to_repo",
+        "filesystem",
+        "core",
+        "app",
+        "body"
+      ],
+      "properties": {
+        "source_path": { "type": "string", "minLength": 1 },
+        "relative_to_repo": { "type": "string", "minLength": 1 },
+        "filesystem": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["size_bytes", "mtime_utc"],
+          "properties": {
+            "size_bytes": { "type": "integer", "minimum": 0 },
+            "mtime_utc": { "type": "string", "minLength": 1 }
+          }
+        },
+        "core": {
+          "type": "object",
+          "description": "OOXML core properties; PII fields may be masked.",
+          "additionalProperties": { "type": "string" }
+        },
+        "app": {
+          "type": "object",
+          "description": "OOXML extended properties from app.xml.",
+          "additionalProperties": true
+        },
+        "body": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "words_approx": { "type": "integer", "minimum": 0 },
+            "characters_with_spaces": { "type": "integer", "minimum": 0 },
+            "characters_no_spaces": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "error": {
+          "type": "string",
+          "description": "Present when per-file extraction failed."
+        }
+      }
+    }
+  },
+  "type": "array",
+  "items": { "$ref": "#/$defs/piece_docx_metadata_record" }
+}
