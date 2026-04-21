@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/framing_decision.schema.json",
+  "title": "framing_decision",
+  "description": "Editorial framing selection for a run (SPEC §7.4, §13). v1: minimal contract aligned with bundled archetype ids; stub-friendly.",
+  "type": "object",
+  "$defs": {
+    "editorial_archetype_id": {
+      "type": "string",
+      "description": "Stable id from bundled editorial archetype taxonomy v1 (SPEC §8). Must stay aligned with piece_brief.schema.json $defs.editorial_archetype_id.",
+      "enum": [
+        "historical_analog",
+        "future_implications",
+        "data_dissection",
+        "narrative_challenge",
+        "regime_shift",
+        "second_order_effects",
+        "scenario",
+        "misread_mispricing"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "primary_archetype_id",
+    "rationale",
+    "candidate_analogs",
+    "key_implications_to_explore",
+    "proposed_structure_outline"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1",
+      "description": "Framing document revision."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
+    },
+    "primary_archetype_id": {
+      "$ref": "#/$defs/editorial_archetype_id",
+      "description": "Chosen editorial archetype (SPEC §7.4)."
+    },
+    "rejected_alternate_archetype_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/editorial_archetype_id"
+      },
+      "description": "Alternative frames considered and set aside (SPEC §7.4)."
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Why this frame fits the topic and sources."
+    },
+    "candidate_analogs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Historical episodes or prior pieces to echo (paths, ids, or short labels)."
+    },
+    "key_implications_to_explore": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Downstream angles worth developing in the piece."
+    },
+    "proposed_structure_outline": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Ordered section titles or beats for the draft (SPEC §7.4)."
+    }
+  }
+}

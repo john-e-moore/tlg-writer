@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/retrieval_result.schema.json",
+  "title": "retrieval_result",
+  "description": "Ranked historical retrieval set for a run (SPEC §7.5, §14.3, §13). v1: minimal ranked list + rationale; empty hits allowed for Phase 0 stubs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "rationale", "ranked_hits"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1",
+      "description": "Retrieval document revision."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Overall retrieval strategy and why these pieces matter (SPEC §14.3)."
+    },
+    "ranked_hits": {
+      "type": "array",
+      "description": "Ordered retrieval results (SPEC §7.5). May be empty when archive hooks are not wired.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rank", "piece_reference", "why_selected"],
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "1-based rank in the final ordering."
+          },
+          "piece_reference": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Stable reference to a corpus piece (e.g. relative_to_repo path or piece id)."
+          },
+          "why_selected": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Why this piece was retrieved for this run."
+          },
+          "feature_summary": {
+            "type": "string",
+            "description": "Optional short summary of salient extracted features."
+          }
+        }
+      }
+    },
+    "excluded_candidates": {
+      "type": "array",
+      "description": "Notable near-misses left out of the ranked set (SPEC §14.3).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["piece_reference", "why_excluded"],
+        "properties": {
+          "piece_reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "why_excluded": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

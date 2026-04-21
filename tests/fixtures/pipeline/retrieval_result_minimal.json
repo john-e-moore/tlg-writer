@@ -1,0 +1,13 @@
+{
+  "schema_version": "v1",
+  "run_id": "2026-04-21T12-00-00Z__assigned__fixture-run",
+  "rationale": "Fixture: one ranked hit for schema tests.",
+  "ranked_hits": [
+    {
+      "rank": 1,
+      "piece_reference": "data/raw/pieces/unlabeled/example.docx",
+      "why_selected": "Topical overlap with fixture topic.",
+      "feature_summary": "Stub features summary."
+    }
+  ]
+}
