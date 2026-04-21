@@ -664,6 +664,7 @@ Initial schema set (extend as needed):
 - `framing_decision.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `framing/output.json`; see §21 step 7)
 - `retrieval_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `retrieval/output.json`; see §21 step 7)
 - `piece_brief.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `brief/output.json`; see §21 step 7)
+- `draft_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `drafting/output.json`; see §21 step 12)
 - `critique_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `critique/output.json`; see §21 step 9)
 - `revision_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `revision/output.json`; see §21 step 10)
 - `evaluation_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `evaluation/output.json`; see §21 step 11)
@@ -951,6 +952,7 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 9. **Deepen** critique observability: **`critique_result` v1** JSON Schema (SPEC §7.8 / §15.1 rubric dimensions) with assigned skeleton `critique/output.json` validated accordingly (null scores = not evaluated in Phase 0; no live critics).
 10. **Deepen** revision observability: **`revision_result` v1** JSON Schema (SPEC §7.9: revised body, change summary, unresolved concerns) with assigned skeleton `revision/output.json` validated accordingly (Phase 0 cosmetic stub only).
 11. **Deepen** final-evaluation observability: **`evaluation_result` v1** JSON Schema (SPEC §7.10: pass/fail, recommendation, scorecard; §15.3 explicit weaknesses in `summary`) with assigned skeleton `evaluation/output.json` validated accordingly (null scorecard = not evaluated in Phase 0; `final/` remains a generic packaging stub).
+12. **Deepen** drafting observability: **`draft_result` v1** JSON Schema (SPEC §7.7: body, writer notes, uncertainty flags) with assigned skeleton `drafting/output.json` validated accordingly (stub prose; critique/revision inputs reference the canonical `draft_result` document).
 
 ---
 
