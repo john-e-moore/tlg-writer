@@ -1,0 +1,19 @@
+{
+  "schema_version": "v1",
+  "run_id": "2026-04-21T12-00-00Z__assigned__fixture-run",
+  "primary_archetype_id": "data_dissection",
+  "rejected_alternate_archetype_ids": [
+    "historical_analog",
+    "future_implications"
+  ],
+  "rationale": "Fixture: minimal valid framing decision for tests.",
+  "candidate_analogs": [],
+  "key_implications_to_explore": [
+    "Fixture implication one."
+  ],
+  "proposed_structure_outline": [
+    "Intro",
+    "Body",
+    "Outro"
+  ]
+}
