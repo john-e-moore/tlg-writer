@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/skeleton_stage_output.schema.json",
+  "title": "skeleton_stage_output",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "stage", "status"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1" },
+    "stage": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["stub", "skipped", "completed", "failed"]
+    },
+    "message": { "type": "string" },
+    "payload": { "type": "object" }
+  }
+}

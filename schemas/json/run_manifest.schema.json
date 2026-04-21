@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/run_manifest.schema.json",
+  "title": "run_manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "created_at",
+    "mode",
+    "topic",
+    "status",
+    "stages_executed",
+    "stage_status",
+    "artifact_index",
+    "pipeline_phases"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "mode": { "type": "string", "enum": ["assigned", "auto"] },
+    "topic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "source"],
+      "properties": {
+        "label": { "type": "string" },
+        "source": { "type": "string" }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["completed", "failed", "partial"]
+    },
+    "stages_executed": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "stage_status": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "artifact_index": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "pipeline_phases": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["note"],
+      "properties": {
+        "note": { "type": "string" }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "git_commit": { "type": "string", "minLength": 1 }
+  }
+}
