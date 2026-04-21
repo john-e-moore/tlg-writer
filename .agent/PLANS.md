@@ -136,7 +136,7 @@ Public functions, CLIs, env vars, external APIs.
 Maintain a bullet list here for in-flight work:
 
 - `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — done (PR #2 merged) — agent`
-- `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — in_progress (PR pending) — agent`
+- `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — in_progress (PR #3) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -214,7 +214,7 @@ Metadata script still writes a new timestamped filename each run; validation fai
 
 ## ExecPlan: Corpus batch stub (labels + features + manifest) — 2026-04-21
 
-Links: branch `feature/corpus-batch-stub`; brief `.agent/features/2026-04-21-corpus-batch-stub/SPEC.md`; PR `pending`.
+Links: branch `feature/corpus-batch-stub`; brief `.agent/features/2026-04-21-corpus-batch-stub/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/3`.
 
 Status: `in_progress`
 
@@ -226,7 +226,7 @@ Deliver SPEC §21 steps 3–4 as an operator-visible **stub** slice: read a vali
 
 - [x] (2026-04-21) Planning
 - [x] (2026-04-21) Implementation
-- [ ] (2026-04-21) Validation + docs (PR evidence)
+- [x] (2026-04-21) Validation + docs (PR #3 evidence)
 
 ### Surprises & discoveries
 
