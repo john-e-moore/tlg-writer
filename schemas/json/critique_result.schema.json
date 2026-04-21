@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/critique_result.schema.json",
+  "title": "critique_result",
+  "description": "Structured critique output for a draft (SPEC §7.8, §13, §15.1). v1: minimal contract; null rubric entries mean not evaluated (Phase 0 stubs).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "rubric_scores",
+    "meets_publish_bar",
+    "revision_notes",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1",
+      "description": "Critique document revision."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
+    },
+    "rubric_scores": {
+      "type": "object",
+      "description": "Rubric dimensions from SPEC §15.1; null means unevaluated for this run.",
+      "additionalProperties": false,
+      "required": [
+        "voice_match",
+        "framing_quality",
+        "originality",
+        "macro_soundness",
+        "evidence_usage",
+        "conversational_quality",
+        "sendability"
+      ],
+      "properties": {
+        "voice_match": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "framing_quality": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "originality": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "macro_soundness": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "evidence_usage": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "conversational_quality": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "sendability": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "meets_publish_bar": {
+      "type": "boolean",
+      "description": "Whether critics judge the draft as meeting the publish bar for this run (SPEC §15)."
+    },
+    "revision_notes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Actionable notes for the reviser (SPEC §7.8)."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Short operator-facing recap of the critique pass."
+    }
+  }
+}
