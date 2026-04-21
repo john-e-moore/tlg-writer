@@ -55,6 +55,32 @@ def test_corpus_batch_stub_end_to_end(tmp_path: Path) -> None:
 
     assert (res.run_dir / "summary.md").is_file()
     assert (res.run_dir / "logs" / "run.log").is_file()
+    run_log = (res.run_dir / "logs" / "run.log").read_text(encoding="utf-8")
+    assert "run_id=" in run_log
+    assert "ok:" in run_log
+    assert str(batch) in run_log
+
+
+def test_corpus_batch_stub_empty_batch_writes_valid_manifest(tmp_path: Path) -> None:
+    batch = tmp_path / "empty_batch.json"
+    batch.write_text("[]", encoding="utf-8")
+    res = run_corpus_batch_stub(
+        metadata_batch=batch,
+        labels_dir=tmp_path / "l_empty",
+        features_dir=tmp_path / "f_empty",
+        artifacts_root=tmp_path / "r_empty",
+        slug="empty-batch",
+        when=datetime(2026, 4, 21, 16, 0, 0, tzinfo=timezone.utc),
+        run_id="2026-04-21T16-00-00Z__corpus__empty-batch",
+    )
+    man = json.loads((res.run_dir / "manifest.json").read_text(encoding="utf-8"))
+    validate(man, "corpus_batch_manifest")
+    assert man["counts"]["records_total"] == 0
+    assert man["counts"]["labels_written"] == 0
+    assert man["counts"]["features_written"] == 0
+    assert man["counts"]["skipped_with_errors"] == 0
+    assert man["artifact_index"] == {}
+    assert (res.run_dir / "logs" / "run.log").is_file()
 
 
 def test_corpus_batch_stub_skips_error_rows(tmp_path: Path) -> None:
