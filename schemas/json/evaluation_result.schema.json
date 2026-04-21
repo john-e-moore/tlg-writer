@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/evaluation_result.schema.json",
+  "title": "evaluation_result",
+  "description": "Final evaluation pass for a run (SPEC §7.10, §13, §15.3). v1: minimal contract; null scorecard entries mean not evaluated (Phase 0 stubs).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "pass",
+    "recommendation",
+    "scorecard",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1",
+      "description": "Evaluation document revision."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
+    },
+    "pass": {
+      "type": "boolean",
+      "description": "Whether the piece meets the acceptance threshold for this run (SPEC §7.10)."
+    },
+    "recommendation": {
+      "type": "string",
+      "enum": ["human_review_required", "approve", "needs_revision"],
+      "description": "Operator-facing disposition after evaluation (SPEC §7.10)."
+    },
+    "scorecard": {
+      "type": "object",
+      "description": "Final scorecard dimensions aligned with SPEC §15.1; null means unevaluated for this run.",
+      "additionalProperties": false,
+      "required": [
+        "voice_match",
+        "framing_quality",
+        "originality",
+        "macro_soundness",
+        "evidence_usage",
+        "conversational_quality",
+        "sendability"
+      ],
+      "properties": {
+        "voice_match": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "framing_quality": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "originality": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "macro_soundness": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "evidence_usage": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "conversational_quality": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "sendability": {
+          "type": ["null", "number"],
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Short operator-facing recap, including material weaknesses when applicable (SPEC §15.3)."
+    }
+  }
+}
