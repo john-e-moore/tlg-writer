@@ -144,6 +144,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Stage + artifact writer pytest coverage — done (PR #8 merged) — agent`
 - `2026-04-21 — ExecPlan: critique_result v1 + critique stage wiring — done (PR #9) — agent`
 - `2026-04-21 — ExecPlan: revision_result v1 + revision stage wiring — done (PR #11 merged) — agent`
+- `2026-04-21 — ExecPlan: evaluation_result v1 + evaluation stage wiring — in_progress (PR pending) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -810,7 +811,7 @@ Status: `done`
 
 ### Purpose / big picture
 
-Ship SPEC §21 step 10: a versioned **`revision_result`** JSON Schema (SPEC §7.9) and make the assigned-topic skeleton emit schema-valid `revision/output.json` while keeping drafting, evaluation, and final on the generic skeleton envelope. No live models.
+Ship SPEC §21 step 10: a versioned **`revision_result`** JSON Schema (SPEC §7.9) and make the assigned-topic skeleton emit schema-valid `revision/output.json` while keeping drafting on the generic skeleton envelope (evaluation/final were still generic stubs at this milestone). No live models.
 
 ### Progress
 
@@ -871,5 +872,76 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 ### Interfaces and dependencies
 
 - **Library:** `tlg_writer.revision_result.build_stub_revision_result_assigned`.
+- **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
+- **External:** none.
+
+---
+
+## ExecPlan: evaluation_result v1 + evaluation stage wiring — 2026-04-21
+
+Links: branch `feature/evaluation-result-v1`; brief `.agent/features/2026-04-21-evaluation-result-v1/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Ship SPEC §21 step 11: a versioned **`evaluation_result`** JSON Schema (SPEC §7.10 / §15.1 scorecard shape, §15.3 explicit operator summary) and make the assigned-topic skeleton emit schema-valid `evaluation/output.json` while keeping drafting and final on the generic skeleton envelope. No live models.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [ ] (2026-04-21) Validation + docs (PR evidence)
+
+### Surprises & discoveries
+
+- (none yet)
+
+### Decision log
+
+- Decision: `final/input.json` holds `evaluation_result` as the full v1 document (replacing the prior `evaluation` payload blob) — Rationale: canonical downstream artifact for packaging — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+(pending merge)
+
+### Context and orientation
+
+Touch points: `schemas/json/evaluation_result.schema.json`, `src/tlg_writer/evaluation_result.py`, `src/tlg_writer/skeleton_pipeline.py`, `tests/unit/test_evaluation_result_schema.py`, `tests/integration/test_skeleton_pipeline.py`, `tests/fixtures/pipeline/evaluation_result_minimal.json`, `prompts/evaluation/system.md`, `.agent/SPEC.md` §13 / §21.
+
+### Plan of work
+
+1. Add `evaluation_result` schema + deterministic stub builder + unit tests and fixture.
+2. Wire skeleton evaluation stage; point `final/input.json` at the canonical document.
+3. Update README, SPEC §21 step 11 + §13 list, feature brief, PLANS index, and this ExecPlan with validation evidence.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_assigned_skeleton.py --topic "smoke" --slug eval-smoke
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (schema unit tests; integration maps `evaluation` to `evaluation_result`).
+- Smoke: skeleton CLI run; `evaluation/output.json` validates as `evaluation_result`.
+- `--help` for `run_assigned_skeleton.py` and `extract_docx_metadata.py` unchanged.
+
+### Idempotence and recovery
+
+Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `FileExistsError`.
+
+### Artifacts and notes
+
+- Editorial runs: `artifacts/runs/<run_id>/evaluation/output.json` is an `evaluation_result` document (stub content).
+- Fixture: `tests/fixtures/pipeline/evaluation_result_minimal.json`.
+
+### Interfaces and dependencies
+
+- **Library:** `tlg_writer.evaluation_result.build_stub_evaluation_result_assigned`.
 - **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
 - **External:** none.

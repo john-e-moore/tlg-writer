@@ -23,7 +23,7 @@ _OUTPUT_SCHEMA_BY_STAGE: dict[str, str] = {
     "drafting": "skeleton_stage_output",
     "critique": "critique_result",
     "revision": "revision_result",
-    "evaluation": "skeleton_stage_output",
+    "evaluation": "evaluation_result",
     "final": "skeleton_stage_output",
 }
 
@@ -58,6 +58,7 @@ def test_skeleton_run_layout_and_manifest(tmp_path: Path) -> None:
     validate_file(root / "brief" / "output.json", "piece_brief")
     validate_file(root / "critique" / "output.json", "critique_result")
     validate_file(root / "revision" / "output.json", "revision_result")
+    validate_file(root / "evaluation" / "output.json", "evaluation_result")
     validate_file(root / "topic_selection" / "output.json", "skeleton_stage_output")
     validate_file(root / "inputs" / "metrics.json", "stage_metrics")
 
