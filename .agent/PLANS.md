@@ -138,7 +138,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — done (PR #2 merged) — agent`
 - `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — done (PR #3 merged) — agent`
 - `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — done (PR #4 merged) — agent`
-- `2026-04-21 — ExecPlan: Gold set index (v1 contract) — in_progress — agent`
+- `2026-04-21 — ExecPlan: Gold set index (v1 contract) — in_progress (PR #5) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -433,7 +433,7 @@ Read-only taxonomy; no run directories. Re-install `pip install -e ".[dev]"` aft
 
 ## ExecPlan: Gold set index (v1 contract) — 2026-04-21
 
-Links: branch `feature/gold-set-index`; brief `.agent/features/2026-04-21-gold-set-index/SPEC.md`; PR `pending`.
+Links: branch `feature/gold-set-index`; brief `.agent/features/2026-04-21-gold-set-index/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/5`.
 
 Status: `in_progress`
 
@@ -445,7 +445,7 @@ Deliver SPEC §21 step 6 as a **mergeable first slice**: a versioned JSON index 
 
 - [x] (2026-04-21) Planning
 - [x] (2026-04-21) Implementation
-- [ ] (2026-04-21) Validation + docs (PR evidence; link PR when opened)
+- [x] (2026-04-21) Validation + docs (PR #5 opened)
 
 ### Surprises & discoveries
 
