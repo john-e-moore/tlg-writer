@@ -145,6 +145,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: critique_result v1 + critique stage wiring — done (PR #9) — agent`
 - `2026-04-21 — ExecPlan: revision_result v1 + revision stage wiring — done (PR #11 merged) — agent`
 - `2026-04-21 — ExecPlan: evaluation_result v1 + evaluation stage wiring — done (PR #12 merged) — agent`
+- `2026-04-21 — ExecPlan: draft_result v1 + drafting stage wiring — in_progress (PR pending) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -885,7 +886,7 @@ Status: `done`
 
 ### Purpose / big picture
 
-Ship SPEC §21 step 11: a versioned **`evaluation_result`** JSON Schema (SPEC §7.10 / §15.1 scorecard shape, §15.3 explicit operator summary) and make the assigned-topic skeleton emit schema-valid `evaluation/output.json` while keeping drafting and final on the generic skeleton envelope. No live models.
+Ship SPEC §21 step 11: a versioned **`evaluation_result`** JSON Schema (SPEC §7.10 / §15.1 scorecard shape, §15.3 explicit operator summary) and make the assigned-topic skeleton emit schema-valid `evaluation/output.json` (null scorecard = not evaluated in Phase 0). No live models.
 
 ### Progress
 
@@ -946,5 +947,76 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 ### Interfaces and dependencies
 
 - **Library:** `tlg_writer.evaluation_result.build_stub_evaluation_result_assigned`.
+- **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
+- **External:** none.
+
+---
+
+## ExecPlan: draft_result v1 + drafting stage wiring — 2026-04-21
+
+Links: branch `feature/draft-result-v1`; brief `.agent/features/2026-04-21-draft-result-v1/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Ship SPEC §21 step 12: a versioned **`draft_result`** JSON Schema (SPEC §7.7) and make the assigned-topic skeleton emit schema-valid `drafting/output.json` while keeping inputs, source_reading, topic_selection, and final on Phase 0 generic stubs. Critique and revision consume the canonical draft document. No live models.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [ ] (2026-04-21) Validation + docs (PR evidence)
+
+### Surprises & discoveries
+
+- (none yet)
+
+### Decision log
+
+- Decision: `critique/input.json` and `revision/input.json` use `draft_result` as the full v1 document (replacing the prior inner `draft` payload blob) — Rationale: consistent canonical artifacts — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+(pending merge)
+
+### Context and orientation
+
+Touch points: `schemas/json/draft_result.schema.json`, `src/tlg_writer/draft_result.py`, `src/tlg_writer/skeleton_pipeline.py`, `tests/unit/test_draft_result_schema.py`, `tests/integration/test_skeleton_pipeline.py`, `tests/fixtures/pipeline/draft_result_minimal.json`, `prompts/drafting/system.md`, `.agent/SPEC.md` §13 / §21.
+
+### Plan of work
+
+1. Add `draft_result` schema + deterministic stub builder + unit tests and fixture.
+2. Wire skeleton drafting stage; thread `body_markdown` into revision stub; point critique/revision inputs at the canonical document.
+3. Update README, SPEC §21 step 12 + §13 list, feature brief, PLANS index, and this ExecPlan with validation evidence.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_assigned_skeleton.py --topic "smoke" --slug draft-smoke
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (schema unit tests; integration maps `drafting` to `draft_result`).
+- Smoke: skeleton CLI run; `drafting/output.json` validates as `draft_result`.
+- `--help` for `run_assigned_skeleton.py` and `extract_docx_metadata.py` unchanged.
+
+### Idempotence and recovery
+
+Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `FileExistsError`.
+
+### Artifacts and notes
+
+- Editorial runs: `artifacts/runs/<run_id>/drafting/output.json` is a `draft_result` document (stub content).
+- Fixture: `tests/fixtures/pipeline/draft_result_minimal.json`.
+
+### Interfaces and dependencies
+
+- **Library:** `tlg_writer.draft_result.build_stub_draft_result_assigned`.
 - **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
 - **External:** none.

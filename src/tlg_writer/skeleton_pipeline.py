@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from tlg_writer.critique_result import build_stub_critique_result_assigned
+from tlg_writer.draft_result import build_stub_draft_result_assigned
 from tlg_writer.evaluation_result import build_stub_evaluation_result_assigned
 from tlg_writer.revision_result import build_stub_revision_result_assigned
 from tlg_writer.framing_decision import build_stub_framing_decision_assigned
@@ -247,26 +248,21 @@ def run_assigned_skeleton(
         output_schema="piece_brief",
     )
 
-    # --- drafting ---
-    draft_body = (
-        f"# (Phase 0 stub draft)\n\nThesis: **{brief_doc['thesis']}**\n\n"
-        f"Assigned topic label: **{topic}**.\n\n"
-        "This text exists so `final/` has a readable precursor. "
-        "It is not client-ready copy.\n"
+    # --- drafting (canonical draft_result on output.json) ---
+    draft_doc = build_stub_draft_result_assigned(
+        run_id=rid,
+        topic=topic,
+        thesis=str(brief_doc["thesis"]),
     )
-    draft_out: dict[str, Any] = {
-        "schema_version": "0.1",
-        "stage": "drafting",
-        "status": "stub",
-        "message": "Stub draft from skeleton pipeline.",
-        "payload": {"markdown": draft_body},
-    }
+    validate(draft_doc, "draft_result")
     _write_stage(
         run_dir,
         "drafting",
         {"schema_version": "0.1", "piece_brief": brief_doc},
-        draft_out,
-        "## drafting\n\nStub markdown only.\n",
+        draft_doc,
+        "## drafting\n\nStructured **draft_result** (`schemas/json/draft_result.schema.json`); "
+        "stub prose only.\n",
+        output_schema="draft_result",
     )
 
     # --- critique (canonical critique_result on output.json) ---
@@ -278,7 +274,7 @@ def run_assigned_skeleton(
         {
             "schema_version": "0.1",
             "piece_brief": brief_doc,
-            "draft": draft_out["payload"],
+            "draft_result": draft_doc,
         },
         critique_doc,
         "## critique\n\nStructured **critique_result** (`schemas/json/critique_result.schema.json`); "
@@ -289,7 +285,7 @@ def run_assigned_skeleton(
     # --- revision (canonical revision_result on output.json) ---
     revision_doc = build_stub_revision_result_assigned(
         run_id=rid,
-        draft_markdown=draft_body,
+        draft_markdown=draft_doc["body_markdown"],
     )
     validate(revision_doc, "revision_result")
     _write_stage(
@@ -298,7 +294,7 @@ def run_assigned_skeleton(
         {
             "schema_version": "0.1",
             "critique_result": critique_doc,
-            "draft": draft_out["payload"],
+            "draft_result": draft_doc,
         },
         revision_doc,
         "## revision\n\nStructured **revision_result** (`schemas/json/revision_result.schema.json`); "
@@ -370,8 +366,8 @@ def run_assigned_skeleton(
         },
         "limitations": [
             "No live LLM calls.",
-            "framing/, retrieval/, brief/, critique/, revision/, and evaluation/ use v1 domain schemas; "
-            "drafting/ and final/ remain generic stubs.",
+            "Stages from framing/ through evaluation/ emit v1 domain JSON; "
+            "inputs/, source_reading/, topic_selection/, and final/ remain Phase 0 generic stubs.",
         ],
     }
     gc = _git_commit()
