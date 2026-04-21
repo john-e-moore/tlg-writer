@@ -142,7 +142,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — done (PR #6 merged) — agent`
 - `2026-04-21 — ExecPlan: Framing + retrieval artifacts (v1 schemas) — done (PR #7 merged) — agent`
 - `2026-04-21 — ExecPlan: Stage + artifact writer pytest coverage — done (PR #8 merged) — agent`
-- `2026-04-21 — ExecPlan: critique_result v1 + critique stage wiring — in_progress — agent`
+- `2026-04-21 — ExecPlan: critique_result v1 + critique stage wiring — done (PR #9) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -729,9 +729,9 @@ Tests only; no artifact contract changes.
 
 ## ExecPlan: critique_result v1 + critique stage wiring — 2026-04-21
 
-Links: branch `feature/critique-result-v1`; brief `.agent/features/2026-04-21-critique-result-v1/SPEC.md`; PR `pending`.
+Links: branch `feature/critique-result-v1`; brief `.agent/features/2026-04-21-critique-result-v1/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/9`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -756,7 +756,7 @@ Ship SPEC §21 step 9: a versioned **`critique_result`** JSON Schema (SPEC §7.8
 
 ### Outcomes & retrospective
 
-Pending merge; will note PR URL and flip Status to `done`.
+Opened PR #9 (`https://github.com/john-e-moore/tlg-writer/pull/9`): `critique_result` v1 schema, stub builder, skeleton wiring, 50 `pytest` tests, smoke validation on `/tmp` skeleton run.
 
 ### Context and orientation
 
