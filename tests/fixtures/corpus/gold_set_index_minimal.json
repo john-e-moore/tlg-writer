@@ -1,0 +1,20 @@
+{
+  "gold_set_version": "fixture-v1",
+  "taxonomy_version": "v1",
+  "title": "Minimal gold set index for tests",
+  "entries": [
+    {
+      "piece_relative_to_repo": "data/raw/pieces/unlabeled/example_voice.docx",
+      "roles": ["canonical_voice_example"],
+      "notes": "Fixture path only; file may not exist on disk.",
+      "primary_archetype_id": "historical_analog"
+    },
+    {
+      "piece_relative_to_repo": "data/raw/pieces/unlabeled/example_contrast.docx",
+      "roles": [
+        "contrast_weak_or_atypical",
+        "canonical_data_dissection_example"
+      ]
+    }
+  ]
+}
