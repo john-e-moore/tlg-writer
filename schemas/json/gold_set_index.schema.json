@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "gold_set_index",
+  "description": "Curated list of historical pieces designated for retrieval benchmarks, rubrics, and evaluation (SPEC §9.5). Join key aligns with piece_docx_metadata_record.relative_to_repo.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["gold_set_version", "entries"],
+  "properties": {
+    "gold_set_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Monotonic label for this index document (date or semver)."
+    },
+    "taxonomy_version": {
+      "type": "string",
+      "description": "Editorial archetype taxonomy bundle expected when primary_archetype_id is set (default v1 in tooling)."
+    },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "entries": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["piece_relative_to_repo", "roles"],
+        "properties": {
+          "piece_relative_to_repo": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Stable path under the repo root, same field as metadata extraction."
+          },
+          "roles": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "canonical_voice_example",
+                "canonical_historical_analog_example",
+                "canonical_future_implications_example",
+                "canonical_data_dissection_example",
+                "contrast_weak_or_atypical"
+              ]
+            }
+          },
+          "notes": { "type": "string" },
+          "primary_archetype_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Optional id from bundled editorial_archetype_taxonomy; validated in library code."
+          }
+        }
+      }
+    }
+  }
+}
