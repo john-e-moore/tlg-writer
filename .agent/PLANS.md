@@ -239,7 +239,7 @@ Deliver SPEC §21 steps 3–4 as an operator-visible **stub** slice: read a vali
 
 ### Outcomes & retrospective
 
-Pending PR merge; will record PR URL and flip Status to `done`.
+Opened as PR #3 (`https://github.com/john-e-moore/tlg-writer/pull/3`); merge will flip Status to `done`.
 
 ### Context and orientation
 
