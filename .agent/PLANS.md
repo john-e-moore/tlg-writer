@@ -139,7 +139,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — done (PR #3 merged) — agent`
 - `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — done (PR #4 merged) — agent`
 - `2026-04-21 — ExecPlan: Gold set index (v1 contract) — done (PR #5 merged) — agent`
-- `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — in_progress — agent`
+- `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — in_progress (PR #6) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -508,7 +508,7 @@ Validator is read-only. Operators edit JSON and re-run the script.
 
 ## ExecPlan: piece_brief v1 + brief stage wiring — 2026-04-21
 
-Links: branch `feature/piece-brief-schema`; brief `.agent/features/2026-04-21-piece-brief-schema/SPEC.md`; PR `pending`.
+Links: branch `feature/piece-brief-schema`; brief `.agent/features/2026-04-21-piece-brief-schema/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/6`.
 
 Status: `in_progress`
 
@@ -520,12 +520,14 @@ Deliver SPEC §21 step 7 **first increment**: a versioned **`piece_brief`** JSON
 
 - [x] (2026-04-21) Planning
 - [x] (2026-04-21) Implementation
-- [ ] (2026-04-21) Validation + docs (PR evidence)
+- [x] (2026-04-21) Validation + docs (PR #6 evidence)
 
 ### Surprises & discoveries
 
 - Observation: Framing stub used a non-taxonomy archetype string (`data-dissection`); aligned stub payload to taxonomy id `data_dissection` so optional `primary_archetype_id` on `piece_brief` validates.  
   Evidence: `src/tlg_writer/skeleton_pipeline.py` framing `payload`.
+- Observation: `pytest -q` 33 passed; smoke skeleton run to `/tmp` then `validate(..., "piece_brief")` on `brief/output.json`.  
+  Evidence: PR #6 checks.
 
 ### Decision log
 
@@ -533,7 +535,7 @@ Deliver SPEC §21 step 7 **first increment**: a versioned **`piece_brief`** JSON
 
 ### Outcomes & retrospective
 
-Pending PR.
+Opened PR #6 (`https://github.com/john-e-moore/tlg-writer/pull/6`); merge will flip Status to `done`.
 
 ### Context and orientation
 
