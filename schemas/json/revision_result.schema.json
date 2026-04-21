@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/revision_result.schema.json",
+  "title": "revision_result",
+  "description": "Structured revision output after critique (SPEC §7.9, §13). v1: minimal contract; Phase 0 stubs may append cosmetic text only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "revised_markdown",
+    "change_summary",
+    "unresolved_concerns"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1",
+      "description": "Revision document revision."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
+    },
+    "revised_markdown": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Revised draft body (SPEC §7.9)."
+    },
+    "change_summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What changed between draft and revision (SPEC §7.9)."
+    },
+    "unresolved_concerns": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Material weaknesses not fully addressed (SPEC §7.9, §15.3); empty when none."
+    }
+  }
+}
