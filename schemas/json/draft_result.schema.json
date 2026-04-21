@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/draft_result.schema.json",
+  "title": "draft_result",
+  "description": "First draft output from the drafting stage (SPEC §7.7, §13). v1: minimal contract; Phase 0 uses deterministic stub prose.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "body_markdown",
+    "writer_notes",
+    "uncertainty_flags"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1",
+      "description": "Draft document revision."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
+    },
+    "body_markdown": {
+      "type": "string",
+      "minLength": 1,
+      "description": "First draft body (SPEC §7.7)."
+    },
+    "writer_notes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Writer-facing notes (SPEC §7.7)."
+    },
+    "uncertainty_flags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Optional uncertainty callouts (SPEC §7.7); empty when none."
+    }
+  }
+}
