@@ -47,3 +47,14 @@ python scripts/run_corpus_batch_stub.py \
 ```
 
 Use `--labels-dir` / `--features-dir` / `--artifacts-root` to redirect outputs (defaults write under `data/processed/pieces/…` and `artifacts/runs/`). Same `--run-id` twice errors if the run folder already exists.
+
+## Editorial archetype taxonomy (v1)
+
+SPEC §8 archetypes are bundled as validated JSON (`src/tlg_writer/editorial_archetype_taxonomy.v1.json`, schema `schemas/json/editorial_archetype_taxonomy.schema.json`). List them:
+
+```bash
+python scripts/list_editorial_archetypes.py
+python scripts/list_editorial_archetypes.py --json
+```
+
+Optional `piece_label` fields `labels.editorial.primary_archetype_id` and `alternate_archetype_ids` reference the same stable ids (`schemas/json/piece_label.schema.json`).
