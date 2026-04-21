@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from tlg_writer.critique_result import build_stub_critique_result_assigned
+from tlg_writer.revision_result import build_stub_revision_result_assigned
 from tlg_writer.framing_decision import build_stub_framing_decision_assigned
 from tlg_writer.json_schema import validate
 from tlg_writer.layout import STAGE_DIRS
@@ -284,14 +285,12 @@ def run_assigned_skeleton(
         output_schema="critique_result",
     )
 
-    # --- revision ---
-    rev_out: dict[str, Any] = {
-        "schema_version": "0.1",
-        "stage": "revision",
-        "status": "stub",
-        "message": "Passthrough with cosmetic tweak for observability.",
-        "payload": {"markdown": draft_body + "\n_Editorial revision pass: not performed (stub)._ \n"},
-    }
+    # --- revision (canonical revision_result on output.json) ---
+    revision_doc = build_stub_revision_result_assigned(
+        run_id=rid,
+        draft_markdown=draft_body,
+    )
+    validate(revision_doc, "revision_result")
     _write_stage(
         run_dir,
         "revision",
@@ -300,8 +299,10 @@ def run_assigned_skeleton(
             "critique_result": critique_doc,
             "draft": draft_out["payload"],
         },
-        rev_out,
-        "## revision\n\nStub revision; see `payload.markdown`.\n",
+        revision_doc,
+        "## revision\n\nStructured **revision_result** (`schemas/json/revision_result.schema.json`); "
+        "stub pass appends a single cosmetic line.\n",
+        output_schema="revision_result",
     )
 
     # --- evaluation ---
@@ -315,13 +316,13 @@ def run_assigned_skeleton(
     _write_stage(
         run_dir,
         "evaluation",
-        {"schema_version": "0.1", "revision": rev_out["payload"]},
+        {"schema_version": "0.1", "revision_result": revision_doc},
         eval_out,
         "## evaluation\n\nExplicit **human_review_required** (stub).\n",
     )
 
     # --- final (human-readable deliverable) ---
-    piece_md = rev_out["payload"]["markdown"]
+    piece_md = revision_doc["revised_markdown"]
     final_out: dict[str, Any] = {
         "schema_version": "0.1",
         "stage": "final",
@@ -371,8 +372,8 @@ def run_assigned_skeleton(
         },
         "limitations": [
             "No live LLM calls.",
-            "framing/, retrieval/, brief/, and critique/ use v1 domain schemas; "
-            "drafting/ and later stages remain generic stubs.",
+            "framing/, retrieval/, brief/, critique/, and revision/ use v1 domain schemas; "
+            "drafting/, evaluation/, and final/ remain generic stubs.",
         ],
     }
     gc = _git_commit()
