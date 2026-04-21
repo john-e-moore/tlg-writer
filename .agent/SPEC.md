@@ -661,8 +661,8 @@ Initial schema set (extend as needed):
 - `piece_features.schema.json`
 - `source_summary.schema.json`
 - `topic_candidate.schema.json`
-- `framing_decision.schema.json`
-- `retrieval_result.schema.json`
+- `framing_decision.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `framing/output.json`; see §21 step 7)
+- `retrieval_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `retrieval/output.json`; see §21 step 7)
 - `piece_brief.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `brief/output.json`; see §21 step 7)
 - `critique_result.schema.json`
 - `evaluation_result.schema.json`
@@ -945,7 +945,7 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 4. Add batch-run artifact output for those scripts under `artifacts/runs/<run_id>/` with manifests. **Shipped:** each stub batch run writes `manifest.json` validated as `corpus_batch_manifest`, plus `summary.md` and `logs/run.log` (distinct from editorial `run_manifest` until unified).
 5. Define the first version of the editorial archetype taxonomy. **Shipped (v1):** bundled JSON + schema + `piece_label` optional fields; see §8 repository note.
 6. Build the gold set. **Shipped (index contract):** `schemas/json/gold_set_index.schema.json` lists curated pieces by `piece_relative_to_repo`, §9.5 roles, optional `primary_archetype_id` checked against the bundled archetype taxonomy; `tlg_writer.gold_set` + `scripts/validate_gold_set_index.py` + fixture under `tests/fixtures/corpus/`. Full manual curation remains ongoing work.
-7. **Deepen** the assigned-topic pipeline (real stages, prompts, retrieval) with observability—each increment still leaving inspectable artifacts per §12. **Shipped (first increment):** `schemas/json/piece_brief.schema.json` (v1) and assigned skeleton `brief/output.json` validated as `piece_brief` (stub-filled fields; no live LLM).
+7. **Deepen** the assigned-topic pipeline (real stages, prompts, retrieval) with observability—each increment still leaving inspectable artifacts per §12. **Shipped:** `schemas/json/piece_brief.schema.json` (v1) with assigned skeleton `brief/output.json` validated as `piece_brief`; `schemas/json/framing_decision.schema.json` and `schemas/json/retrieval_result.schema.json` (v1) with `framing/output.json` and `retrieval/output.json` validated accordingly (stub-filled fields; empty `ranked_hits` in Phase 0; no live LLM or archive queries).
 8. Add and extend `pytest` coverage for each stage and artifact writer.
 
 ---

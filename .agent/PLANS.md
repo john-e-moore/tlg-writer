@@ -139,7 +139,8 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — done (PR #3 merged) — agent`
 - `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — done (PR #4 merged) — agent`
 - `2026-04-21 — ExecPlan: Gold set index (v1 contract) — done (PR #5 merged) — agent`
-- `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — in_progress (PR #6) — agent`
+- `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — done (PR #6 merged) — agent`
+- `2026-04-21 — ExecPlan: Framing + retrieval artifacts (v1 schemas) — in_progress — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -510,7 +511,7 @@ Validator is read-only. Operators edit JSON and re-run the script.
 
 Links: branch `feature/piece-brief-schema`; brief `.agent/features/2026-04-21-piece-brief-schema/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/6`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -535,7 +536,7 @@ Deliver SPEC §21 step 7 **first increment**: a versioned **`piece_brief`** JSON
 
 ### Outcomes & retrospective
 
-Opened PR #6 (`https://github.com/john-e-moore/tlg-writer/pull/6`); merge will flip Status to `done`.
+Merged via PR #6 (`https://github.com/john-e-moore/tlg-writer/pull/6`).
 
 ### Context and orientation
 
@@ -577,4 +578,76 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 
 - **Library:** `tlg_writer.piece_brief.build_stub_piece_brief_assigned`.
 - **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton` (`output_schema` parameter on internal stage writer).
+- **External:** none.
+
+---
+
+## ExecPlan: Framing + retrieval artifacts (v1 schemas) — 2026-04-21
+
+Links: branch `feature/framing-retrieval-schemas`; brief `.agent/features/2026-04-21-framing-retrieval-schemas/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Ship SPEC §13 `framing_decision` and `retrieval_result` contracts plus assigned skeleton stages that emit schema-valid `framing/output.json` and `retrieval/output.json`, keeping Phase 0 stub behavior (no archive, no LLM) while tightening observability ahead of real framing and retrieval work.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [ ] (2026-04-21) Validation + docs (PR evidence)
+
+### Surprises & discoveries
+
+- Observation: (none)
+
+### Decision log
+
+- Decision: `brief/input.json` references `framing_decision` and `retrieval_result` keys holding the full v1 documents (replacing inner `payload` blobs from the old skeleton envelope) — Rationale: downstream stages should consume canonical artifacts — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+Pending merge.
+
+### Context and orientation
+
+Touch points: `schemas/json/framing_decision.schema.json`, `schemas/json/retrieval_result.schema.json`, `src/tlg_writer/framing_decision.py`, `src/tlg_writer/retrieval_result.py`, `src/tlg_writer/skeleton_pipeline.py`, `tests/unit/test_framing_retrieval_schemas.py`, `tests/integration/test_skeleton_pipeline.py`, `tests/fixtures/pipeline/`, `.agent/SPEC.md` §13 / §21.
+
+### Plan of work
+
+1. Add v1 JSON Schemas mirroring SPEC §7.4 / §7.5 / §14.3.
+2. Deterministic stub builders + skeleton wiring + `ranked_piece_references` helper for the brief stage.
+3. Fixtures, pytest, README and SPEC pointers; feature brief; this ExecPlan.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_assigned_skeleton.py --help
+python scripts/extract_docx_metadata.py --help
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (schema unit tests, integration asserts `framing/output.json` and `retrieval/output.json` validate).
+- Smoke: CLI `--help` for skeleton and metadata scripts.
+- Spot-read: new run’s `framing/output.json` has `schema_version` `v1`, `run_id`, `primary_archetype_id`; `retrieval/output.json` has empty `ranked_hits` with honest `rationale`.
+
+### Idempotence and recovery
+
+Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `FileExistsError`.
+
+### Artifacts and notes
+
+- Editorial runs: `artifacts/runs/<run_id>/framing/output.json` is a `framing_decision` document; `retrieval/output.json` is a `retrieval_result` document (stub content).
+- Fixtures: `tests/fixtures/pipeline/framing_decision_minimal.json`, `tests/fixtures/pipeline/retrieval_result_minimal.json`.
+
+### Interfaces and dependencies
+
+- **Library:** `tlg_writer.framing_decision.build_stub_framing_decision_assigned`, `tlg_writer.retrieval_result.build_stub_retrieval_result_assigned`, `tlg_writer.retrieval_result.ranked_piece_references`.
+- **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
 - **External:** none.
