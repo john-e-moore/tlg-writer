@@ -20,6 +20,8 @@ python scripts/run_assigned_skeleton.py --topic "US payrolls and Fed cuts" --slu
 
 The command prints the absolute path to the new run folder. Re-running always uses a new `run_id` (UTC timestamp in the id); a second run never overwrites the first.
 
+The `brief/` stage writes canonical **`piece_brief`** JSON (`schemas/json/piece_brief.schema.json`, v1); other stages still use the generic skeleton envelope until their domain schemas land.
+
 ## Tests
 
 ```bash
