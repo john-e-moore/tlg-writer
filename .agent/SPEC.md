@@ -346,6 +346,8 @@ Initial candidate archetypes:
 
 This taxonomy should be represented explicitly in code and artifacts, and refined through labeling and evaluation.
 
+**Repository v1:** stable ids and copy live in `src/tlg_writer/editorial_archetype_taxonomy.v1.json`, validated by `schemas/json/editorial_archetype_taxonomy.schema.json`, and loaded via `tlg_writer.editorial_archetypes`. Optional `piece_label.labels.editorial.primary_archetype_id` (and `alternate_archetype_ids`) use the same id strings (`schemas/json/piece_label.schema.json`).
+
 ---
 
 ## 9. Historical piece labeling and feature extraction
@@ -941,7 +943,7 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 2. Formalize remaining `schemas/json/` for piece labels and extracted features as those scripts land.
 3. Implement feature extraction and labeling scripts under `scripts/` (read/write under `data/processed/pieces/`). **Shipped (stub):** `scripts/run_corpus_batch_stub.py` reads a `pieces_metadata_*.json` batch and writes schema-valid `piece_label` / `piece_features` JSON; swap in real models or human-in-the-loop labeling when ready.
 4. Add batch-run artifact output for those scripts under `artifacts/runs/<run_id>/` with manifests. **Shipped:** each stub batch run writes `manifest.json` validated as `corpus_batch_manifest`, plus `summary.md` and `logs/run.log` (distinct from editorial `run_manifest` until unified).
-5. Define the first version of the editorial archetype taxonomy.
+5. Define the first version of the editorial archetype taxonomy. **Shipped (v1):** bundled JSON + schema + `piece_label` optional fields; see §8 repository note.
 6. Build the gold set.
 7. **Deepen** the assigned-topic pipeline (real stages, prompts, retrieval) with observability—each increment still leaving inspectable artifacts per §12.
 8. Add and extend `pytest` coverage for each stage and artifact writer.

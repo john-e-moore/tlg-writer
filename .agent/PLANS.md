@@ -136,7 +136,8 @@ Public functions, CLIs, env vars, external APIs.
 Maintain a bullet list here for in-flight work:
 
 - `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — done (PR #2 merged) — agent`
-- `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — in_progress (PR #3) — agent`
+- `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — done (PR #3 merged) — agent`
+- `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — in_progress (PR #4) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -216,7 +217,7 @@ Metadata script still writes a new timestamped filename each run; validation fai
 
 Links: branch `feature/corpus-batch-stub`; brief `.agent/features/2026-04-21-corpus-batch-stub/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/3`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -239,7 +240,7 @@ Deliver SPEC §21 steps 3–4 as an operator-visible **stub** slice: read a vali
 
 ### Outcomes & retrospective
 
-Opened as PR #3 (`https://github.com/john-e-moore/tlg-writer/pull/3`); merge will flip Status to `done`.
+Merged via PR #3 (`https://github.com/john-e-moore/tlg-writer/pull/3`).
 
 ### Context and orientation
 
@@ -354,3 +355,75 @@ Expected under `artifacts/runs/<run_id>/`: `manifest.json`, `config.json`, `logs
 - **Library:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
 - **Env:** none required for Phase 0.
 - **External:** none (no HTTP).
+
+---
+
+## ExecPlan: Editorial archetype taxonomy v1 — 2026-04-21
+
+Links: branch `feature/editorial-archetype-taxonomy`; brief `.agent/features/2026-04-21-editorial-archetype-taxonomy/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/4`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Deliver SPEC §21 step 5 and §8 “represented explicitly in code”: a versioned, schema-validated taxonomy with stable ids, library access, optional hooks on `piece_label`, and a small CLI for operators—without blocking corpus stubs or Phase 0 runs.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [x] (2026-04-21) Validation + docs (PR evidence; link PR when opened)
+
+### Surprises & discoveries
+
+- Observation: `piece_label` uses an inline enum under `$defs` so tests can assert it stays aligned with bundled taxonomy JSON without fragile cross-file `$ref` resolution — Evidence: `tests/unit/test_editorial_archetype_taxonomy.py::test_taxonomy_ids_match_piece_label_enum`
+
+### Decision log
+
+- Decision: Keep `labels.editorial` permissive (`additionalProperties: true`) but declare optional `primary_archetype_id` / `alternate_archetype_ids` with an inline enum matching bundled v1 ids — Rationale: validates known keys when present without breaking empty stub labels — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+Opened as PR #4 (`https://github.com/john-e-moore/tlg-writer/pull/4`); merge will flip Status to `done`.
+
+### Context and orientation
+
+Touch points: `schemas/json/editorial_archetype_taxonomy.schema.json`, `src/tlg_writer/editorial_archetype_taxonomy.v1.json`, `src/tlg_writer/editorial_archetypes.py`, `schemas/json/piece_label.schema.json`, `scripts/list_editorial_archetypes.py`, `tests/unit/test_editorial_archetype_taxonomy.py`, `.agent/SPEC.md` §8 / §21.
+
+### Plan of work
+
+1. Add taxonomy schema + bundled v1 JSON + setuptools package data.
+2. Extend `piece_label` with optional archetype fields referencing stable ids.
+3. Tests: schema validation, enum alignment, bad-id rejection.
+4. CLI + README + SPEC pointer + feature brief + this ExecPlan.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/list_editorial_archetypes.py --help
+python scripts/list_editorial_archetypes.py
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (including taxonomy file validates against `editorial_archetype_taxonomy` and ids match `piece_label` enum).
+- Smoke: `list_editorial_archetypes.py` prints eight rows; `--json` round-trips valid document.
+
+### Idempotence and recovery
+
+Read-only taxonomy; no run directories. Re-install `pip install -e ".[dev]"` after changing packaged JSON.
+
+### Artifacts and notes
+
+- Bundled: `src/tlg_writer/editorial_archetype_taxonomy.v1.json` (canonical v1 list).
+- No new `artifacts/runs/` contract in this slice (N/A for PR template checklist).
+
+### Interfaces and dependencies
+
+- **Library:** `tlg_writer.editorial_archetypes.load_editorial_archetype_taxonomy`, `raw_taxonomy_document`.
+- **CLI:** `scripts/list_editorial_archetypes.py` (`--json`, `--version`).
+- **External:** none.

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "editorial_archetype_taxonomy",
+  "description": "Versioned catalog of editorial archetypes (SPEC §8, §21 step 5).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["taxonomy_version", "taxonomy_id", "archetypes"],
+  "properties": {
+    "taxonomy_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+$",
+      "description": "Revision of this file, e.g. v1."
+    },
+    "taxonomy_id": {
+      "type": "string",
+      "const": "editorial_archetypes",
+      "description": "Stable name for this taxonomy family."
+    },
+    "spec_reference": {
+      "type": "string",
+      "description": "Human-readable pointer to requirements baseline."
+    },
+    "archetypes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "display_name", "summary"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Stable snake_case identifier for artifacts and labels."
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Short title aligned with SPEC §8 wording."
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "description": "One-line editorial meaning for operators and models."
+          }
+        }
+      }
+    }
+  }
+}

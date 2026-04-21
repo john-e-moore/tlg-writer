@@ -1,0 +1,47 @@
+{
+  "taxonomy_version": "v1",
+  "taxonomy_id": "editorial_archetypes",
+  "spec_reference": ".agent/SPEC.md §8",
+  "archetypes": [
+    {
+      "id": "historical_analog",
+      "display_name": "Historical analog piece",
+      "summary": "The current setup resembles a prior period or episode, and the analogy is central."
+    },
+    {
+      "id": "future_implications",
+      "display_name": "Future-implications piece",
+      "summary": "Current developments imply important downstream effects or structural changes."
+    },
+    {
+      "id": "data_dissection",
+      "display_name": "Data-dissection piece",
+      "summary": "A report or dataset contains non-obvious trends, oddities, or internal tensions worth unpacking."
+    },
+    {
+      "id": "narrative_challenge",
+      "display_name": "Narrative-challenge piece",
+      "summary": "Consensus framing is wrong, shallow, or incomplete."
+    },
+    {
+      "id": "regime_shift",
+      "display_name": "Regime-shift piece",
+      "summary": "A structural change is underway and old assumptions may no longer hold."
+    },
+    {
+      "id": "second_order_effects",
+      "display_name": "Second-order-effects piece",
+      "summary": "The headline is not the real story; downstream consequences matter more."
+    },
+    {
+      "id": "scenario",
+      "display_name": "Scenario piece",
+      "summary": "Multiple plausible paths are outlined with implications and validation conditions."
+    },
+    {
+      "id": "misread_mispricing",
+      "display_name": "Misread / mispricing piece",
+      "summary": "Markets or commentators are interpreting a development incorrectly."
+    }
+  ]
+}
