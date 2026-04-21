@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/stage_metrics.schema.json",
+  "title": "stage_metrics",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["stage", "model_id"],
+  "properties": {
+    "stage": { "type": "string" },
+    "model_id": { "type": "string" },
+    "tokens_input": { "type": "integer", "minimum": 0 },
+    "tokens_output": { "type": "integer", "minimum": 0 },
+    "latency_ms": { "type": "number", "minimum": 0 },
+    "retries": { "type": "integer", "minimum": 0 },
+    "validation": { "type": "object" }
+  }
+}
