@@ -1,5 +1,8 @@
 .env
 .venv/
+__pycache__/
+*.py[cod]
+artifacts/runs/
 data/raw/pieces/dups/
 data/raw/pieces/unlabeled/
 data/processed/pieces/labeled/
