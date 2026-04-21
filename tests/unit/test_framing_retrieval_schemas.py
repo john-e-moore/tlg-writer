@@ -8,8 +8,10 @@ from pathlib import Path
 import pytest
 from jsonschema import ValidationError
 
+from tlg_writer.framing_decision import build_stub_framing_decision_assigned
 from tlg_writer.json_schema import validate, validate_file
 from tlg_writer.paths import repo_root, schemas_dir
+from tlg_writer.retrieval_result import build_stub_retrieval_result_assigned, ranked_piece_references
 
 
 def _fixture(name: str) -> Path:
@@ -54,3 +56,33 @@ def test_retrieval_empty_hits_validates() -> None:
         "ranked_hits": [],
     }
     validate(doc, "retrieval_result")
+
+
+def test_build_stub_framing_decision_validates() -> None:
+    doc = build_stub_framing_decision_assigned(
+        run_id="2026-01-02T03-04-05Z__assigned__my-topic",
+        topic="US payrolls",
+        primary_archetype_id="data_dissection",
+    )
+    validate(doc, "framing_decision")
+
+
+def test_build_stub_retrieval_result_validates() -> None:
+    doc = build_stub_retrieval_result_assigned(
+        run_id="2026-01-02T03-04-05Z__assigned__my-topic",
+        topic="US payrolls",
+    )
+    validate(doc, "retrieval_result")
+
+
+def test_ranked_piece_references_sorts_by_rank() -> None:
+    doc = {
+        "schema_version": "v1",
+        "run_id": "r",
+        "rationale": "x",
+        "ranked_hits": [
+            {"rank": 2, "piece_reference": "b", "why_selected": "second"},
+            {"rank": 1, "piece_reference": "a", "why_selected": "first"},
+        ],
+    }
+    assert ranked_piece_references(doc) == ["a", "b"]

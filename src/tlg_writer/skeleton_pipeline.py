@@ -9,10 +9,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from tlg_writer.framing_decision import build_stub_framing_decision_assigned
 from tlg_writer.json_schema import validate
 from tlg_writer.layout import STAGE_DIRS
 from tlg_writer.paths import repo_root
 from tlg_writer.piece_brief import build_stub_piece_brief_assigned
+from tlg_writer.retrieval_result import (
+    build_stub_retrieval_result_assigned,
+    ranked_piece_references,
+)
 from tlg_writer.run_id import build_run_id, normalize_slug
 
 
@@ -185,49 +190,43 @@ def run_assigned_skeleton(
         "## topic_selection\n\n**Skipped** for assigned mode (see `output.json`).\n",
     )
 
-    # --- framing ---
-    frame_out: dict[str, Any] = {
-        "schema_version": "0.1",
-        "stage": "framing",
-        "status": "stub",
-        "message": "Placeholder framing decision.",
-        "payload": {
-            "primary_archetype_id": "data_dissection",
-            "rationale": "Phase 0 placeholder only (taxonomy id, SPEC §8).",
-        },
-    }
+    # --- framing (canonical framing_decision on output.json) ---
+    framing_doc = build_stub_framing_decision_assigned(
+        run_id=rid,
+        topic=topic,
+        primary_archetype_id="data_dissection",
+    )
+    validate(framing_doc, "framing_decision")
     _write_stage(
         run_dir,
         "framing",
         {"schema_version": "0.1", "source_reading": src_out["payload"]},
-        frame_out,
-        "## framing\n\nStub archetype selection for wiring tests.\n",
+        framing_doc,
+        "## framing\n\nStructured **framing_decision** (`schemas/json/framing_decision.schema.json`); "
+        "stub content pending real framing stage.\n",
+        output_schema="framing_decision",
     )
 
-    # --- retrieval ---
-    retr_out: dict[str, Any] = {
-        "schema_version": "0.1",
-        "stage": "retrieval",
-        "status": "stub",
-        "message": "No archive query in Phase 0.",
-        "payload": {"ranked_ids": []},
-    }
+    # --- retrieval (canonical retrieval_result on output.json) ---
+    retr_doc = build_stub_retrieval_result_assigned(run_id=rid, topic=topic)
+    validate(retr_doc, "retrieval_result")
     _write_stage(
         run_dir,
         "retrieval",
-        {"schema_version": "0.1", "framing": frame_out["payload"]},
-        retr_out,
-        "## retrieval\n\nEmpty ranked set until archive hooks exist.\n",
+        {"schema_version": "0.1", "framing_decision": framing_doc},
+        retr_doc,
+        "## retrieval\n\nStructured **retrieval_result** (`schemas/json/retrieval_result.schema.json`); "
+        "empty ranked_hits until archive hooks exist.\n",
+        output_schema="retrieval_result",
     )
 
     # --- brief (canonical piece_brief on output.json) ---
-    arch = frame_out["payload"].get("primary_archetype_id")
-    arch_id = arch if isinstance(arch, str) else None
+    arch_id = str(framing_doc["primary_archetype_id"])
     brief_doc = build_stub_piece_brief_assigned(
         run_id=rid,
         topic=topic,
         primary_archetype_id=arch_id,
-        ranked_retrieved_piece_ids=list(retr_out["payload"].get("ranked_ids", [])),
+        ranked_retrieved_piece_ids=ranked_piece_references(retr_doc),
     )
     validate(brief_doc, "piece_brief")
     _write_stage(
@@ -236,8 +235,8 @@ def run_assigned_skeleton(
         {
             "schema_version": "0.1",
             "topic": topic,
-            "framing": frame_out["payload"],
-            "retrieval": retr_out["payload"],
+            "framing_decision": framing_doc,
+            "retrieval_result": retr_doc,
         },
         brief_doc,
         "## brief\n\nStructured **piece_brief** (`schemas/json/piece_brief.schema.json`); "
@@ -366,7 +365,7 @@ def run_assigned_skeleton(
         },
         "limitations": [
             "No live LLM calls.",
-            "brief/ uses piece_brief v1; critique and evaluation remain generic stubs.",
+            "framing/, retrieval/, and brief/ use v1 domain schemas; later stages remain generic stubs.",
         ],
     }
     gc = _git_commit()
