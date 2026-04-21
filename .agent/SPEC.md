@@ -665,6 +665,7 @@ Initial schema set (extend as needed):
 - `retrieval_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `retrieval/output.json`; see §21 step 7)
 - `piece_brief.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `brief/output.json`; see §21 step 7)
 - `critique_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `critique/output.json`; see §21 step 9)
+- `revision_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `revision/output.json`; see §21 step 10)
 - `evaluation_result.schema.json`
 - `run_manifest.schema.json`
 
@@ -948,6 +949,7 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 7. **Deepen** the assigned-topic pipeline (real stages, prompts, retrieval) with observability—each increment still leaving inspectable artifacts per §12. **Shipped:** `schemas/json/piece_brief.schema.json` (v1) with assigned skeleton `brief/output.json` validated as `piece_brief`; `schemas/json/framing_decision.schema.json` and `schemas/json/retrieval_result.schema.json` (v1) with `framing/output.json` and `retrieval/output.json` validated accordingly (stub-filled fields; empty `ranked_hits` in Phase 0; no live LLM or archive queries).
 8. Add and extend `pytest` coverage for each stage and artifact writer. **Shipped (first increment):** integration test validates every skeleton stage `output.json` / `metrics.json` against the correct schema; manifest `stages_executed` / `artifact_index` / `config.json` shape checks; corpus stub tests cover `piece_artifact_stem`, empty metadata batch, and `run.log` smoke (`tests/integration/test_skeleton_pipeline.py`, `tests/integration/test_corpus_batch_stub.py`, `tests/unit/test_corpus_batch_artifacts.py`).
 9. **Deepen** critique observability: **`critique_result` v1** JSON Schema (SPEC §7.8 / §15.1 rubric dimensions) with assigned skeleton `critique/output.json` validated accordingly (null scores = not evaluated in Phase 0; no live critics).
+10. **Deepen** revision observability: **`revision_result` v1** JSON Schema (SPEC §7.9: revised body, change summary, unresolved concerns) with assigned skeleton `revision/output.json` validated accordingly (Phase 0 cosmetic stub only; evaluation/final remain generic stubs).
 
 ---
 

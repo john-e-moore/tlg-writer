@@ -142,6 +142,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — done (PR #6 merged) — agent`
 - `2026-04-21 — ExecPlan: Framing + retrieval artifacts (v1 schemas) — done (PR #7 merged) — agent`
 - `2026-04-21 — ExecPlan: Stage + artifact writer pytest coverage — done (PR #8 merged) — agent`
+- `2026-04-21 — ExecPlan: revision_result v1 + revision stage wiring — in_progress (PR pending) — agent`
 - `2026-04-21 — ExecPlan: critique_result v1 + critique stage wiring — done (PR #9) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
@@ -796,5 +797,76 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 ### Interfaces and dependencies
 
 - **Library:** `tlg_writer.critique_result.build_stub_critique_result_assigned`.
+- **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
+- **External:** none.
+
+---
+
+## ExecPlan: revision_result v1 + revision stage wiring — 2026-04-21
+
+Links: branch `feature/revision-result-v1`; brief `.agent/features/2026-04-21-revision-result-v1/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Ship SPEC §21 step 10: a versioned **`revision_result`** JSON Schema (SPEC §7.9) and make the assigned-topic skeleton emit schema-valid `revision/output.json` while keeping drafting, evaluation, and final on the generic skeleton envelope. No live models.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [ ] (2026-04-21) Validation + docs (PR evidence)
+
+### Surprises & discoveries
+
+- (none yet)
+
+### Decision log
+
+- Decision: `evaluation/input.json` holds `revision_result` as the full v1 document (replacing the prior inner `revision` payload blob) — Rationale: aligns with downstream consuming canonical artifacts — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+(pending merge)
+
+### Context and orientation
+
+Touch points: `schemas/json/revision_result.schema.json`, `src/tlg_writer/revision_result.py`, `src/tlg_writer/skeleton_pipeline.py`, `tests/unit/test_revision_result_schema.py`, `tests/integration/test_skeleton_pipeline.py`, `tests/fixtures/pipeline/revision_result_minimal.json`, `prompts/revision/system.md`, `.agent/SPEC.md` §13 / §21.
+
+### Plan of work
+
+1. Add `revision_result` schema + deterministic stub builder + unit tests and fixture.
+2. Wire skeleton revision stage; thread `revised_markdown` into `final/piece.md`; point evaluation input at the canonical document.
+3. Update README, SPEC §21 step 10 + §13 list, feature brief, PLANS index, and this ExecPlan with validation evidence.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_assigned_skeleton.py --topic "smoke" --slug revision-smoke
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (schema unit tests; integration maps `revision` to `revision_result`).
+- Smoke: skeleton CLI run; `revision/output.json` validates as `revision_result`.
+- `--help` for `run_assigned_skeleton.py` and `extract_docx_metadata.py` unchanged.
+
+### Idempotence and recovery
+
+Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `FileExistsError`.
+
+### Artifacts and notes
+
+- Editorial runs: `artifacts/runs/<run_id>/revision/output.json` is a `revision_result` document (stub content).
+- Fixture: `tests/fixtures/pipeline/revision_result_minimal.json`.
+
+### Interfaces and dependencies
+
+- **Library:** `tlg_writer.revision_result.build_stub_revision_result_assigned`.
 - **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
 - **External:** none.
