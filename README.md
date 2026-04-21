@@ -58,3 +58,14 @@ python scripts/list_editorial_archetypes.py --json
 ```
 
 Optional `piece_label` fields `labels.editorial.primary_archetype_id` and `alternate_archetype_ids` reference the same stable ids (`schemas/json/piece_label.schema.json`).
+
+## Gold set index (SPEC §9.5 / §21)
+
+Curated “gold” pieces are listed in a single JSON document validated by `schemas/json/gold_set_index.schema.json`. Each entry uses `piece_relative_to_repo` (same join key as metadata batches) plus one or more roles (`canonical_voice_example`, historical/future/data archetype examples, or `contrast_weak_or_atypical`). Optional `primary_archetype_id` must match a bundled taxonomy id.
+
+```bash
+python scripts/validate_gold_set_index.py path/to/gold_set_index.json
+python scripts/validate_gold_set_index.py
+```
+
+The no-argument form validates `tests/fixtures/corpus/gold_set_index_minimal.json`. Use `--no-semantics` for JSON Schema only (skips duplicate-path and archetype checks).

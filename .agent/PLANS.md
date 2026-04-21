@@ -137,7 +137,8 @@ Maintain a bullet list here for in-flight work:
 
 - `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — done (PR #2 merged) — agent`
 - `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — done (PR #3 merged) — agent`
-- `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — in_progress (PR #4) — agent`
+- `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — done (PR #4 merged) — agent`
+- `2026-04-21 — ExecPlan: Gold set index (v1 contract) — in_progress — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -362,7 +363,7 @@ Expected under `artifacts/runs/<run_id>/`: `manifest.json`, `config.json`, `logs
 
 Links: branch `feature/editorial-archetype-taxonomy`; brief `.agent/features/2026-04-21-editorial-archetype-taxonomy/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/4`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -372,7 +373,7 @@ Deliver SPEC §21 step 5 and §8 “represented explicitly in code”: a version
 
 - [x] (2026-04-21) Planning
 - [x] (2026-04-21) Implementation
-- [x] (2026-04-21) Validation + docs (PR evidence; link PR when opened)
+- [x] (2026-04-21) Validation + docs (PR #4 merged)
 
 ### Surprises & discoveries
 
@@ -384,7 +385,7 @@ Deliver SPEC §21 step 5 and §8 “represented explicitly in code”: a version
 
 ### Outcomes & retrospective
 
-Opened as PR #4 (`https://github.com/john-e-moore/tlg-writer/pull/4`); merge will flip Status to `done`.
+Merged via PR #4 (`https://github.com/john-e-moore/tlg-writer/pull/4`).
 
 ### Context and orientation
 
@@ -426,4 +427,78 @@ Read-only taxonomy; no run directories. Re-install `pip install -e ".[dev]"` aft
 
 - **Library:** `tlg_writer.editorial_archetypes.load_editorial_archetype_taxonomy`, `raw_taxonomy_document`.
 - **CLI:** `scripts/list_editorial_archetypes.py` (`--json`, `--version`).
+- **External:** none.
+
+---
+
+## ExecPlan: Gold set index (v1 contract) — 2026-04-21
+
+Links: branch `feature/gold-set-index`; brief `.agent/features/2026-04-21-gold-set-index/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Deliver SPEC §21 step 6 as a **mergeable first slice**: a versioned JSON index contract for the manually curated gold set (§9.5), stable joins on `piece_relative_to_repo`, explicit roles, optional archetype ids checked against the bundled taxonomy, plus a validator CLI—without requiring full corpus curation in the same PR.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [ ] (2026-04-21) Validation + docs (PR evidence; link PR when opened)
+
+### Surprises & discoveries
+
+- Observation: (none yet)
+
+### Decision log
+
+- Decision: Keep gold set as a **document** under operator control (path passed to CLI) rather than a fixed repo path under `data/` — Rationale: `data/processed/` trees are partly gitignored for generated outputs; an index file may live beside tooling or in a future committed subset — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+Pending merge.
+
+### Context and orientation
+
+Touch points: `schemas/json/gold_set_index.schema.json`, `src/tlg_writer/gold_set.py`, `scripts/validate_gold_set_index.py`, `tests/fixtures/corpus/gold_set_index_minimal.json`, `tests/unit/test_gold_set_index.py`, `.agent/SPEC.md` §9.5 / §21, bundled taxonomy in `src/tlg_writer/editorial_archetype_taxonomy.v1.json`.
+
+### Plan of work
+
+1. Add `gold_set_index` JSON Schema (roles enum, entries array).
+2. Implement semantic validation (duplicate paths, archetype membership).
+3. CLI + fixture + unit tests.
+4. README / SPEC / PLANS / feature brief updates.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/validate_gold_set_index.py --help
+python scripts/validate_gold_set_index.py
+python scripts/extract_docx_metadata.py --help
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (fixture load, duplicate path error, unknown archetype, bad role).
+- Smoke: `validate_gold_set_index.py` with no args validates `tests/fixtures/corpus/gold_set_index_minimal.json`.
+- `extract_docx_metadata.py --help` unchanged (repo health check from PR template).
+
+### Idempotence and recovery
+
+Validator is read-only. Operators edit JSON and re-run the script.
+
+### Artifacts and notes
+
+- No new `artifacts/runs/` paths in this slice (N/A).
+- Canonical schema: `schemas/json/gold_set_index.schema.json`.
+
+### Interfaces and dependencies
+
+- **Library:** `tlg_writer.gold_set.load_gold_set_index`, `validate_gold_set_index_document`, `validate_gold_set_index_semantics`.
+- **CLI:** `scripts/validate_gold_set_index.py` (`path`, `--no-semantics`).
 - **External:** none.
