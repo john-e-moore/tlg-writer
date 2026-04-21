@@ -135,7 +135,8 @@ Public functions, CLIs, env vars, external APIs.
 
 Maintain a bullet list here for in-flight work:
 
-- `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — in_progress (PR #2) — agent`
+- `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — done (PR #2 merged) — agent`
+- `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — in_progress (PR pending) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -144,7 +145,7 @@ Maintain a bullet list here for in-flight work:
 
 Links: branch `feature/corpus-json-schemas`; brief `.agent/features/2026-04-21-corpus-json-schemas/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/2`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -167,7 +168,7 @@ Ship SPEC §21 step 2: explicit `schemas/json/` contracts for `pieces_metadata_*
 
 ### Outcomes & retrospective
 
-Opened as PR #2; merge will mark Status `done` and fold validation evidence into this section.
+Merged via PR #2 (`https://github.com/john-e-moore/tlg-writer/pull/2`). Validation: `pytest -q` on branch before merge.
 
 ### Context and orientation
 
@@ -208,6 +209,77 @@ Metadata script still writes a new timestamped filename each run; validation fai
 
 - **CLI:** `extract_docx_metadata.py` unchanged flags; behavior adds validation pre-write.
 - **Library:** `tlg_writer.json_schema.validate`.
+
+---
+
+## ExecPlan: Corpus batch stub (labels + features + manifest) — 2026-04-21
+
+Links: branch `feature/corpus-batch-stub`; brief `.agent/features/2026-04-21-corpus-batch-stub/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Deliver SPEC §21 steps 3–4 as an operator-visible **stub** slice: read a validated metadata batch, write schema-valid `piece_label` / `piece_features` JSON under `data/processed/pieces/{labeled,extracted_features}/`, and emit `artifacts/runs/<run_id>/` with `corpus_batch_manifest`, `summary.md`, and `logs/run.log`. No LLM calls.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [ ] (2026-04-21) Validation + docs (PR evidence)
+
+### Surprises & discoveries
+
+- Observation: Editorial `run_manifest` enums (`assigned`/`auto`) do not fit corpus tooling; introduced `corpus_batch_manifest` instead of overloading `run_manifest`.  
+  Evidence: `schemas/json/corpus_batch_manifest.schema.json`.
+
+### Decision log
+
+- Decision: `run_id` pattern `…__corpus__<slug>` via `build_corpus_batch_run_id` — Rationale: keeps editorial id rules intact while matching timestamped run folders in `.agent/AGENTS.md` spirit — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+Pending PR merge; will record PR URL and flip Status to `done`.
+
+### Context and orientation
+
+Touch points: `scripts/run_corpus_batch_stub.py`, `src/tlg_writer/corpus_batch_stub.py`, `src/tlg_writer/run_id.py`, `schemas/json/corpus_batch_manifest.schema.json`, `tests/integration/test_corpus_batch_stub.py`, `.agent/SPEC.md` §21.
+
+### Plan of work
+
+1. Add `corpus_batch_manifest` schema + `build_corpus_batch_run_id`.
+2. Implement batch reader + stub writers + run tree.
+3. CLI + integration tests + README/SPEC/PLANS updates.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_corpus_batch_stub.py --help
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (manifest schema, skip-on-error row, `FileExistsError` on duplicate run dir).
+- Smoke: CLI with absolute `--labels-dir` / `--features-dir` / `--artifacts-root` under `/tmp` writes `manifest.json` that validates.
+
+### Idempotence and recovery
+
+Re-run allocates a new `run_id` unless `--run-id` is passed; duplicate existing run directory raises `FileExistsError`. Per-piece JSON filenames are deterministic from `piece_id` hash; re-running the stub overwrites same stems (documented limitation until real pipelines version outputs).
+
+### Artifacts and notes
+
+- Under `artifacts/runs/<run_id>/`: `manifest.json`, `summary.md`, `logs/run.log`.
+- Data outputs: `data/processed/pieces/labeled/piece_<hash16>.json` and `…/extracted_features/…` (gitignored by default).
+
+### Interfaces and dependencies
+
+- **CLI:** `scripts/run_corpus_batch_stub.py` (`--metadata-batch`, `--slug`, optional dirs, `--run-id`, `--utc`).
+- **Library:** `tlg_writer.corpus_batch_stub.run_corpus_batch_stub`.
+- **External:** none.
 
 ---
 

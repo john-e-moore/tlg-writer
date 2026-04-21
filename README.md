@@ -35,3 +35,15 @@ python scripts/extract_docx_metadata.py --help
 ```
 
 Label and extracted-feature envelopes for future pipelines: `piece_label.schema.json`, `piece_features.schema.json` (see `tests/fixtures/corpus/` for minimal examples).
+
+## Corpus batch (stub)
+
+From a validated `pieces_metadata_*.json` batch, emit schema-valid stub labels and features plus a timestamped run under `artifacts/runs/` (see `schemas/json/corpus_batch_manifest.schema.json`):
+
+```bash
+python scripts/run_corpus_batch_stub.py \
+  --metadata-batch data/raw/pieces/metadata/pieces_metadata_<stamp>.json \
+  --slug my-batch
+```
+
+Use `--labels-dir` / `--features-dir` / `--artifacts-root` to redirect outputs (defaults write under `data/processed/pieces/…` and `artifacts/runs/`). Same `--run-id` twice errors if the run folder already exists.

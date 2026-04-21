@@ -939,8 +939,8 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 
 1. **Phase 0 — vertical slice:** minimal `schemas/json/` for `run_manifest` and any stub stage outputs the skeleton needs; runnable **assigned-topic** path that writes a complete `artifacts/runs/<run_id>/` tree through `final/` using mocks/fixtures; `pytest` for layout, manifest, and schema contracts without live models by default.
 2. Formalize remaining `schemas/json/` for piece labels and extracted features as those scripts land.
-3. Implement feature extraction and labeling scripts under `scripts/` (read/write under `data/processed/pieces/`).
-4. Add batch-run artifact output for those scripts under `artifacts/runs/<run_id>/` with manifests.
+3. Implement feature extraction and labeling scripts under `scripts/` (read/write under `data/processed/pieces/`). **Shipped (stub):** `scripts/run_corpus_batch_stub.py` reads a `pieces_metadata_*.json` batch and writes schema-valid `piece_label` / `piece_features` JSON; swap in real models or human-in-the-loop labeling when ready.
+4. Add batch-run artifact output for those scripts under `artifacts/runs/<run_id>/` with manifests. **Shipped:** each stub batch run writes `manifest.json` validated as `corpus_batch_manifest`, plus `summary.md` and `logs/run.log` (distinct from editorial `run_manifest` until unified).
 5. Define the first version of the editorial archetype taxonomy.
 6. Build the gold set.
 7. **Deepen** the assigned-topic pipeline (real stages, prompts, retrieval) with observability—each increment still leaving inspectable artifacts per §12.
