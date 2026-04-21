@@ -145,7 +145,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: critique_result v1 + critique stage wiring — done (PR #9) — agent`
 - `2026-04-21 — ExecPlan: revision_result v1 + revision stage wiring — done (PR #11 merged) — agent`
 - `2026-04-21 — ExecPlan: evaluation_result v1 + evaluation stage wiring — done (PR #12 merged) — agent`
-- `2026-04-21 — ExecPlan: draft_result v1 + drafting stage wiring — in_progress (PR pending) — agent`
+- `2026-04-21 — ExecPlan: draft_result v1 + drafting stage wiring — done (PR #13 merged) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -954,9 +954,9 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 
 ## ExecPlan: draft_result v1 + drafting stage wiring — 2026-04-21
 
-Links: branch `feature/draft-result-v1`; brief `.agent/features/2026-04-21-draft-result-v1/SPEC.md`; PR `pending`.
+Links: branch `feature/draft-result-v1`; brief `.agent/features/2026-04-21-draft-result-v1/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/13`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -966,11 +966,14 @@ Ship SPEC §21 step 12: a versioned **`draft_result`** JSON Schema (SPEC §7.7) 
 
 - [x] (2026-04-21) Planning
 - [x] (2026-04-21) Implementation
-- [ ] (2026-04-21) Validation + docs (PR evidence)
+- [x] (2026-04-21) Validation + docs (PR #13 evidence)
 
 ### Surprises & discoveries
 
-- (none yet)
+- Observation: Full `pytest -q` is **62** tests after this slice (was 58 on prior `main`).  
+  Evidence: `pytest -q` on `feature/draft-result-v1`.
+- Observation: Smoke `validate_file` on `/tmp/…/drafting/output.json` after skeleton run.  
+  Evidence: local one-liner post-`run_assigned_skeleton`.
 
 ### Decision log
 
@@ -978,7 +981,7 @@ Ship SPEC §21 step 12: a versioned **`draft_result`** JSON Schema (SPEC §7.7) 
 
 ### Outcomes & retrospective
 
-(pending merge)
+Merged via PR #13 (`https://github.com/john-e-moore/tlg-writer/pull/13`). Validation: `pytest -q` (62 passed) on branch before merge; smoke `draft_result` validation on temp run dir.
 
 ### Context and orientation
 
