@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "piece_features",
+  "description": "Programmatic or model-derived measurements for a piece (SPEC §9.4). Distinct from editorial labels.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["piece_id", "schema_version", "features"],
+  "properties": {
+    "piece_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable key; prefer relative_to_repo from metadata extraction."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+$",
+      "description": "Features schema revision, e.g. v1."
+    },
+    "extracted_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "features": {
+      "type": "object",
+      "description": "Measurements and summaries (e.g. avg sentence length).",
+      "additionalProperties": true
+    },
+    "sources": {
+      "type": "array",
+      "description": "Optional provenance (script ids, model ids, chunk ids).",
+      "items": { "type": "string" }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "piece_label",
+  "description": "Editorial labels for a historical piece (SPEC §9.3). v1: versioned envelope; category objects are intentionally open.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["piece_id", "schema_version", "labels"],
+  "properties": {
+    "piece_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable key; prefer relative_to_repo from metadata extraction (SPEC §20)."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+$",
+      "description": "Label schema revision, e.g. v1."
+    },
+    "labeled_at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this label record was produced."
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basic_metadata",
+        "editorial",
+        "voice",
+        "structural",
+        "quality"
+      ],
+      "properties": {
+        "basic_metadata": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "editorial": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "voice": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "structural": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "quality": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "reviewer_notes": { "type": "string" }
+  }
+}
