@@ -1,0 +1,14 @@
+[
+  {
+    "source_path": "/tmp/example.docx",
+    "relative_to_repo": "data/raw/pieces/unlabeled/example.docx",
+    "filesystem": { "size_bytes": 1200, "mtime_utc": "2026-04-21T00:00:00+00:00" },
+    "core": { "title": "Fixture title" },
+    "app": {},
+    "body": {
+      "words_approx": 42,
+      "characters_with_spaces": 200,
+      "characters_no_spaces": 180
+    }
+  }
+]

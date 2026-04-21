@@ -1,0 +1,19 @@
+[
+  {
+    "source_path": "/tmp/good.docx",
+    "relative_to_repo": "data/raw/pieces/unlabeled/good.docx",
+    "filesystem": { "size_bytes": 100, "mtime_utc": "2026-04-21T00:00:00+00:00" },
+    "core": {},
+    "app": {},
+    "body": { "words_approx": 10, "characters_with_spaces": 50, "characters_no_spaces": 45 }
+  },
+  {
+    "source_path": "/tmp/bad.docx",
+    "relative_to_repo": "data/raw/pieces/unlabeled/bad.docx",
+    "filesystem": { "size_bytes": 0, "mtime_utc": "2026-04-21T00:00:00+00:00" },
+    "core": {},
+    "app": {},
+    "body": {},
+    "error": "ZipFile: not a zip"
+  }
+]
