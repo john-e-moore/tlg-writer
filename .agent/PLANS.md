@@ -135,14 +135,14 @@ Public functions, CLIs, env vars, external APIs.
 
 Maintain a bullet list here for in-flight work:
 
-- `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — in_progress — agent`
+- `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — in_progress (PR #2) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
 
 ## ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — 2026-04-21
 
-Links: branch `feature/corpus-json-schemas`; brief `.agent/features/2026-04-21-corpus-json-schemas/SPEC.md`; PR `pending`.
+Links: branch `feature/corpus-json-schemas`; brief `.agent/features/2026-04-21-corpus-json-schemas/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/2`.
 
 Status: `in_progress`
 
@@ -167,7 +167,7 @@ Ship SPEC §21 step 2: explicit `schemas/json/` contracts for `pieces_metadata_*
 
 ### Outcomes & retrospective
 
-Pending.
+Opened as PR #2; merge will mark Status `done` and fold validation evidence into this section.
 
 ### Context and orientation
 
