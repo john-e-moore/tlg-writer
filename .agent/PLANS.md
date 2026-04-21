@@ -141,7 +141,8 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Gold set index (v1 contract) — done (PR #5 merged) — agent`
 - `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — done (PR #6 merged) — agent`
 - `2026-04-21 — ExecPlan: Framing + retrieval artifacts (v1 schemas) — done (PR #7 merged) — agent`
-- `2026-04-21 — ExecPlan: Stage + artifact writer pytest coverage — in_progress (PR #8) — agent`
+- `2026-04-21 — ExecPlan: Stage + artifact writer pytest coverage — done (PR #8 merged) — agent`
+- `2026-04-21 — ExecPlan: critique_result v1 + critique stage wiring — in_progress — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -660,7 +661,7 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 
 Links: branch `feature/stage-pytest-coverage`; brief `.agent/features/2026-04-21-stage-pytest-coverage/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/8`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -683,7 +684,7 @@ Deliver `.agent/SPEC.md` §21 step 8 as an operator-safe **test-only** slice: ev
 
 ### Outcomes & retrospective
 
-Shipped test-only coverage for SPEC §21 step 8: per-stage schema validation on assigned skeleton runs; corpus `piece_artifact_stem` unit tests; empty-batch manifest path; `run.log` smoke. Opened PR #8 (`https://github.com/john-e-moore/tlg-writer/pull/8`); merge flips Status to `done`.
+Shipped test-only coverage for SPEC §21 step 8: per-stage schema validation on assigned skeleton runs; corpus `piece_artifact_stem` unit tests; empty-batch manifest path; `run.log` smoke. Merged via PR #8 (`https://github.com/john-e-moore/tlg-writer/pull/8`).
 
 ### Context and orientation
 
@@ -722,4 +723,78 @@ Tests only; no artifact contract changes.
 
 ### Interfaces and dependencies
 
+- **External:** none.
+
+---
+
+## ExecPlan: critique_result v1 + critique stage wiring — 2026-04-21
+
+Links: branch `feature/critique-result-v1`; brief `.agent/features/2026-04-21-critique-result-v1/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Ship SPEC §21 step 9: a versioned **`critique_result`** JSON Schema (SPEC §7.8 / §15.1) and make the assigned-topic skeleton emit schema-valid `critique/output.json` while keeping drafting on the generic skeleton envelope. Operators and tests gain a real critique contract without live models.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [x] (2026-04-21) Validation + docs (pre-PR evidence)
+
+### Surprises & discoveries
+
+- Observation: Full `pytest -q` is **50** tests on this branch (was 46 on `main`).  
+  Evidence: `pytest -q` on `feature/critique-result-v1`.
+- Observation: Smoke run under `/tmp/tlg-critique-smoke/…/critique/output.json` validates as `critique_result`.  
+  Evidence: `validate_file` one-liner after `run_assigned_skeleton.py`.
+
+### Decision log
+
+- Decision: Encode §15.1 rubric as a fixed-key object with `null` or `0..1` scores — Rationale: explicit dimensions without optional-key drift; `null` marks Phase 0 “not evaluated” — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+Pending merge; will note PR URL and flip Status to `done`.
+
+### Context and orientation
+
+Touch points: `schemas/json/critique_result.schema.json`, `src/tlg_writer/critique_result.py`, `src/tlg_writer/skeleton_pipeline.py`, `tests/unit/test_critique_result_schema.py`, `tests/integration/test_skeleton_pipeline.py`, `tests/fixtures/pipeline/critique_result_minimal.json`, `prompts/critique/system.md`, `.agent/SPEC.md` §13 / §21.
+
+### Plan of work
+
+1. Add `critique_result` schema + deterministic stub builder + unit tests and fixture.
+2. Wire skeleton critique stage + `revision/input.json` to reference the canonical document.
+3. Update README, SPEC §21 step 9, feature brief, PLANS index, and this ExecPlan with validation evidence.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_assigned_skeleton.py --topic "smoke" --slug critique-smoke
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (schema unit tests; integration maps `critique` to `critique_result`).
+- Smoke: skeleton CLI creates a run whose `critique/output.json` validates as `critique_result` (spot-check under `artifacts/runs/` or `/tmp` redirect if used).
+- `--help` for `run_assigned_skeleton.py` and `extract_docx_metadata.py` unchanged.
+
+### Idempotence and recovery
+
+Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `FileExistsError`.
+
+### Artifacts and notes
+
+- Editorial runs: `artifacts/runs/<run_id>/critique/output.json` is a `critique_result` document (stub content).
+- Fixture: `tests/fixtures/pipeline/critique_result_minimal.json`.
+
+### Interfaces and dependencies
+
+- **Library:** `tlg_writer.critique_result.build_stub_critique_result_assigned`.
+- **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
 - **External:** none.
