@@ -1,0 +1,10 @@
+{
+  "piece_id": "data/raw/pieces/unlabeled/example.docx",
+  "schema_version": "v1",
+  "extracted_at_utc": "2026-04-21T12:00:00+00:00",
+  "features": {
+    "words_approx": 120,
+    "avg_sentence_length": 18.5
+  },
+  "sources": ["fixtures:v1"]
+}
