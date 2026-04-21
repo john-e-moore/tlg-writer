@@ -157,8 +157,8 @@ Deliver Phase 0 from `.agent/SPEC.md` §18: operators can run one command and op
 
 ### Surprises & discoveries
 
-- Observation: (none yet)  
-  Evidence: —
+- Observation: `pytest` initially created `__pycache__` under `tests/` that were almost committed; added standard Python bytecode ignores.  
+  Evidence: `.gitignore` (`__pycache__/`, `*.py[cod]`).
 
 ### Decision log
 
