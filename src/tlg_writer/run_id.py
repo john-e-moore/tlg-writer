@@ -35,3 +35,10 @@ def build_run_id(when: datetime, mode: str, slug: str) -> str:
     ts = format_run_timestamp(when)
     safe_slug = normalize_slug(slug)
     return f"{ts}__{mode}__{safe_slug}"
+
+
+def build_corpus_batch_run_id(when: datetime, slug: str) -> str:
+    """Timestamped id for corpus batch tooling runs (SPEC §21 step 4)."""
+    ts = format_run_timestamp(when)
+    safe_slug = normalize_slug(slug)
+    return f"{ts}__corpus__{safe_slug}"

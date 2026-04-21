@@ -7,7 +7,6 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-import jsonschema
 from jsonschema import Draft202012Validator
 
 from tlg_writer.paths import schemas_dir
