@@ -135,13 +135,13 @@ Public functions, CLIs, env vars, external APIs.
 
 Maintain a bullet list here for in-flight work:
 
-- `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — in_progress — agent`
+- `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — in_progress (PR #1) — agent`
 
 ---
 
 ## ExecPlan: Assigned-topic skeleton run (mocked LLM) — 2026-04-21
 
-Links: branch `feature/assigned-skeleton-run`; brief `.agent/features/2026-04-21-assigned-skeleton-run/SPEC.md`; PR `pending`.
+Links: branch `feature/assigned-skeleton-run`; brief `.agent/features/2026-04-21-assigned-skeleton-run/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/1`.
 
 Status: `in_progress`
 
@@ -153,7 +153,7 @@ Deliver Phase 0 from `.agent/SPEC.md` §18: operators can run one command and op
 
 - [x] (2026-04-21) Planning
 - [x] (2026-04-21) Implementation
-- [ ] (2026-04-21) Validation + docs (PR evidence, status → done)
+- [x] (2026-04-21) Validation + docs (PR evidence; merge will flip status to done)
 
 ### Surprises & discoveries
 
