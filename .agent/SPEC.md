@@ -946,7 +946,7 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 5. Define the first version of the editorial archetype taxonomy. **Shipped (v1):** bundled JSON + schema + `piece_label` optional fields; see §8 repository note.
 6. Build the gold set. **Shipped (index contract):** `schemas/json/gold_set_index.schema.json` lists curated pieces by `piece_relative_to_repo`, §9.5 roles, optional `primary_archetype_id` checked against the bundled archetype taxonomy; `tlg_writer.gold_set` + `scripts/validate_gold_set_index.py` + fixture under `tests/fixtures/corpus/`. Full manual curation remains ongoing work.
 7. **Deepen** the assigned-topic pipeline (real stages, prompts, retrieval) with observability—each increment still leaving inspectable artifacts per §12. **Shipped:** `schemas/json/piece_brief.schema.json` (v1) with assigned skeleton `brief/output.json` validated as `piece_brief`; `schemas/json/framing_decision.schema.json` and `schemas/json/retrieval_result.schema.json` (v1) with `framing/output.json` and `retrieval/output.json` validated accordingly (stub-filled fields; empty `ranked_hits` in Phase 0; no live LLM or archive queries).
-8. Add and extend `pytest` coverage for each stage and artifact writer.
+8. Add and extend `pytest` coverage for each stage and artifact writer. **Shipped (first increment):** integration test validates every skeleton stage `output.json` / `metrics.json` against the correct schema; manifest `stages_executed` / `artifact_index` / `config.json` shape checks; corpus stub tests cover `piece_artifact_stem`, empty metadata batch, and `run.log` smoke (`tests/integration/test_skeleton_pipeline.py`, `tests/integration/test_corpus_batch_stub.py`, `tests/unit/test_corpus_batch_artifacts.py`).
 
 ---
 

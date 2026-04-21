@@ -141,7 +141,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Gold set index (v1 contract) — done (PR #5 merged) — agent`
 - `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — done (PR #6 merged) — agent`
 - `2026-04-21 — ExecPlan: Framing + retrieval artifacts (v1 schemas) — done (PR #7 merged) — agent`
-- `2026-04-21 — ExecPlan: Stage + artifact writer pytest coverage — in_progress — agent`
+- `2026-04-21 — ExecPlan: Stage + artifact writer pytest coverage — in_progress (PR pending) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -669,12 +669,13 @@ Deliver `.agent/SPEC.md` §21 step 8 as an operator-safe **test-only** slice: ev
 ### Progress
 
 - [x] (2026-04-21) Planning
-- [ ] (2026-04-21) Implementation
-- [ ] (2026-04-21) Validation + docs
+- [x] (2026-04-21) Implementation
+- [x] (2026-04-21) Validation + docs
 
 ### Surprises & discoveries
 
-- (none yet)
+- Observation: Full `pytest -q` is **46** tests after this slice (was 42 after framing/retrieval).  
+  Evidence: `pytest -q` on branch `feature/stage-pytest-coverage`.
 
 ### Decision log
 
@@ -682,7 +683,7 @@ Deliver `.agent/SPEC.md` §21 step 8 as an operator-safe **test-only** slice: ev
 
 ### Outcomes & retrospective
 
-(pending PR)
+Shipped test-only coverage for SPEC §21 step 8: per-stage schema validation on assigned skeleton runs; corpus `piece_artifact_stem` unit tests; empty-batch manifest path; `run.log` smoke. Open PR replaces `pending` in Links header; merge flips Status to `done`.
 
 ### Context and orientation
 
