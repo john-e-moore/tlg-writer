@@ -238,7 +238,7 @@ Deliver Phase 0 from `.agent/SPEC.md` §18: operators can run one command and op
 
 ### Outcomes & retrospective
 
-Pending PR merge; deferred: auto-topic runner, real LLM wrappers, archive retrieval.
+Merged via PR #1; deferred: auto-topic runner, real LLM wrappers, archive retrieval.
 
 ### Context and orientation
 
