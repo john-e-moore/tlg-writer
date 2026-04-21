@@ -28,6 +28,8 @@ The `framing/`, `retrieval/`, `brief/`, and `critique/` stages write canonical *
 pytest -q
 ```
 
+Pull requests (and pushes to `main`) run the same suite in GitHub Actions; see `.github/workflows/ci.yml`.
+
 ## Corpus metadata (existing)
 
 Writes `data/raw/pieces/metadata/pieces_metadata_<YYYYMMDDHHMM>.json` (UTC). Output is validated against `schemas/json/pieces_metadata_batch.schema.json` before the file is written.

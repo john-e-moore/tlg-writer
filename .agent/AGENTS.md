@@ -128,6 +128,26 @@ Target flow: **new branch → implement in logical commits → test → open PR 
 
 **Merge bar:** merge to `main` only when CI (if present) is green and the checks in **Before “done”** and the ExecPlan’s validation section have been run (or skips documented). Record concise evidence in the PR and ExecPlan.
 
+**GitHub CI:** pull requests and pushes to `main` run `pytest` via `.github/workflows/ci.yml` (job **Tests**). Enable **Require status checks to pass before merging** on `main` and select that job if you want the merge gate enforced in GitHub.
+
+### Infra and contracts phase: auto-merge and when to stop
+
+Until **infra and contracts** work is done (schemas, layout, stubs/mocks, tests, docs—without expecting a human to judge prose quality or batch labeling output), it is reasonable to **minimize manual merge toil**:
+
+1. Open the PR as usual; confirm **Tests** is green on GitHub (same suite as local `pytest -q`).
+2. Either enable **Auto-merge** (squash or merge) on the PR in the GitHub UI, or from a trusted machine with `gh` and permissions: `gh pr merge <n> --auto --squash` (merges when required checks pass).
+3. After merge: `git checkout main && git pull`, then start the next `feature/<short-slug>` from updated `main`.
+
+**Default for agents in this phase:** after opening a PR, you may merge it once **Tests** is green (via `gh pr merge … --auto` or explicit merge if auto-merge is unavailable), then continue the next scoped slice on a fresh branch—**unless** a pause trigger applies.
+
+**Pause (do not auto-merge chain; stop and wait for the human):**
+
+- The slice or ExecPlan is the first where **the human is expected to read or judge output** from a real or representative run (for example under `artifacts/runs/<run_id>/`, or generated labels/features under `data/processed/pieces/`), not only fixtures in `tests/`.
+- The work turns on **live model calls**, **paid API usage**, or **bulk writes** to corpus paths where spot-checking matters.
+- The user or brief explicitly asks for **review before merge** or marks the plan **blocked** pending a decision.
+
+When in doubt, treat “operator reads new writing or labeling results” as a **hard pause**: open the PR, summarize what to open on disk, and stop until the user confirms.
+
 **Phased / roadmap work:** align branches with **vertical slices** you would merge independently (see **Early feedback loops**), not necessarily one git branch per numbered subsection of `.agent/SPEC.md`. Split a large spec phase across **multiple PRs** when review or rollback boundaries warrant it; prefer **frequent small merges** to `main` over one long-lived mega-branch or bulk unreviewed work on `main`.
 
 **Communicating to the agent:** defaults live in this file (**Instruction priority**). Each session should still name the **branch**, **PR link** (if updating an existing PR), and **scope** (what is in/out) so the active request can override safely—no need to repeat full branching policy every prompt if this section stays current.
