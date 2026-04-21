@@ -1,0 +1,17 @@
+{
+  "piece_id": "data/raw/pieces/unlabeled/example.docx",
+  "schema_version": "v1",
+  "labeled_at_utc": "2026-04-21T12:00:00+00:00",
+  "labels": {
+    "basic_metadata": {
+      "title": "Example"
+    },
+    "editorial": {
+      "primary_archetype_id": "scenario",
+      "alternate_archetype_ids": ["future_implications"]
+    },
+    "voice": {},
+    "structural": {},
+    "quality": {}
+  }
+}

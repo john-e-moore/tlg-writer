@@ -3,6 +3,22 @@
   "title": "piece_label",
   "description": "Editorial labels for a historical piece (SPEC §9.3). v1: versioned envelope; category objects are intentionally open.",
   "type": "object",
+  "$defs": {
+    "editorial_archetype_id": {
+      "type": "string",
+      "description": "Stable id from bundled editorial archetype taxonomy v1 (SPEC §8).",
+      "enum": [
+        "historical_analog",
+        "future_implications",
+        "data_dissection",
+        "narrative_challenge",
+        "regime_shift",
+        "second_order_effects",
+        "scenario",
+        "misread_mispricing"
+      ]
+    }
+  },
   "additionalProperties": false,
   "required": ["piece_id", "schema_version", "labels"],
   "properties": {
@@ -38,7 +54,16 @@
         },
         "editorial": {
           "type": "object",
-          "additionalProperties": true
+          "additionalProperties": true,
+          "properties": {
+            "primary_archetype_id": {
+              "$ref": "#/$defs/editorial_archetype_id"
+            },
+            "alternate_archetype_ids": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/editorial_archetype_id" }
+            }
+          }
         },
         "voice": {
           "type": "object",
