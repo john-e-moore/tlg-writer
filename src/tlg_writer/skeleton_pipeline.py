@@ -12,6 +12,7 @@ from typing import Any
 from tlg_writer.json_schema import validate
 from tlg_writer.layout import STAGE_DIRS
 from tlg_writer.paths import repo_root
+from tlg_writer.piece_brief import build_stub_piece_brief_assigned
 from tlg_writer.run_id import build_run_id, normalize_slug
 
 
@@ -54,8 +55,14 @@ def _stage_metrics(stage: str) -> dict[str, Any]:
     }
 
 
-def _validate_stage_bundle(stage: str, output_obj: dict[str, Any], metrics_obj: dict[str, Any]) -> None:
-    validate(output_obj, "skeleton_stage_output")
+def _validate_stage_bundle(
+    stage: str,
+    output_obj: dict[str, Any],
+    metrics_obj: dict[str, Any],
+    *,
+    output_schema: str = "skeleton_stage_output",
+) -> None:
+    validate(output_obj, output_schema)
     validate(metrics_obj, "stage_metrics")
 
 
@@ -65,9 +72,11 @@ def _write_stage(
     input_obj: dict[str, Any],
     output_obj: dict[str, Any],
     summary_md: str,
+    *,
+    output_schema: str = "skeleton_stage_output",
 ) -> None:
     metrics_obj = _stage_metrics(stage)
-    _validate_stage_bundle(stage, output_obj, metrics_obj)
+    _validate_stage_bundle(stage, output_obj, metrics_obj, output_schema=output_schema)
     base = run_dir / stage
     _write_json(base / "input.json", input_obj)
     _write_json(base / "output.json", output_obj)
@@ -182,7 +191,10 @@ def run_assigned_skeleton(
         "stage": "framing",
         "status": "stub",
         "message": "Placeholder framing decision.",
-        "payload": {"archetype": "data-dissection", "rationale": "Phase 0 placeholder only."},
+        "payload": {
+            "primary_archetype_id": "data_dissection",
+            "rationale": "Phase 0 placeholder only (taxonomy id, SPEC §8).",
+        },
     }
     _write_stage(
         run_dir,
@@ -208,25 +220,35 @@ def run_assigned_skeleton(
         "## retrieval\n\nEmpty ranked set until archive hooks exist.\n",
     )
 
-    # --- brief ---
-    brief_out: dict[str, Any] = {
-        "schema_version": "0.1",
-        "stage": "brief",
-        "status": "stub",
-        "message": "Structured brief not yet modeled against piece_brief schema.",
-        "payload": {"thesis": f"(stub) Develop an angle on: {topic}", "constraints": []},
-    }
+    # --- brief (canonical piece_brief on output.json) ---
+    arch = frame_out["payload"].get("primary_archetype_id")
+    arch_id = arch if isinstance(arch, str) else None
+    brief_doc = build_stub_piece_brief_assigned(
+        run_id=rid,
+        topic=topic,
+        primary_archetype_id=arch_id,
+        ranked_retrieved_piece_ids=list(retr_out["payload"].get("ranked_ids", [])),
+    )
+    validate(brief_doc, "piece_brief")
     _write_stage(
         run_dir,
         "brief",
-        {"schema_version": "0.1", "retrieval": retr_out["payload"]},
-        brief_out,
-        "## brief\n\nMinimal stub brief object under `payload`.\n",
+        {
+            "schema_version": "0.1",
+            "topic": topic,
+            "framing": frame_out["payload"],
+            "retrieval": retr_out["payload"],
+        },
+        brief_doc,
+        "## brief\n\nStructured **piece_brief** (`schemas/json/piece_brief.schema.json`); "
+        "content is still stub-quality pending real brief builder.\n",
+        output_schema="piece_brief",
     )
 
     # --- drafting ---
     draft_body = (
-        f"# (Phase 0 stub draft)\n\nTopic: **{topic}**.\n\n"
+        f"# (Phase 0 stub draft)\n\nThesis: **{brief_doc['thesis']}**\n\n"
+        f"Assigned topic label: **{topic}**.\n\n"
         "This text exists so `final/` has a readable precursor. "
         "It is not client-ready copy.\n"
     )
@@ -240,7 +262,7 @@ def run_assigned_skeleton(
     _write_stage(
         run_dir,
         "drafting",
-        {"schema_version": "0.1", "brief": brief_out["payload"]},
+        {"schema_version": "0.1", "piece_brief": brief_doc},
         draft_out,
         "## drafting\n\nStub markdown only.\n",
     )
@@ -344,7 +366,7 @@ def run_assigned_skeleton(
         },
         "limitations": [
             "No live LLM calls.",
-            "Schemas for piece_brief, critique, evaluation not yet wired.",
+            "brief/ uses piece_brief v1; critique and evaluation remain generic stubs.",
         ],
     }
     gc = _git_commit()
