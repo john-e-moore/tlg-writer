@@ -37,6 +37,7 @@ def test_skeleton_run_layout_and_manifest(tmp_path: Path) -> None:
 
     validate_file(root / "manifest.json", "run_manifest")
     validate_file(root / "source_reading" / "output.json", "skeleton_stage_output")
+    validate_file(root / "brief" / "output.json", "piece_brief")
     validate_file(root / "topic_selection" / "output.json", "skeleton_stage_output")
     validate_file(root / "inputs" / "metrics.json", "stage_metrics")
 
@@ -46,7 +47,9 @@ def test_skeleton_run_layout_and_manifest(tmp_path: Path) -> None:
 
     piece = root / "final" / "piece.md"
     assert piece.is_file()
-    assert "Phase 0 stub" in piece.read_text(encoding="utf-8")
+    body = piece.read_text(encoding="utf-8")
+    assert "Phase 0 stub" in body
+    assert "Thesis:" in body
 
 
 def test_skeleton_refuses_existing_run_dir(tmp_path: Path) -> None:

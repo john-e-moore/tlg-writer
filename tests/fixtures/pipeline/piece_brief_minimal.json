@@ -1,0 +1,12 @@
+{
+  "schema_version": "v1",
+  "run_id": "2026-04-21T12-00-00Z__assigned__fixture-run",
+  "thesis": "Payrolls surprise matters more for path of cuts than headline unemployment.",
+  "audience_assumptions": ["Rates desk", "Already saw the release tables"],
+  "constraints": ["No stock picks"],
+  "required_citations": ["BLS establishment survey"],
+  "candidate_analogs": ["data/raw/pieces/unlabeled/example.docx"],
+  "implications_to_explore": ["Fed reaction function"],
+  "tone_target": "conversational_macro",
+  "primary_archetype_id": "data_dissection"
+}

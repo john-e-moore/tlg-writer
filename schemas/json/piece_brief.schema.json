@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/piece_brief.schema.json",
+  "title": "piece_brief",
+  "description": "Structured writer brief for a single editorial run (SPEC §7.6, §13). v1: minimal contract; optional archetype id aligns with bundled taxonomy (SPEC §8).",
+  "type": "object",
+  "$defs": {
+    "editorial_archetype_id": {
+      "type": "string",
+      "description": "Stable id from bundled editorial archetype taxonomy v1 (SPEC §8). Must stay aligned with piece_label.schema.json $defs.editorial_archetype_id.",
+      "enum": [
+        "historical_analog",
+        "future_implications",
+        "data_dissection",
+        "narrative_challenge",
+        "regime_shift",
+        "second_order_effects",
+        "scenario",
+        "misread_mispricing"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "thesis",
+    "audience_assumptions",
+    "constraints",
+    "required_citations",
+    "candidate_analogs",
+    "implications_to_explore",
+    "tone_target"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1",
+      "description": "Brief document revision."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
+    },
+    "thesis": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Core claim or angle for the piece."
+    },
+    "audience_assumptions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Who the reader is and what they already know (SPEC §7.6)."
+    },
+    "constraints": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Hard limits, compliance, length, or must-avoid topics."
+    },
+    "required_citations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Sources that must appear or be honored (urls, titles, or internal ids)."
+    },
+    "candidate_analogs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Historical pieces or episodes to echo (paths, ids, or short labels)."
+    },
+    "implications_to_explore": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Downstream angles or second-order points worth covering."
+    },
+    "tone_target": {
+      "type": "string",
+      "minLength": 1,
+      "description": "House voice / register guidance for drafting."
+    },
+    "primary_archetype_id": {
+      "$ref": "#/$defs/editorial_archetype_id",
+      "description": "Chosen editorial archetype when framing has committed to one."
+    }
+  }
+}

@@ -138,7 +138,8 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — done (PR #2 merged) — agent`
 - `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — done (PR #3 merged) — agent`
 - `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — done (PR #4 merged) — agent`
-- `2026-04-21 — ExecPlan: Gold set index (v1 contract) — in_progress (PR #5) — agent`
+- `2026-04-21 — ExecPlan: Gold set index (v1 contract) — done (PR #5 merged) — agent`
+- `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — in_progress (PR #6) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -435,7 +436,7 @@ Read-only taxonomy; no run directories. Re-install `pip install -e ".[dev]"` aft
 
 Links: branch `feature/gold-set-index`; brief `.agent/features/2026-04-21-gold-set-index/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/5`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -445,11 +446,11 @@ Deliver SPEC §21 step 6 as a **mergeable first slice**: a versioned JSON index 
 
 - [x] (2026-04-21) Planning
 - [x] (2026-04-21) Implementation
-- [x] (2026-04-21) Validation + docs (PR #5 opened)
+- [x] (2026-04-21) Validation + docs (PR #5 merged)
 
 ### Surprises & discoveries
 
-- Observation: (none yet)
+- Observation: (none)
 
 ### Decision log
 
@@ -457,7 +458,7 @@ Deliver SPEC §21 step 6 as a **mergeable first slice**: a versioned JSON index 
 
 ### Outcomes & retrospective
 
-Pending merge.
+Merged via PR #5 (`https://github.com/john-e-moore/tlg-writer/pull/5`).
 
 ### Context and orientation
 
@@ -501,4 +502,79 @@ Validator is read-only. Operators edit JSON and re-run the script.
 
 - **Library:** `tlg_writer.gold_set.load_gold_set_index`, `validate_gold_set_index_document`, `validate_gold_set_index_semantics`.
 - **CLI:** `scripts/validate_gold_set_index.py` (`path`, `--no-semantics`).
+- **External:** none.
+
+---
+
+## ExecPlan: piece_brief v1 + brief stage wiring — 2026-04-21
+
+Links: branch `feature/piece-brief-schema`; brief `.agent/features/2026-04-21-piece-brief-schema/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/6`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Deliver SPEC §21 step 7 **first increment**: a versioned **`piece_brief`** JSON Schema (SPEC §7.6 / §13) and make the assigned-topic skeleton emit schema-valid `brief/output.json` while keeping other stages on the generic skeleton envelope until their schemas exist. Operators and tests can rely on a real brief contract without live LLMs.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [x] (2026-04-21) Validation + docs (PR #6 evidence)
+
+### Surprises & discoveries
+
+- Observation: Framing stub used a non-taxonomy archetype string (`data-dissection`); aligned stub payload to taxonomy id `data_dissection` so optional `primary_archetype_id` on `piece_brief` validates.  
+  Evidence: `src/tlg_writer/skeleton_pipeline.py` framing `payload`.
+- Observation: `pytest -q` 33 passed; smoke skeleton run to `/tmp` then `validate(..., "piece_brief")` on `brief/output.json`.  
+  Evidence: PR #6 checks.
+
+### Decision log
+
+- Decision: `brief/output.json` root **is** the `piece_brief` document (not `skeleton_stage_output`) — Rationale: matches `.agent/AGENTS.md` “schema-validated model output” per stage; other stages stay stub-wrapped — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+Opened PR #6 (`https://github.com/john-e-moore/tlg-writer/pull/6`); merge will flip Status to `done`.
+
+### Context and orientation
+
+Touch points: `schemas/json/piece_brief.schema.json`, `src/tlg_writer/piece_brief.py`, `src/tlg_writer/skeleton_pipeline.py`, `tests/unit/test_piece_brief_schema.py`, `tests/integration/test_skeleton_pipeline.py`, `tests/fixtures/pipeline/piece_brief_minimal.json`, `prompts/brief/system.md`, `.agent/SPEC.md` §13 / §21.
+
+### Plan of work
+
+1. Add `piece_brief` schema with taxonomy-aligned optional `primary_archetype_id`.
+2. Builder for deterministic stub briefs; skeleton validates `brief/` with `piece_brief` and threads thesis into drafting.
+3. Tests + README + SPEC + feature brief + this ExecPlan.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_assigned_skeleton.py --help
+python scripts/extract_docx_metadata.py --help
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (schema-only tests, enum alignment with `piece_label`, integration asserts `brief/output.json` validates as `piece_brief`).
+- Smoke: `run_assigned_skeleton.py --help` unchanged.
+- Spot-read: new run’s `brief/output.json` includes `schema_version` `v1`, `run_id`, `thesis`.
+
+### Idempotence and recovery
+
+Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `FileExistsError`.
+
+### Artifacts and notes
+
+- Editorial runs: `artifacts/runs/<run_id>/brief/output.json` is now a `piece_brief` document (still stub content).
+- Fixture: `tests/fixtures/pipeline/piece_brief_minimal.json`.
+
+### Interfaces and dependencies
+
+- **Library:** `tlg_writer.piece_brief.build_stub_piece_brief_assigned`.
+- **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton` (`output_schema` parameter on internal stage writer).
 - **External:** none.
