@@ -142,8 +142,8 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — done (PR #6 merged) — agent`
 - `2026-04-21 — ExecPlan: Framing + retrieval artifacts (v1 schemas) — done (PR #7 merged) — agent`
 - `2026-04-21 — ExecPlan: Stage + artifact writer pytest coverage — done (PR #8 merged) — agent`
-- `2026-04-21 — ExecPlan: revision_result v1 + revision stage wiring — in_progress (PR pending) — agent`
 - `2026-04-21 — ExecPlan: critique_result v1 + critique stage wiring — done (PR #9) — agent`
+- `2026-04-21 — ExecPlan: revision_result v1 + revision stage wiring — done (PR #11 merged) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -804,9 +804,9 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 
 ## ExecPlan: revision_result v1 + revision stage wiring — 2026-04-21
 
-Links: branch `feature/revision-result-v1`; brief `.agent/features/2026-04-21-revision-result-v1/SPEC.md`; PR `pending`.
+Links: branch `feature/revision-result-v1`; brief `.agent/features/2026-04-21-revision-result-v1/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/11`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -816,11 +816,14 @@ Ship SPEC §21 step 10: a versioned **`revision_result`** JSON Schema (SPEC §7.
 
 - [x] (2026-04-21) Planning
 - [x] (2026-04-21) Implementation
-- [ ] (2026-04-21) Validation + docs (PR evidence)
+- [x] (2026-04-21) Validation + docs (PR #11 evidence)
 
 ### Surprises & discoveries
 
-- (none yet)
+- Observation: Full `pytest -q` is **54** tests after this slice (was 50 on prior `main`).  
+  Evidence: `pytest -q` on `feature/revision-result-v1`.
+- Observation: Smoke `validate_file` on `/tmp/…/revision/output.json` after skeleton run.  
+  Evidence: local one-liner post-`run_assigned_skeleton`.
 
 ### Decision log
 
@@ -828,7 +831,7 @@ Ship SPEC §21 step 10: a versioned **`revision_result`** JSON Schema (SPEC §7.
 
 ### Outcomes & retrospective
 
-(pending merge)
+Merged via PR #11 (`https://github.com/john-e-moore/tlg-writer/pull/11`). Validation: `pytest -q` (54 passed) on branch before merge; smoke `revision_result` validation on temp run dir.
 
 ### Context and orientation
 
