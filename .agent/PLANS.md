@@ -140,7 +140,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — done (PR #4 merged) — agent`
 - `2026-04-21 — ExecPlan: Gold set index (v1 contract) — done (PR #5 merged) — agent`
 - `2026-04-21 — ExecPlan: piece_brief v1 + brief stage wiring — done (PR #6 merged) — agent`
-- `2026-04-21 — ExecPlan: Framing + retrieval artifacts (v1 schemas) — in_progress — agent`
+- `2026-04-21 — ExecPlan: Framing + retrieval artifacts (v1 schemas) — in_progress (PR #7) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -584,7 +584,7 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 
 ## ExecPlan: Framing + retrieval artifacts (v1 schemas) — 2026-04-21
 
-Links: branch `feature/framing-retrieval-schemas`; brief `.agent/features/2026-04-21-framing-retrieval-schemas/SPEC.md`; PR `pending`.
+Links: branch `feature/framing-retrieval-schemas`; brief `.agent/features/2026-04-21-framing-retrieval-schemas/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/7`.
 
 Status: `in_progress`
 
@@ -596,11 +596,12 @@ Ship SPEC §13 `framing_decision` and `retrieval_result` contracts plus assigned
 
 - [x] (2026-04-21) Planning
 - [x] (2026-04-21) Implementation
-- [ ] (2026-04-21) Validation + docs (PR evidence)
+- [x] (2026-04-21) Validation + docs (PR #7 evidence)
 
 ### Surprises & discoveries
 
-- Observation: (none)
+- Observation: Full `pytest -q` is **42** tests after this slice; spot-read temp run validated `framing_decision` / `retrieval_result` on disk.  
+  Evidence: PR #7 checks; local `pytest -q` + ad hoc `validate_file` on `/tmp` skeleton run.
 
 ### Decision log
 
@@ -608,7 +609,7 @@ Ship SPEC §13 `framing_decision` and `retrieval_result` contracts plus assigned
 
 ### Outcomes & retrospective
 
-Pending merge.
+Opened PR #7 (`https://github.com/john-e-moore/tlg-writer/pull/7`); merge will flip Status to `done`.
 
 ### Context and orientation
 
