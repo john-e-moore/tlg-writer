@@ -137,7 +137,7 @@ Maintain a bullet list here for in-flight work:
 
 - `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — done (PR #2 merged) — agent`
 - `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — done (PR #3 merged) — agent`
-- `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — in_progress — agent`
+- `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — in_progress (PR #4) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -360,7 +360,7 @@ Expected under `artifacts/runs/<run_id>/`: `manifest.json`, `config.json`, `logs
 
 ## ExecPlan: Editorial archetype taxonomy v1 — 2026-04-21
 
-Links: branch `feature/editorial-archetype-taxonomy`; brief `.agent/features/2026-04-21-editorial-archetype-taxonomy/SPEC.md`; PR `pending`.
+Links: branch `feature/editorial-archetype-taxonomy`; brief `.agent/features/2026-04-21-editorial-archetype-taxonomy/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/4`.
 
 Status: `in_progress`
 
@@ -384,7 +384,7 @@ Deliver SPEC §21 step 5 and §8 “represented explicitly in code”: a version
 
 ### Outcomes & retrospective
 
-Deferred to PR merge.
+Opened as PR #4 (`https://github.com/john-e-moore/tlg-writer/pull/4`); merge will flip Status to `done`.
 
 ### Context and orientation
 
