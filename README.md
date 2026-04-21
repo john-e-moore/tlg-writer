@@ -28,6 +28,10 @@ pytest -q
 
 ## Corpus metadata (existing)
 
+Writes `data/raw/pieces/metadata/pieces_metadata_<YYYYMMDDHHMM>.json` (UTC). Output is validated against `schemas/json/pieces_metadata_batch.schema.json` before the file is written.
+
 ```bash
 python scripts/extract_docx_metadata.py --help
 ```
+
+Label and extracted-feature envelopes for future pipelines: `piece_label.schema.json`, `piece_features.schema.json` (see `tests/fixtures/corpus/` for minimal examples).

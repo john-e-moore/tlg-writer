@@ -135,7 +135,79 @@ Public functions, CLIs, env vars, external APIs.
 
 Maintain a bullet list here for in-flight work:
 
-- `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — in_progress (PR #1) — agent`
+- `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — in_progress — agent`
+- `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
+
+---
+
+## ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — 2026-04-21
+
+Links: branch `feature/corpus-json-schemas`; brief `.agent/features/2026-04-21-corpus-json-schemas/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Ship SPEC §21 step 2: explicit `schemas/json/` contracts for `pieces_metadata_*.json` batches (today’s extraction script), plus minimal `piece_label` and `piece_features` envelopes aligned with SPEC §9 and §13. Extraction writes only schema-valid JSON; tests lock the contracts.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [x] (2026-04-21) Validation + docs (PR evidence)
+
+### Surprises & discoveries
+
+- Observation: Sibling-file ``$ref`` between batch and record schemas failed with default `jsonschema` resolution unless every schema is registered with stable file URIs; embedding the record under `pieces_metadata_batch` `$defs` avoided that coupling.  
+  Evidence: local `python -c` ref-resolution attempts before the final layout.
+
+### Decision log
+
+- Decision: Embed `piece_docx_metadata_record` under `pieces_metadata_batch` `$defs` (no sibling `$ref` file) — Rationale: default `jsonschema` ref resolution to local files was brittle without a custom registry — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+Pending.
+
+### Context and orientation
+
+Touch points: `scripts/extract_docx_metadata.py`, `schemas/json/`, `src/tlg_writer/json_schema.py`, `tests/`, `.agent/SPEC.md` §13.
+
+### Plan of work
+
+1. Add JSON Schemas (batch + record + label + features stubs).
+2. Validate in `extract_docx_metadata.py` before writing the batch file.
+3. Tests: fixtures + synthetic `.docx` smoke.
+4. README and SPEC index line for batch schema.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/extract_docx_metadata.py --help
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes.
+- `extract_docx_metadata.py` writes only after successful validation (empty input dir still emits valid `[]`).
+- Fixture JSON validates against `piece_label` and `piece_features`.
+
+### Idempotence and recovery
+
+Metadata script still writes a new timestamped filename each run; validation failure exits before any file write.
+
+### Artifacts and notes
+
+- New: `schemas/json/pieces_metadata_batch.schema.json` (includes `$defs.piece_docx_metadata_record`), `piece_label.schema.json`, `piece_features.schema.json`.
+
+### Interfaces and dependencies
+
+- **CLI:** `extract_docx_metadata.py` unchanged flags; behavior adds validation pre-write.
+- **Library:** `tlg_writer.json_schema.validate`.
 
 ---
 
@@ -143,7 +215,7 @@ Maintain a bullet list here for in-flight work:
 
 Links: branch `feature/assigned-skeleton-run`; brief `.agent/features/2026-04-21-assigned-skeleton-run/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/1`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 

@@ -654,6 +654,7 @@ Stage prompts live under **`prompts/<stage>/`** using the same `<stage>` directo
 Define explicit JSON Schemas for core objects under **`schemas/json/`**, named **`<artifact_type>.schema.json`** in **snake_case** (example: `piece_brief.schema.json`). Use them for API output validation, on-disk `output.json` validation, fixtures, and tests.
 
 Initial schema set (extend as needed):
+- `pieces_metadata_batch.schema.json` (batch arrays from `scripts/extract_docx_metadata.py`; per-row record shape lives under this file’s `$defs.piece_docx_metadata_record`)
 - `piece_label.schema.json`
 - `piece_features.schema.json`
 - `source_summary.schema.json`
