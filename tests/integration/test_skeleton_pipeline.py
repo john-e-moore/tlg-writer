@@ -10,7 +10,7 @@ import pytest
 
 from tlg_writer.json_schema import validate_file
 from tlg_writer.layout import STAGE_DIRS
-from tlg_writer.skeleton_pipeline import run_assigned_skeleton
+from tlg_writer.skeleton_pipeline import run_assigned_skeleton, run_auto_skeleton
 from tlg_writer.stage_schemas import OUTPUT_SCHEMA_BY_STAGE
 
 
@@ -108,6 +108,36 @@ def test_skeleton_each_stage_output_and_metrics_are_schema_valid(tmp_path: Path)
         assert summary.strip()
 
 
+def test_auto_skeleton_run_layout_manifest_and_topic_selection_completed(tmp_path: Path) -> None:
+    when = datetime(2026, 4, 21, 12, 0, 0, tzinfo=timezone.utc)
+    res = run_auto_skeleton(
+        slug="fixture-auto",
+        artifacts_root=tmp_path,
+        when=when,
+        run_id="2026-04-21T12-00-00Z__auto__fixture-auto",
+        topic="Stub-selected macro angle",
+    )
+    root = res.run_dir
+    assert "__auto__" in res.run_id
+    validate_file(root / "manifest.json", "run_manifest")
+    validate_file(root / "inputs" / "output.json", "inputs_result")
+    validate_file(root / "topic_selection" / "output.json", "topic_selection_result")
+
+    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["mode"] == "auto"
+
+    config = json.loads((root / "config.json").read_text(encoding="utf-8"))
+    assert config["mode"] == "auto"
+
+    ts = json.loads((root / "topic_selection" / "output.json").read_text(encoding="utf-8"))
+    assert ts["selection_status"] == "completed"
+    assert ts["selected_topic_label"] == "Stub-selected macro angle"
+
+    inp = json.loads((root / "inputs" / "output.json").read_text(encoding="utf-8"))
+    assert inp["mode"] == "auto"
+    assert inp["topic"]["source"] == "auto_stub"
+
+
 def test_run_id_from_cli_slug_matches_pattern(tmp_path: Path) -> None:
     when = datetime(2026, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
     res = run_assigned_skeleton(
@@ -117,3 +147,13 @@ def test_run_id_from_cli_slug_matches_pattern(tmp_path: Path) -> None:
         when=when,
     )
     assert res.run_id == "2026-01-02T03-04-05Z__assigned__my-topic"
+
+
+def test_auto_run_id_from_cli_slug_matches_pattern(tmp_path: Path) -> None:
+    when = datetime(2026, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
+    res = run_auto_skeleton(
+        slug="my-topic",
+        artifacts_root=tmp_path,
+        when=when,
+    )
+    assert res.run_id == "2026-01-02T03-04-05Z__auto__my-topic"

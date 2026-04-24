@@ -20,9 +20,18 @@ python scripts/run_assigned_skeleton.py --topic "US payrolls and Fed cuts" --slu
 
 The command prints the absolute path to the new run folder. Re-running always uses a new `run_id` (UTC timestamp in the id); a second run never overwrites the first.
 
-Every pipeline stage directory under an assigned-topic run writes **schema-valid `output.json`**: intake uses **`inputs_result`**, **`source_reading_result`**, and **`topic_selection_result`** (v1); downstream stages use **`framing_decision`**, **`retrieval_result`**, **`piece_brief`**, **`draft_result`**, **`critique_result`**, **`revision_result`**, **`evaluation_result`**, and **`final_deliverable`** (all v1 contracts under `schemas/json/`).
+## Phase 0: auto-topic skeleton run (stub)
+
+Same full stage layout and stub downstream stages as the assigned runner, but `run_id` uses `__auto__`, manifest/config `mode` is `auto`, `inputs/output.json` is an **`inputs_result`** with `topic.source: auto_stub`, and `topic_selection/output.json` is a **`topic_selection_result`** **completed** stub (empty `candidates_considered`; no search, no LLM):
+
+```bash
+python scripts/run_auto_skeleton.py --slug macro-stub
+# optional: --topic "Override label"  --artifacts-root path  --run-id …  --utc YYYY-MM-DDTHH:MM:SS
+```
 
 ## Tests
+
+Every pipeline stage directory under a Phase 0 skeleton run writes **schema-valid `output.json`**: intake uses **`inputs_result`**, **`source_reading_result`**, and **`topic_selection_result`** (v1; assigned = skip, auto stub = completed); downstream stages use **`framing_decision`**, **`retrieval_result`**, **`piece_brief`**, **`draft_result`**, **`critique_result`**, **`revision_result`**, **`evaluation_result`**, and **`final_deliverable`** (all v1 contracts under `schemas/json/`).
 
 ```bash
 pytest -q
@@ -32,7 +41,7 @@ Pull requests (and pushes to `main`) run the same suite in GitHub Actions; see `
 
 ## Library notes
 
-- **Stage → output schema:** `tlg_writer.stage_schemas.OUTPUT_SCHEMA_BY_STAGE` is the single registry for pipeline `output.json` validation (used by the assigned skeleton and integration tests).
+- **Stage → output schema:** `tlg_writer.stage_schemas.OUTPUT_SCHEMA_BY_STAGE` is the single registry for pipeline `output.json` validation (used by Phase 0 skeleton runners and integration tests).
 - **LLM calls:** use `tlg_writer.llm_client` (`StubLLMClient` by default; `llm_client_from_env()` reads `TLG_LLM_BACKEND` / `OPENAI_API_KEY`). Do not scatter raw HTTP across the codebase.
 
 ## Corpus metadata (existing)

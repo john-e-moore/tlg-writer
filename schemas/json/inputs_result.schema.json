@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://tlg-writer.local/schemas/inputs_result.schema.json",
   "title": "inputs_result",
-  "description": "Normalized CLI / operator topic intake for a run (SPEC §12, intake before framing). v1: assigned-topic path only.",
+  "description": "Normalized topic intake for a run (SPEC §12, intake before framing). v1: assigned CLI path and Phase 0 auto stub path.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -26,8 +26,8 @@
     },
     "mode": {
       "type": "string",
-      "enum": ["assigned"],
-      "description": "Run mode at intake; extend when auto-topic ships."
+      "enum": ["assigned", "auto"],
+      "description": "Run mode at intake."
     },
     "topic": {
       "type": "object",
@@ -41,8 +41,8 @@
         },
         "source": {
           "type": "string",
-          "const": "cli",
-          "description": "Where the topic label originated for v1."
+          "enum": ["cli", "auto_stub"],
+          "description": "`cli`: operator supplied; `auto_stub`: Phase 0 auto skeleton placeholder."
         }
       }
     },
