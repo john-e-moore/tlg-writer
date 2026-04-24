@@ -47,6 +47,102 @@ def piece_artifact_stem(piece_id: str) -> str:
     return f"piece_{h}"
 
 
+def _format_corpus_stub_summary(counts: dict[str, int], batch_statistics: dict[str, Any]) -> str:
+    sr = batch_statistics["skip_reasons"]
+    mt = batch_statistics["metadata_core_titles"]
+    fw = batch_statistics["features_words_approx"]
+    la = batch_statistics["labels_editorial_primary_archetype"]
+    dist = la["primary_id_counts"]
+    dist_lines = "\n".join(f"| `{k}` | {v} |" for k, v in sorted(dist.items())) or "| _(none)_ | — |"
+
+    w_block = (
+        f"- Non-null `words_approx`: **{fw['non_null_count']}** / {fw['samples']}\n"
+        f"- Min / max / sum: **{fw['min']}** / **{fw['max']}** / **{fw['sum']}**\n"
+    )
+
+    return (
+        "## corpus batch (stub)\n\n"
+        "### counts\n\n"
+        f"- Records in batch: **{counts['records_total']}**\n"
+        f"- Labels written: **{counts['labels_written']}**\n"
+        f"- Features written: **{counts['features_written']}**\n"
+        f"- Skipped (total): **{counts['skipped_with_errors']}**\n"
+        f"  - Missing `relative_to_repo`: **{sr['missing_piece_id']}**\n"
+        f"  - Metadata extraction `error` field: **{sr['metadata_row_error']}**\n\n"
+        "### metadata (`core.title` among written rows)\n\n"
+        f"- Present: **{mt['present']}**\n"
+        f"- Missing: **{mt['missing']}**\n\n"
+        "### features (`body.words_approx` among written rows)\n\n"
+        f"{w_block}\n"
+        "### labels (`editorial.primary_archetype_id`)\n\n"
+        f"- With primary: **{la['with_primary']}**\n"
+        f"- Without primary: **{la['without_primary']}**\n\n"
+        "| primary_archetype_id | count |\n| --- | --- |\n"
+        f"{dist_lines}\n\n"
+        "See `manifest.json` (`batch_statistics`) for machine-readable aggregates. "
+        "Replace stubs with real extractors per SPEC §9.\n"
+    )
+
+
+def build_batch_statistics_v1(
+    *,
+    skip_missing_piece_id: int,
+    skip_metadata_row_error: int,
+    written_title_present: int,
+    written_title_missing: int,
+    words_approx_per_written: list[int | None],
+    primary_archetype_id_per_written: list[str | None],
+) -> dict[str, Any]:
+    """
+    Build ``corpus_batch_manifest.batch_statistics`` (schema ``v1``) from per-row aggregates.
+
+    ``words_approx_per_written`` / ``primary_archetype_id_per_written`` must align with
+    successful writes (same length).
+    """
+    if len(words_approx_per_written) != len(primary_archetype_id_per_written):
+        raise ValueError("words_approx and primary_archetype lists must match written row count")
+
+    non_null_words = [w for w in words_approx_per_written if w is not None]
+    if non_null_words:
+        w_min: int | None = min(non_null_words)
+        w_max: int | None = max(non_null_words)
+        w_sum: int | None = sum(non_null_words)
+    else:
+        w_min = w_max = w_sum = None
+
+    with_primary = 0
+    counts: dict[str, int] = {}
+    for pid in primary_archetype_id_per_written:
+        if pid:
+            with_primary += 1
+            counts[pid] = counts.get(pid, 0) + 1
+    without_primary = len(primary_archetype_id_per_written) - with_primary
+
+    return {
+        "schema_version": "v1",
+        "skip_reasons": {
+            "missing_piece_id": skip_missing_piece_id,
+            "metadata_row_error": skip_metadata_row_error,
+        },
+        "metadata_core_titles": {
+            "present": written_title_present,
+            "missing": written_title_missing,
+        },
+        "features_words_approx": {
+            "samples": len(words_approx_per_written),
+            "non_null_count": len(non_null_words),
+            "min": w_min,
+            "max": w_max,
+            "sum": w_sum,
+        },
+        "labels_editorial_primary_archetype": {
+            "with_primary": with_primary,
+            "without_primary": without_primary,
+            "primary_id_counts": counts,
+        },
+    }
+
+
 def _try_repo_relative(path: Path, root: Path) -> str:
     try:
         return str(path.resolve().relative_to(root))
@@ -110,7 +206,8 @@ def run_corpus_batch_stub(
     """
     Read a ``pieces_metadata_*.json`` batch, emit ``piece_label`` / ``piece_features``
     files under ``labels_dir`` / ``features_dir``, and write ``artifacts_root/<run_id>/``
-    with ``manifest.json`` (``corpus_batch_manifest``), ``summary.md``, and ``logs/run.log``.
+    with ``manifest.json`` (``corpus_batch_manifest`` including ``batch_statistics`` v1),
+    ``summary.md`` (human-readable tables for the same aggregates), and ``logs/run.log``.
 
     Rows with per-file ``error`` from metadata extraction are skipped but counted.
     """
@@ -142,16 +239,24 @@ def run_corpus_batch_stub(
     labels_written = 0
     features_written = 0
     skipped = 0
+    skip_missing_piece_id = 0
+    skip_metadata_row_error = 0
+    written_title_present = 0
+    written_title_missing = 0
+    words_approx_per_written: list[int | None] = []
+    primary_archetype_id_per_written: list[str | None] = []
     log_lines: list[str] = [f"run_id={rid}", f"metadata_batch={metadata_batch}", ""]
 
     for row in raw:
         piece_id = row.get("relative_to_repo")
         if not piece_id or not isinstance(piece_id, str):
             skipped += 1
+            skip_missing_piece_id += 1
             log_lines.append("skip: missing relative_to_repo")
             continue
         if "error" in row:
             skipped += 1
+            skip_metadata_row_error += 1
             log_lines.append(f"skip (metadata error): {piece_id}")
             continue
 
@@ -159,10 +264,25 @@ def run_corpus_batch_stub(
         label_path = labels_dir / f"{stem}.json"
         feature_path = features_dir / f"{stem}.json"
 
+        core = row.get("core") or {}
+        title = core.get("title")
+        if isinstance(title, str) and title.strip():
+            written_title_present += 1
+        else:
+            written_title_missing += 1
+
+        body = row.get("body") or {}
+        w_raw = body.get("words_approx")
+        words_approx_per_written.append(int(w_raw) if isinstance(w_raw, int) else None)
+
         label_obj = _stub_label(piece_id, row, labeled_at)
         feature_obj = _stub_features(piece_id, row, extracted_at)
         validate(label_obj, "piece_label")
         validate(feature_obj, "piece_features")
+
+        ed = (label_obj.get("labels") or {}).get("editorial") or {}
+        p_raw = ed.get("primary_archetype_id")
+        primary_archetype_id_per_written.append(p_raw if isinstance(p_raw, str) else None)
 
         _write_json(label_path, label_obj)
         _write_json(feature_path, feature_obj)
@@ -182,6 +302,14 @@ def run_corpus_batch_stub(
         "features_written": features_written,
         "skipped_with_errors": skipped,
     }
+    batch_statistics = build_batch_statistics_v1(
+        skip_missing_piece_id=skip_missing_piece_id,
+        skip_metadata_row_error=skip_metadata_row_error,
+        written_title_present=written_title_present,
+        written_title_missing=written_title_missing,
+        words_approx_per_written=words_approx_per_written,
+        primary_archetype_id_per_written=primary_archetype_id_per_written,
+    )
 
     limitations = [
         "Deterministic stub only: no LLM or human labels (SPEC §21 step 3 placeholder).",
@@ -211,17 +339,12 @@ def run_corpus_batch_stub(
     if gc:
         manifest["git_commit"] = gc
 
+    manifest["batch_statistics"] = batch_statistics
+
     validate(manifest, "corpus_batch_manifest")
     _write_json(run_dir / "manifest.json", manifest)
-    _write_text(
-        run_dir / "summary.md",
-        "## corpus batch (stub)\n\n"
-        f"- Records in batch: **{counts['records_total']}**\n"
-        f"- Labels written: **{counts['labels_written']}**\n"
-        f"- Features written: **{counts['features_written']}**\n"
-        f"- Skipped (metadata errors / bad rows): **{counts['skipped_with_errors']}**\n\n"
-        "See `manifest.json` for paths. Replace stubs with real extractors per SPEC §9.\n",
-    )
+    summary_body = _format_corpus_stub_summary(counts, batch_statistics)
+    _write_text(run_dir / "summary.md", summary_body)
     _write_text(run_dir / "logs" / "run.log", "\n".join(log_lines) + "\n")
 
     return CorpusBatchStubResult(run_dir=run_dir, run_id=rid)
