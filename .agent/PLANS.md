@@ -156,15 +156,15 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-24 — ExecPlan: Phase 0 skeleton LLM client probe — done (PR #18 merged) — agent`
 - `2026-04-24 — ExecPlan: Corpus batch statistics (stub manifest + summary) — done (PR #19 merged) — agent`
 - `2026-04-24 — ExecPlan: Validate corpus piece_label / piece_features dirs — done (PR #20 merged) — agent`
-- `2026-04-24 — ExecPlan: Filesystem corpus retrieval (skeleton) — in_progress — agent`
+- `2026-04-24 — ExecPlan: Filesystem corpus retrieval (skeleton) — done (PR #21 merged) — agent`
 
 ---
 
 ## ExecPlan: Filesystem corpus retrieval (skeleton) — 2026-04-24
 
-Links: branch `feature/fs-corpus-retrieval`; brief `.agent/features/2026-04-24-fs-corpus-retrieval/SPEC.md`; PR `pending`.
+Links: branch `feature/fs-corpus-retrieval`; brief `.agent/features/2026-04-24-fs-corpus-retrieval/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/21`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -174,11 +174,12 @@ Let Phase 0 skeleton runs optionally read **on-disk** `piece_label` JSON and emi
 
 - [x] (2026-04-24) Planning
 - [x] (2026-04-24) Implementation
-- [ ] (2026-04-24) Validation + docs (PR + merge)
+- [x] (2026-04-24) Validation + docs (PR #21; GitHub **Tests** green; local `pytest -q`: 102 passed)
 
 ### Surprises & discoveries
 
-- Observation: (none yet)
+- Observation: `gh pr checks` initially reported no checks; **Tests** appeared after a short delay.  
+  Evidence: `gh pr checks 21` then `Tests pass`.
 
 ### Decision log
 
@@ -186,7 +187,7 @@ Let Phase 0 skeleton runs optionally read **on-disk** `piece_label` JSON and emi
 
 ### Outcomes & retrospective
 
-Deferred after PR: embedding / lexical archive index, framing driven by real LLM output.
+Merged via PR #21 (`https://github.com/john-e-moore/tlg-writer/pull/21`). Default skeleton retrieval unchanged; optional `--corpus-labels-dir` fills `ranked_hits` from `piece_label` JSON. Deferred: embedding / lexical archive index, framing driven by real LLM output.
 
 ### Context and orientation
 
