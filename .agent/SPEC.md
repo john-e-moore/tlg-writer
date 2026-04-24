@@ -655,6 +655,8 @@ Stage prompts live under **`prompts/<stage>/`** using the same `<stage>` directo
 
 Define explicit JSON Schemas for core objects under **`schemas/json/`**, named **`<artifact_type>.schema.json`** in **snake_case** (example: `piece_brief.schema.json`). Use them for API output validation, on-disk `output.json` validation, fixtures, and tests.
 
+The assigned-topic skeleton resolves each stage directory to its output schema via **`tlg_writer.stage_schemas`** (`OUTPUT_SCHEMA_BY_STAGE`, `validate_pipeline_stage_output`) so orchestration and tests share one mapping.
+
 Initial schema set (extend as needed):
 - `pieces_metadata_batch.schema.json` (batch arrays from `scripts/extract_docx_metadata.py`; per-row record shape lives under this file’s `$defs.piece_docx_metadata_record`)
 - `piece_label.schema.json`
@@ -959,6 +961,7 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 12. **Deepen** drafting observability: **`draft_result` v1** JSON Schema (SPEC §7.7: body, writer notes, uncertainty flags) with assigned skeleton `drafting/output.json` validated accordingly (stub prose; critique/revision inputs reference the canonical `draft_result` document).
 13. **Deepen** packaging observability: **`final_deliverable` v1** JSON Schema (markdown body, limitations, operator summary) with assigned skeleton `final/output.json` validated accordingly (`final/piece.md` mirrors `body_markdown`; Phase 0 quality by design).
 14. **Deepen** intake observability: **`inputs_result`**, **`source_reading_result`**, and **`topic_selection_result`** v1 JSON Schemas with assigned skeleton `inputs/`, `source_reading/`, and `topic_selection/output.json` validated accordingly (`topic_selection` v1 models assigned skip only; framing consumes canonical intake artifacts on `input.json`).
+15. **Infra:** shared **stage → JSON Schema** registry (`tlg_writer.stage_schemas`) and a small **LLM client** boundary (`tlg_writer.llm_client`: stub + optional OpenAI via stdlib, env-gated) so validation mapping and HTTP stay centralized.
 
 ---
 
