@@ -146,6 +146,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: revision_result v1 + revision stage wiring — done (PR #11 merged) — agent`
 - `2026-04-21 — ExecPlan: evaluation_result v1 + evaluation stage wiring — done (PR #12 merged) — agent`
 - `2026-04-21 — ExecPlan: draft_result v1 + drafting stage wiring — done (PR #13 merged) — agent`
+- `2026-04-21 — ExecPlan: final_deliverable v1 + final stage wiring — in_progress (PR pending) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -960,7 +961,7 @@ Status: `done`
 
 ### Purpose / big picture
 
-Ship SPEC §21 step 12: a versioned **`draft_result`** JSON Schema (SPEC §7.7) and make the assigned-topic skeleton emit schema-valid `drafting/output.json` while keeping inputs, source_reading, topic_selection, and final on Phase 0 generic stubs. Critique and revision consume the canonical draft document. No live models.
+Ship SPEC §21 step 12: a versioned **`draft_result`** JSON Schema (SPEC §7.7) and make the assigned-topic skeleton emit schema-valid `drafting/output.json` while keeping inputs, source_reading, and topic_selection on Phase 0 generic stubs (`final/` gained `final_deliverable` in a later PR). Critique and revision consume the canonical draft document. No live models.
 
 ### Progress
 
@@ -1021,5 +1022,76 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 ### Interfaces and dependencies
 
 - **Library:** `tlg_writer.draft_result.build_stub_draft_result_assigned`.
+- **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
+- **External:** none.
+
+---
+
+## ExecPlan: final_deliverable v1 + final stage wiring — 2026-04-21
+
+Links: branch `feature/final-deliverable-v1`; brief `.agent/features/2026-04-21-final-deliverable-v1/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Ship SPEC §21 step 13: a versioned **`final_deliverable`** JSON Schema and make the assigned-topic skeleton emit schema-valid `final/output.json` with `body_markdown` aligned to `final/piece.md`, while intake stages remain generic stubs. No live models.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [ ] (2026-04-21) Validation + docs (PR evidence)
+
+### Surprises & discoveries
+
+- (none yet)
+
+### Decision log
+
+- Decision: Keep `format` as `const` `markdown` for v1 — Rationale: matches current `piece.md` contract; extend schema when other formats ship — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+(pending merge)
+
+### Context and orientation
+
+Touch points: `schemas/json/final_deliverable.schema.json`, `src/tlg_writer/final_deliverable.py`, `src/tlg_writer/skeleton_pipeline.py`, `tests/unit/test_final_deliverable_schema.py`, `tests/integration/test_skeleton_pipeline.py`, `tests/fixtures/pipeline/final_deliverable_minimal.json`, `prompts/final/`, `.agent/SPEC.md` §13 / §21.
+
+### Plan of work
+
+1. Add `final_deliverable` schema + deterministic stub builder + unit tests and fixture.
+2. Wire skeleton final stage; add `prompts/final/` placeholders.
+3. Update README, SPEC §21 step 13 + §13 list, feature brief, PLANS index, and this ExecPlan with validation evidence.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_assigned_skeleton.py --topic "smoke" --slug final-smoke
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (schema unit tests; integration maps `final` to `final_deliverable`).
+- Smoke: skeleton CLI run; `final/output.json` validates as `final_deliverable`.
+- `--help` for `run_assigned_skeleton.py` and `extract_docx_metadata.py` unchanged.
+
+### Idempotence and recovery
+
+Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `FileExistsError`.
+
+### Artifacts and notes
+
+- Editorial runs: `artifacts/runs/<run_id>/final/output.json` is a `final_deliverable` document; `final/piece.md` mirrors `body_markdown`.
+- Fixture: `tests/fixtures/pipeline/final_deliverable_minimal.json`.
+
+### Interfaces and dependencies
+
+- **Library:** `tlg_writer.final_deliverable.build_stub_final_deliverable_assigned`.
 - **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
 - **External:** none.

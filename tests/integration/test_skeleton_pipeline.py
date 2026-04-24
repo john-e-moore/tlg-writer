@@ -24,7 +24,7 @@ _OUTPUT_SCHEMA_BY_STAGE: dict[str, str] = {
     "critique": "critique_result",
     "revision": "revision_result",
     "evaluation": "evaluation_result",
-    "final": "skeleton_stage_output",
+    "final": "final_deliverable",
 }
 
 
@@ -60,6 +60,7 @@ def test_skeleton_run_layout_and_manifest(tmp_path: Path) -> None:
     validate_file(root / "revision" / "output.json", "revision_result")
     validate_file(root / "evaluation" / "output.json", "evaluation_result")
     validate_file(root / "drafting" / "output.json", "draft_result")
+    validate_file(root / "final" / "output.json", "final_deliverable")
     validate_file(root / "topic_selection" / "output.json", "skeleton_stage_output")
     validate_file(root / "inputs" / "metrics.json", "stage_metrics")
 
@@ -81,6 +82,8 @@ def test_skeleton_run_layout_and_manifest(tmp_path: Path) -> None:
     body = piece.read_text(encoding="utf-8")
     assert "Phase 0 stub" in body
     assert "Thesis:" in body
+    final_json = json.loads((root / "final" / "output.json").read_text(encoding="utf-8"))
+    assert final_json["body_markdown"] == body
 
 
 def test_skeleton_refuses_existing_run_dir(tmp_path: Path) -> None:

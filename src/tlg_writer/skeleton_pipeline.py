@@ -12,6 +12,7 @@ from typing import Any
 from tlg_writer.critique_result import build_stub_critique_result_assigned
 from tlg_writer.draft_result import build_stub_draft_result_assigned
 from tlg_writer.evaluation_result import build_stub_evaluation_result_assigned
+from tlg_writer.final_deliverable import build_stub_final_deliverable_assigned
 from tlg_writer.revision_result import build_stub_revision_result_assigned
 from tlg_writer.framing_decision import build_stub_framing_decision_assigned
 from tlg_writer.json_schema import validate
@@ -315,29 +316,21 @@ def run_assigned_skeleton(
         output_schema="evaluation_result",
     )
 
-    # --- final (human-readable deliverable) ---
+    # --- final (canonical final_deliverable on output.json + piece.md) ---
     piece_md = revision_doc["revised_markdown"]
-    final_out: dict[str, Any] = {
-        "schema_version": "0.1",
-        "stage": "final",
-        "status": "completed",
-        "message": "Packaged stub piece for Phase 0 acceptance (low quality by design).",
-        "payload": {
-            "format": "markdown",
-            "body": piece_md,
-            "limitations": [
-                "All upstream stages are stubs or skipped.",
-                "Not suitable for external distribution.",
-            ],
-        },
-    }
+    final_doc = build_stub_final_deliverable_assigned(
+        run_id=rid,
+        body_markdown=piece_md,
+    )
+    validate(final_doc, "final_deliverable")
     _write_stage(
         run_dir,
         "final",
         {"schema_version": "0.1", "evaluation_result": evaluation_doc},
-        final_out,
-        "## final\n\nDeliverable is intentionally weak; "
-        "see `piece.md` and manifest `limitations`.\n",
+        final_doc,
+        "## final\n\nStructured **final_deliverable** (`schemas/json/final_deliverable.schema.json`); "
+        "`piece.md` mirrors `body_markdown`.\n",
+        output_schema="final_deliverable",
     )
     _write_text(run_dir / "final" / "piece.md", piece_md)
 
@@ -366,8 +359,8 @@ def run_assigned_skeleton(
         },
         "limitations": [
             "No live LLM calls.",
-            "Stages from framing/ through evaluation/ emit v1 domain JSON; "
-            "inputs/, source_reading/, topic_selection/, and final/ remain Phase 0 generic stubs.",
+            "Stages from framing/ through final/ emit v1 domain JSON on disk; "
+            "inputs/, source_reading/, and topic_selection/ remain Phase 0 generic stubs.",
         ],
     }
     gc = _git_commit()
