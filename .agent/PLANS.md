@@ -153,7 +153,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 - `2026-04-24 — ExecPlan: Phase 0 skeleton LLM client probe — done (PR #18 merged) — agent`
 - `2026-04-24 — ExecPlan: Corpus batch statistics (stub manifest + summary) — done (PR #19 merged) — agent`
-- `2026-04-24 — ExecPlan: Validate corpus piece_label / piece_features dirs — in_progress (PR #20) — agent`
+- `2026-04-24 — ExecPlan: Validate corpus piece_label / piece_features dirs — done (PR #20 merged) — agent`
 
 ---
 
@@ -1465,7 +1465,7 @@ Unchanged: duplicate `run_id` directory raises `FileExistsError`.
 
 Links: branch `feature/validate-corpus-piece-json`; brief `.agent/features/2026-04-24-validate-corpus-piece-json/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/20`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -1475,11 +1475,11 @@ Ship SPEC §21 step 19: operators can **read-only** validate every `*.json` unde
 
 - [x] (2026-04-24) Planning
 - [x] (2026-04-24) Implementation
-- [x] (2026-04-24) Validation + docs (local `pytest -q`: 96 passed; PR evidence pending)
+- [x] (2026-04-24) Validation + docs (PR #20; GitHub **Tests** green; local `pytest -q`: 96 passed)
 
 ### Surprises & discoveries
 
-- Observation: (none yet)
+- Observation: (none)
 
 ### Decision log
 
@@ -1487,7 +1487,7 @@ Ship SPEC §21 step 19: operators can **read-only** validate every `*.json` unde
 
 ### Outcomes & retrospective
 
-Pending merge.
+Merged via PR #20 (`https://github.com/john-e-moore/tlg-writer/pull/20`). Follow-up: optional CI hook or pre-commit for large dirs.
 
 ### Context and orientation
 
