@@ -16,6 +16,12 @@ from tlg_writer.final_deliverable import build_stub_final_deliverable_assigned
 from tlg_writer.framing_decision import build_stub_framing_decision_assigned
 from tlg_writer.inputs_result import build_stub_inputs_result_assigned, build_stub_inputs_result_auto
 from tlg_writer.json_schema import validate
+from tlg_writer.llm_client import (
+    ChatCompletionResult,
+    ChatMessage,
+    LLMClient,
+    StubLLMClient,
+)
 from tlg_writer.layout import STAGE_DIRS
 from tlg_writer.paths import repo_root
 from tlg_writer.piece_brief import build_stub_piece_brief_assigned
@@ -60,7 +66,8 @@ def _write_text(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
-def _stage_metrics(stage: str) -> dict[str, Any]:
+def _stage_metrics(stage: str, *, llm_ping: ChatCompletionResult) -> dict[str, Any]:
+    """Per-stage metrics; ``llm_ping`` is one shared run-level client probe (not stage output)."""
     return {
         "stage": stage,
         "model_id": "stub",
@@ -69,6 +76,15 @@ def _stage_metrics(stage: str) -> dict[str, Any]:
         "latency_ms": 0.0,
         "retries": 0,
         "validation": {"output_schema": "ok", "note": "Phase 0 skeleton; no provider calls."},
+        "llm": {
+            "phase0_client_probe": {
+                "model": llm_ping.model,
+                "input_tokens": llm_ping.input_tokens,
+                "output_tokens": llm_ping.output_tokens,
+                "latency_ms": llm_ping.latency_ms,
+                "note": "Single shared probe per run; output.json still from stub builders.",
+            }
+        },
     }
 
 
@@ -90,9 +106,10 @@ def _write_stage(
     output_obj: dict[str, Any],
     summary_md: str,
     *,
+    llm_ping: ChatCompletionResult,
     output_schema: str = "skeleton_stage_output",
 ) -> None:
-    metrics_obj = _stage_metrics(stage)
+    metrics_obj = _stage_metrics(stage, llm_ping=llm_ping)
     _validate_stage_bundle(stage, output_obj, metrics_obj, output_schema=output_schema)
     base = run_dir / stage
     _write_json(base / "input.json", input_obj)
@@ -126,6 +143,7 @@ def _execute_phase0_run(
     ts_doc: dict[str, Any],
     topic_selection_summary_md: str,
     stage_status_topic_selection: str,
+    llm_client: LLMClient | None = None,
 ) -> AssignedSkeletonResult:
     run_dir = artifacts_root / rid
     if run_dir.exists():
@@ -133,13 +151,28 @@ def _execute_phase0_run(
 
     run_dir.mkdir(parents=True)
     (run_dir / "logs").mkdir()
-    _write_text(
-        run_dir / "logs" / "run.log",
-        f"run_id={rid}\nmode={run_log_mode_tag}\nphase=0_skeleton\n",
-    )
 
     for d in STAGE_DIRS:
         (run_dir / d).mkdir()
+
+    resolved_llm: LLMClient = llm_client if llm_client is not None else StubLLMClient()
+    llm_ping = resolved_llm.complete_chat(
+        messages=[
+            ChatMessage(
+                role="system",
+                content="tlg-writer Phase 0 skeleton: observability probe only.",
+            ),
+            ChatMessage(role="user", content="ping"),
+        ],
+        model="phase0-probe",
+        temperature=0.0,
+        max_tokens=8,
+    )
+    _write_text(
+        run_dir / "logs" / "run.log",
+        f"run_id={rid}\nmode={run_log_mode_tag}\nphase=0_skeleton\n"
+        f"llm_probe_model={llm_ping.model}\n",
+    )
 
     created_at = when.astimezone(timezone.utc)
     iso = created_at.isoformat().replace("+00:00", "Z")
@@ -151,6 +184,7 @@ def _execute_phase0_run(
         inputs_in,
         inputs_doc,
         summary_md=inputs_summary_md,
+        llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("inputs"),
     )
 
@@ -163,6 +197,7 @@ def _execute_phase0_run(
         source_doc,
         "## source_reading\n\nStructured **source_reading_result**; "
         "Phase 0 stub (no files ingested).\n",
+        llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("source_reading"),
     )
 
@@ -177,6 +212,7 @@ def _execute_phase0_run(
         },
         ts_doc,
         summary_md=topic_selection_summary_md,
+        llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("topic_selection"),
     )
 
@@ -197,6 +233,7 @@ def _execute_phase0_run(
         framing_doc,
         "## framing\n\nStructured **framing_decision** (`schemas/json/framing_decision.schema.json`); "
         "stub content pending real framing stage.\n",
+        llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("framing"),
     )
 
@@ -209,6 +246,7 @@ def _execute_phase0_run(
         retr_doc,
         "## retrieval\n\nStructured **retrieval_result** (`schemas/json/retrieval_result.schema.json`); "
         "empty ranked_hits until archive hooks exist.\n",
+        llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("retrieval"),
     )
 
@@ -232,6 +270,7 @@ def _execute_phase0_run(
         brief_doc,
         "## brief\n\nStructured **piece_brief** (`schemas/json/piece_brief.schema.json`); "
         "content is still stub-quality pending real brief builder.\n",
+        llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("brief"),
     )
 
@@ -248,6 +287,7 @@ def _execute_phase0_run(
         draft_doc,
         "## drafting\n\nStructured **draft_result** (`schemas/json/draft_result.schema.json`); "
         "stub prose only.\n",
+        llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("drafting"),
     )
 
@@ -264,6 +304,7 @@ def _execute_phase0_run(
         critique_doc,
         "## critique\n\nStructured **critique_result** (`schemas/json/critique_result.schema.json`); "
         "null rubric scores until real critics run.\n",
+        llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("critique"),
     )
 
@@ -283,6 +324,7 @@ def _execute_phase0_run(
         revision_doc,
         "## revision\n\nStructured **revision_result** (`schemas/json/revision_result.schema.json`); "
         "stub pass appends a single cosmetic line.\n",
+        llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("revision"),
     )
 
@@ -295,6 +337,7 @@ def _execute_phase0_run(
         evaluation_doc,
         "## evaluation\n\nStructured **evaluation_result** (`schemas/json/evaluation_result.schema.json`); "
         "explicit **human_review_required** until a real evaluator runs.\n",
+        llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("evaluation"),
     )
 
@@ -311,6 +354,7 @@ def _execute_phase0_run(
         final_doc,
         "## final\n\nStructured **final_deliverable** (`schemas/json/final_deliverable.schema.json`); "
         "`piece.md` mirrors `body_markdown`.\n",
+        llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("final"),
     )
     _write_text(run_dir / "final" / "piece.md", piece_md)
@@ -339,7 +383,8 @@ def _execute_phase0_run(
             "note": "Phase 0 vertical slice: stubs/mocks only; see `.agent/SPEC.md` §18.",
         },
         "limitations": [
-            "No live LLM calls.",
+            "One `llm_client` observability probe per run (default: stub; no completion text used in "
+            "stage outputs).",
             "All stage output.json files validate against v1 JSON Schemas (including intake); "
             "content remains stub-quality until real agents are wired.",
         ],
@@ -355,6 +400,12 @@ def _execute_phase0_run(
         "mode": config_mode,
         "models_by_stage": {s: "stub" for s in stages},
         "prompts": "see prompts/<stage>/ on disk (placeholders in Phase 0)",
+        "llm_client_probe": {
+            "model": llm_ping.model,
+            "input_tokens": llm_ping.input_tokens,
+            "output_tokens": llm_ping.output_tokens,
+            "latency_ms": llm_ping.latency_ms,
+        },
     }
     _write_json(run_dir / "config.json", config)
 
@@ -368,11 +419,15 @@ def run_assigned_skeleton(
     artifacts_root: Path,
     when: datetime | None = None,
     run_id: str | None = None,
+    llm_client: LLMClient | None = None,
 ) -> AssignedSkeletonResult:
     """
     Create `artifacts_root / <run_id>` with full stage layout (Phase 0, **assigned**).
 
     When ``run_id`` is set, it must match the documented id pattern; used for tests.
+
+    ``llm_client`` defaults to :class:`StubLLMClient` (deterministic, no network). Pass an
+    explicit client only when you intend non-default behavior (tests or opt-in backends).
     """
     when = when or datetime.now(timezone.utc)
     if run_id is None:
@@ -402,6 +457,7 @@ def run_assigned_skeleton(
             "## topic_selection\n\n**Skipped** for assigned mode (see `output.json`).\n"
         ),
         stage_status_topic_selection="skipped",
+        llm_client=llm_client,
     )
 
 
@@ -412,12 +468,15 @@ def run_auto_skeleton(
     when: datetime | None = None,
     run_id: str | None = None,
     topic: str | None = None,
+    llm_client: LLMClient | None = None,
 ) -> AssignedSkeletonResult:
     """
     Create `artifacts_root / <run_id>` with full stage layout (Phase 0, **auto** stub).
 
     Uses ``build_run_id(..., "auto", slug)``. Topic label is ``topic`` when provided,
     otherwise :data:`DEFAULT_AUTO_TOPIC_LABEL`. No live topic search.
+
+    See :func:`run_assigned_skeleton` for ``llm_client`` semantics.
     """
     when = when or datetime.now(timezone.utc)
     if run_id is None:
@@ -451,4 +510,5 @@ def run_auto_skeleton(
             "(no search).\n"
         ),
         stage_status_topic_selection="completed",
+        llm_client=llm_client,
     )
