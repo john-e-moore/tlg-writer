@@ -137,7 +137,7 @@ Public functions, CLIs, env vars, external APIs.
 
 Maintain a bullet list here for in-flight work:
 
-- `2026-04-24 — ExecPlan: LLM framing (assigned opt-in) — in progress (PR #22) — agent`
+- `2026-04-24 — ExecPlan: LLM framing (assigned opt-in) — done (PR #22 merged) — agent`
 - `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — done (PR #2 merged) — agent`
 - `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — done (PR #3 merged) — agent`
 - `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — done (PR #4 merged) — agent`
@@ -163,9 +163,9 @@ Maintain a bullet list here for in-flight work:
 
 ## ExecPlan: LLM framing (assigned opt-in) — 2026-04-24
 
-Links: branch `feature/llm-framing-stage`; brief `.agent/features/2026-04-24-llm-framing-stage/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/22`.
+Links: branch `feature/llm-framing-stage` (merged); brief `.agent/features/2026-04-24-llm-framing-stage/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/22`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -175,11 +175,12 @@ Ship an env-gated **framing** stage that can consume a real chat completion, par
 
 - [x] (2026-04-24) Planning
 - [x] (2026-04-24) Implementation
-- [ ] (2026-04-24) Validation + merge (PR, CI, smoke paths)
+- [x] (2026-04-24) Validation + merge (PR #22; GitHub **Tests** green; `pytest -q`: 108 passed)
 
 ### Surprises & discoveries
 
-- (none yet)
+- Observation: `gh pr checks` initially reported no checks; **Tests** appeared after a short delay.  
+  Evidence: `gh pr checks 22` → **Tests** pass.
 
 ### Decision log
 
@@ -188,7 +189,7 @@ Ship an env-gated **framing** stage that can consume a real chat completion, par
 
 ### Outcomes & retrospective
 
-- Pending merge.
+Merged via PR #22 (`https://github.com/john-e-moore/tlg-writer/pull/22`). Default skeleton unchanged; `llm_framing` / `--llm-framing` adds one JSON-validated completion for `framing`. Deferred: `run_auto_skeleton` support, additional live stages.
 
 ### Context and orientation
 
