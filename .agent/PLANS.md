@@ -137,7 +137,7 @@ Public functions, CLIs, env vars, external APIs.
 
 Maintain a bullet list here for in-flight work:
 
-- `2026-04-24 — ExecPlan: LLM framing (assigned opt-in) — in progress — agent`
+- `2026-04-24 — ExecPlan: LLM framing (assigned opt-in) — in progress (PR #22) — agent`
 - `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — done (PR #2 merged) — agent`
 - `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — done (PR #3 merged) — agent`
 - `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — done (PR #4 merged) — agent`
@@ -163,7 +163,7 @@ Maintain a bullet list here for in-flight work:
 
 ## ExecPlan: LLM framing (assigned opt-in) — 2026-04-24
 
-Links: branch `feature/llm-framing-stage`; brief `.agent/features/2026-04-24-llm-framing-stage/SPEC.md`; PR `pending`.
+Links: branch `feature/llm-framing-stage`; brief `.agent/features/2026-04-24-llm-framing-stage/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/22`.
 
 Status: `in_progress`
 
