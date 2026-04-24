@@ -10,6 +10,7 @@ import pytest
 
 from tlg_writer.json_schema import validate_file
 from tlg_writer.layout import STAGE_DIRS
+from tlg_writer.llm_client import StubLLMClient
 from tlg_writer.skeleton_pipeline import run_assigned_skeleton, run_auto_skeleton
 from tlg_writer.stage_schemas import OUTPUT_SCHEMA_BY_STAGE
 
@@ -59,6 +60,11 @@ def test_skeleton_run_layout_and_manifest(tmp_path: Path) -> None:
     config = json.loads((root / "config.json").read_text(encoding="utf-8"))
     assert config["mode"] == "assigned"
     assert set(config["models_by_stage"]) == set(STAGE_DIRS)
+    assert config["llm_client_probe"]["model"] == "phase0-probe"
+    run_log = (root / "logs" / "run.log").read_text(encoding="utf-8")
+    assert "llm_probe_model=phase0-probe" in run_log
+    metrics0 = json.loads((root / "inputs" / "metrics.json").read_text(encoding="utf-8"))
+    assert metrics0["llm"]["phase0_client_probe"]["model"] == "phase0-probe"
 
     ts = (root / "topic_selection" / "output.json").read_text(encoding="utf-8")
     assert "skipped" in ts
@@ -106,6 +112,26 @@ def test_skeleton_each_stage_output_and_metrics_are_schema_valid(tmp_path: Path)
         validate_file(root / stage / "metrics.json", "stage_metrics")
         summary = (root / stage / "summary.md").read_text(encoding="utf-8")
         assert summary.strip()
+
+
+def test_skeleton_llm_probe_uses_injected_client_once(tmp_path: Path) -> None:
+    calls: list[str] = []
+
+    class TraceStub(StubLLMClient):
+        def complete_chat(self, **kwargs):  # type: ignore[no-untyped-def]
+            calls.append("ping")
+            return super().complete_chat(**kwargs)
+
+    res = run_assigned_skeleton(
+        topic="t",
+        slug="llm-trace",
+        artifacts_root=tmp_path,
+        run_id="2026-04-21T12-00-00Z__assigned__llm-trace",
+        llm_client=TraceStub(),
+    )
+    assert calls == ["ping"]
+    cfg = json.loads((res.run_dir / "config.json").read_text(encoding="utf-8"))
+    assert cfg["llm_client_probe"]["model"] == "phase0-probe"
 
 
 def test_auto_skeleton_run_layout_manifest_and_topic_selection_completed(tmp_path: Path) -> None:

@@ -151,6 +151,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Stage schema registry + LLM client module — done (PR #16 merged) — agent`
 - `2026-04-21 — ExecPlan: Phase 0 auto-topic skeleton (stub) — done (PR #17 merged) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
+- `2026-04-24 — ExecPlan: Phase 0 skeleton LLM client probe — in_progress (PR #18) — agent`
 
 ---
 
@@ -1316,4 +1317,72 @@ New runs under `artifacts/runs/<run_id>/` when using default `--artifacts-root`.
 
 - **Library:** `tlg_writer.skeleton_pipeline.run_auto_skeleton`
 - **CLI:** `scripts/run_auto_skeleton.py`
+
+---
+
+## ExecPlan: Phase 0 skeleton LLM client probe — 2026-04-24
+
+Links: branch `feature/skeleton-llm-probe`; brief `.agent/features/2026-04-24-skeleton-llm-probe/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/18`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Connect the existing `tlg_writer.llm_client` boundary to Phase 0 skeleton runs with a **single observability probe** per run so operators see LLM metadata in `config.json`, `metrics.json`, and `run.log` while all stage `output.json` files remain stub-built (no paid API by default).
+
+### Progress
+
+- [x] (2026-04-24) Planning
+- [x] (2026-04-24) Implementation
+- [ ] (2026-04-24) Validation + docs (PR evidence)
+
+### Surprises & discoveries
+
+- (none yet)
+
+### Decision log
+
+- Decision: Default `llm_client` remains `StubLLMClient()` inside runners (not `llm_client_from_env()`) — Rationale: avoids accidental live calls when operators have `OPENAI_API_KEY` set — Date: 2026-04-24
+
+### Outcomes & retrospective
+
+Pending merge.
+
+### Context and orientation
+
+Touch points: `src/tlg_writer/skeleton_pipeline.py`, `src/tlg_writer/llm_client.py`, `tests/integration/test_skeleton_pipeline.py`, `.agent/SPEC.md` §21 step 17, `README.md`.
+
+### Plan of work
+
+1. Probe once in `_execute_phase0_run`; thread snapshot into `_write_stage` metrics and `config.json`.
+2. Extend integration tests; document in README / SPEC / PLANS.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_assigned_skeleton.py --help
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes; integration asserts `llm_client_probe` and per-stage `metrics.json` `llm.phase0_client_probe`.
+- Smoke: assigned skeleton run; `run.log` contains `llm_probe_model=phase0-probe`.
+
+### Idempotence and recovery
+
+Unchanged: duplicate `run_id` directory raises `FileExistsError`.
+
+### Artifacts and notes
+
+- `artifacts/runs/<run_id>/config.json` gains `llm_client_probe`.
+- Each `*/metrics.json` gains `llm.phase0_client_probe` (schema allows via `additionalProperties` on nested objects / stage_metrics).
+
+### Interfaces and dependencies
+
+- **Library:** `run_assigned_skeleton`, `run_auto_skeleton` optional `llm_client: LLMClient | None`.
+- **External:** none in default configuration.
 
