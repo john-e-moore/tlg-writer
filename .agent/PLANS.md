@@ -152,6 +152,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Phase 0 auto-topic skeleton (stub) — done (PR #17 merged) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 - `2026-04-24 — ExecPlan: Phase 0 skeleton LLM client probe — done (PR #18 merged) — agent`
+- `2026-04-24 — ExecPlan: Corpus batch statistics (stub manifest + summary) — in_progress — agent`
 
 ---
 
@@ -1386,4 +1387,73 @@ Unchanged: duplicate `run_id` directory raises `FileExistsError`.
 
 - **Library:** `run_assigned_skeleton`, `run_auto_skeleton` optional `llm_client: LLMClient | None`.
 - **External:** none in default configuration.
+
+---
+
+## ExecPlan: Corpus batch statistics (stub manifest + summary) — 2026-04-24
+
+Links: branch `feature/corpus-batch-statistics`; brief `.agent/features/2026-04-24-corpus-batch-statistics/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Ship PROGRESS “summary statistics” for **stub** corpus batch runs: extend `corpus_batch_manifest` with optional `batch_statistics` v1 and enrich `summary.md` so operators see skip reasons, title coverage, `words_approx` rollups, and primary-archetype histograms without parsing every label JSON.
+
+### Progress
+
+- [x] (2026-04-24) Planning
+- [x] (2026-04-24) Implementation
+- [x] (2026-04-24) Validation + docs (local `pytest -q`: 88 passed; PR pending)
+
+### Surprises & discoveries
+
+- (pending)
+
+### Decision log
+
+- Decision: Keep `skipped_with_errors` as the combined skip count for backward compatibility; add `batch_statistics.skip_reasons` for the breakdown — Date: 2026-04-24
+
+### Outcomes & retrospective
+
+(pending merge)
+
+### Context and orientation
+
+Touch points: `schemas/json/corpus_batch_manifest.schema.json`, `src/tlg_writer/corpus_batch_stub.py`, `tests/integration/test_corpus_batch_stub.py`, `tests/unit/test_corpus_batch_statistics.py`, `.agent/SPEC.md` §21 step 18, `.agent/PROGRESS.md`, `README.md`.
+
+### Plan of work
+
+1. Extend manifest schema with `batch_statistics` v1.
+2. Collect aggregates in `run_corpus_batch_stub`; pure builder for tests.
+3. Render `summary.md` sections; pytest integration + unit coverage.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_corpus_batch_stub.py --help
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes; manifests validate as `corpus_batch_manifest` including `batch_statistics`.
+- Integration asserts skip breakdown on error-row fixture; summary contains structured headings.
+
+### Idempotence and recovery
+
+Unchanged: duplicate `run_id` directory raises `FileExistsError`.
+
+### Artifacts and notes
+
+- `artifacts/runs/<run_id>/manifest.json` includes `batch_statistics`.
+- `summary.md` mirrors key tables.
+
+### Interfaces and dependencies
+
+- **Library:** `run_corpus_batch_stub`, `build_batch_statistics_v1`.
+- **External:** none.
 

@@ -3,7 +3,7 @@
 **Purpose:** A single page to see **what is done** and **what is next** without reading every ExecPlan in `.agent/PLANS.md` or every line of `.agent/SPEC.md`.  
 **Normative requirements** still live in `.agent/SPEC.md`; **agent behavior** in `.agent/AGENTS.md`.
 
-**Last updated:** 2026-04-24 (initial file; align checkboxes with reality after each substantive merge.)
+**Last updated:** 2026-04-24
 
 ---
 
@@ -64,7 +64,8 @@
 - [x] **Stub** batch run: `scripts/run_corpus_batch_stub.py` → `piece_label` / `piece_features` files + `artifacts/runs/…` with `corpus_batch_manifest`, `summary.md`, `run.log`
 - [ ] **Real** labeling pipeline (model or HITL) writing schema-valid `data/processed/pieces/labeled/`
 - [ ] **Real** feature extraction pipeline writing schema-valid `data/processed/pieces/extracted_features/`
-- [ ] **Summary statistics** for a labeling/feature batch (counts, errors, archetype distribution, etc.) in operator-facing artifacts
+- [x] **Summary statistics** for **stub** corpus batch runs (`corpus_batch_manifest.batch_statistics` v1 + `summary.md` tables: skips, titles, `words_approx`, primary archetype counts)
+- [ ] **Summary statistics** for **real** labeling / feature extraction batches (reuse or extend the same contract when those paths ship)
 - [ ] Tests for real labeling/extraction paths (with mocks for HTTP where needed)
 
 ### Gold set
