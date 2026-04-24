@@ -149,7 +149,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: final_deliverable v1 + final stage wiring — done (PR #14 merged) — agent`
 - `2026-04-21 — ExecPlan: Intake stage v1 schemas (inputs, source_reading, topic_selection) — done (PR #15 merged) — agent`
 - `2026-04-21 — ExecPlan: Stage schema registry + LLM client module — done (PR #16 merged) — agent`
-- `2026-04-21 — ExecPlan: Phase 0 auto-topic skeleton (stub) — in_progress — agent`
+- `2026-04-21 — ExecPlan: Phase 0 auto-topic skeleton (stub) — in_progress (PR #17) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -1247,7 +1247,7 @@ N/A (library-only refactor plus new modules).
 
 ## ExecPlan: Phase 0 auto-topic skeleton (stub) — 2026-04-21
 
-Links: branch `feature/auto-skeleton-phase0`; brief `N/A`; PR `pending`.
+Links: branch `feature/auto-skeleton-phase0`; brief `N/A`; PR `https://github.com/john-e-moore/tlg-writer/pull/17`.
 
 Status: `in_progress`
 
@@ -1260,7 +1260,8 @@ Ship SPEC §21 step 16: a second Phase 0 runner for **`auto`** mode that reuses 
 - [x] (2026-04-21) Schemas + builders + `run_auto_skeleton` / shared `_execute_phase0_run`
 - [x] (2026-04-21) CLI `scripts/run_auto_skeleton.py`
 - [x] (2026-04-21) Unit + integration tests; README / SPEC / prompts
-- [ ] PR opened, CI green, merge
+- [x] (2026-04-21) PR #17 opened (`gh pr create`)
+- [ ] CI green + merge to `main`
 
 ### Surprises & discoveries
 
