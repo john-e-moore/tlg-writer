@@ -1,0 +1,16 @@
+{
+  "piece_id": "data/raw/pieces/unlabeled/match-data-dissection.docx",
+  "schema_version": "v1",
+  "labeled_at_utc": "2026-04-24T12:00:00+00:00",
+  "labels": {
+    "basic_metadata": {
+      "title": "Match primary archetype"
+    },
+    "editorial": {
+      "primary_archetype_id": "data_dissection"
+    },
+    "voice": {},
+    "structural": {},
+    "quality": {}
+  }
+}

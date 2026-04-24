@@ -1,0 +1,17 @@
+{
+  "piece_id": "data/raw/pieces/unlabeled/alt-in-alternates.docx",
+  "schema_version": "v1",
+  "labeled_at_utc": "2026-04-24T12:00:00+00:00",
+  "labels": {
+    "basic_metadata": {
+      "title": "Framing id in alternates only"
+    },
+    "editorial": {
+      "primary_archetype_id": "scenario",
+      "alternate_archetype_ids": ["data_dissection", "historical_analog"]
+    },
+    "voice": {},
+    "structural": {},
+    "quality": {}
+  }
+}

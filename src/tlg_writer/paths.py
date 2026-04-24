@@ -16,3 +16,12 @@ def repo_root() -> Path:
 
 def schemas_dir() -> Path:
     return repo_root() / "schemas" / "json"
+
+
+def as_repo_relative(path: Path) -> str:
+    """Return a path relative to the repo root when possible, else an absolute string."""
+    root = repo_root()
+    try:
+        return str(path.resolve().relative_to(root))
+    except ValueError:
+        return str(path.resolve())

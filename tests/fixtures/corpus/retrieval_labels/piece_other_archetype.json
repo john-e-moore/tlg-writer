@@ -1,0 +1,16 @@
+{
+  "piece_id": "data/raw/pieces/unlabeled/other-archetype.docx",
+  "schema_version": "v1",
+  "labeled_at_utc": "2026-04-24T12:00:00+00:00",
+  "labels": {
+    "basic_metadata": {
+      "title": "No framing alignment"
+    },
+    "editorial": {
+      "primary_archetype_id": "historical_analog"
+    },
+    "voice": {},
+    "structural": {},
+    "quality": {}
+  }
+}

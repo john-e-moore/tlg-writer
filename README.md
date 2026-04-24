@@ -20,6 +20,14 @@ python scripts/run_assigned_skeleton.py --topic "US payrolls and Fed cuts" --slu
 
 The command prints the absolute path to the new run folder. Re-running always uses a new `run_id` (UTC timestamp in the id); a second run never overwrites the first.
 
+Optional **filesystem retrieval**: pass `--corpus-labels-dir` to scan schema-valid `piece_label` `*.json` files and fill `retrieval/output.json` `ranked_hits` (ranked by archetype alignment with the Phase 0 stub framing id `data_dissection`, then the remaining pool). `config.json` gains `corpus_retrieval` (`labels_dir`, `recursive`, `max_hits`). This is not an embedding or full-text archive index.
+
+```bash
+python scripts/run_assigned_skeleton.py --topic "Smoke" --slug smoke \
+  --corpus-labels-dir tests/fixtures/corpus/retrieval_labels
+# Same flags on run_auto_skeleton.py
+```
+
 ## Phase 0: auto-topic skeleton run (stub)
 
 Same full stage layout and stub downstream stages as the assigned runner, but `run_id` uses `__auto__`, manifest/config `mode` is `auto`, `inputs/output.json` is an **`inputs_result`** with `topic.source: auto_stub`, and `topic_selection/output.json` is a **`topic_selection_result`** **completed** stub (empty `candidates_considered`; no search, no LLM):
