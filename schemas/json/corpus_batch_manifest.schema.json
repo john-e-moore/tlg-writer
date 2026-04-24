@@ -82,6 +82,97 @@
     "limitations": {
       "type": "array",
       "items": { "type": "string" }
+    },
+    "batch_statistics": {
+      "type": "object",
+      "description": "Operator-facing aggregates for this batch run (stub or real). Omitted only on legacy manifests; corpus stub always emits v1.",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "skip_reasons",
+        "metadata_core_titles",
+        "features_words_approx",
+        "labels_editorial_primary_archetype"
+      ],
+      "properties": {
+        "schema_version": { "type": "string", "const": "v1" },
+        "skip_reasons": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["missing_piece_id", "metadata_row_error"],
+          "properties": {
+            "missing_piece_id": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Batch rows skipped: no usable string piece_id (relative_to_repo)."
+            },
+            "metadata_row_error": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Batch rows skipped: extraction error field present."
+            }
+          }
+        },
+        "metadata_core_titles": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["present", "missing"],
+          "properties": {
+            "present": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Among successfully written labels: rows with non-empty core.title."
+            },
+            "missing": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Among successfully written labels: rows missing core.title."
+            }
+          }
+        },
+        "features_words_approx": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["samples", "non_null_count", "min", "max", "sum"],
+          "properties": {
+            "samples": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of written feature rows included in this block (equals labels_written for stub)."
+            },
+            "non_null_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "How many of those samples had body.words_approx in metadata."
+            },
+            "min": { "type": ["integer", "null"] },
+            "max": { "type": ["integer", "null"] },
+            "sum": { "type": ["integer", "null"] }
+          }
+        },
+        "labels_editorial_primary_archetype": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["with_primary", "without_primary", "primary_id_counts"],
+          "properties": {
+            "with_primary": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Written labels carrying labels.editorial.primary_archetype_id."
+            },
+            "without_primary": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Written labels without primary_archetype_id."
+            },
+            "primary_id_counts": {
+              "type": "object",
+              "additionalProperties": { "type": "integer", "minimum": 1 },
+              "description": "Histogram of primary archetype ids (taxonomy strings)."
+            }
+          }
+        }
+      }
     }
   }
 }

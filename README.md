@@ -57,7 +57,7 @@ Label and extracted-feature envelopes for future pipelines: `piece_label.schema.
 
 ## Corpus batch (stub)
 
-From a validated `pieces_metadata_*.json` batch, emit schema-valid stub labels and features plus a timestamped run under `artifacts/runs/` (see `schemas/json/corpus_batch_manifest.schema.json`):
+From a validated `pieces_metadata_*.json` batch, emit schema-valid stub labels and features plus a timestamped run under `artifacts/runs/` (see `schemas/json/corpus_batch_manifest.schema.json`). Each manifest includes `batch_statistics` (skip reasons, title coverage, `words_approx` rollups, primary-archetype histogram) mirrored in `summary.md`.
 
 ```bash
 python scripts/run_corpus_batch_stub.py \

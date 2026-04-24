@@ -37,6 +37,13 @@ def test_corpus_batch_stub_end_to_end(tmp_path: Path) -> None:
     assert man["counts"]["records_total"] == 1
     assert man["counts"]["labels_written"] == 1
     assert man["counts"]["skipped_with_errors"] == 0
+    stats = man["batch_statistics"]
+    assert stats["schema_version"] == "v1"
+    assert stats["skip_reasons"] == {"missing_piece_id": 0, "metadata_row_error": 0}
+    assert stats["metadata_core_titles"] == {"present": 1, "missing": 0}
+    assert stats["features_words_approx"]["non_null_count"] == 1
+    assert stats["features_words_approx"]["min"] == 42
+    assert stats["labels_editorial_primary_archetype"]["without_primary"] == 1
 
     idx = man["artifact_index"]
     assert len(idx) == 1
@@ -79,6 +86,8 @@ def test_corpus_batch_stub_empty_batch_writes_valid_manifest(tmp_path: Path) -> 
     assert man["counts"]["labels_written"] == 0
     assert man["counts"]["features_written"] == 0
     assert man["counts"]["skipped_with_errors"] == 0
+    assert man["batch_statistics"]["features_words_approx"]["samples"] == 0
+    assert man["batch_statistics"]["labels_editorial_primary_archetype"]["without_primary"] == 0
     assert man["artifact_index"] == {}
     assert (res.run_dir / "logs" / "run.log").is_file()
 
@@ -96,10 +105,18 @@ def test_corpus_batch_stub_skips_error_rows(tmp_path: Path) -> None:
         run_id="2026-04-21T13-00-00Z__corpus__skip-test",
     )
     man = json.loads((res.run_dir / "manifest.json").read_text(encoding="utf-8"))
+    validate(man, "corpus_batch_manifest")
     assert man["counts"]["records_total"] == 2
     assert man["counts"]["labels_written"] == 1
     assert man["counts"]["skipped_with_errors"] == 1
     assert len(man["artifact_index"]) == 1
+    st = man["batch_statistics"]["skip_reasons"]
+    assert st["metadata_row_error"] == 1
+    assert st["missing_piece_id"] == 0
+    assert man["batch_statistics"]["metadata_core_titles"]["missing"] == 1
+    summary = (res.run_dir / "summary.md").read_text(encoding="utf-8")
+    assert "Metadata extraction" in summary
+    assert "### counts" in summary
 
 
 def test_corpus_batch_stub_rejects_duplicate_run_dir(tmp_path: Path) -> None:
