@@ -20,6 +20,8 @@ python scripts/run_assigned_skeleton.py --topic "US payrolls and Fed cuts" --slu
 
 The command prints the absolute path to the new run folder. Re-running always uses a new `run_id` (UTC timestamp in the id); a second run never overwrites the first.
 
+Optional **LLM framing** (assigned only): pass `--llm-framing` to parse a chat completion as `framing_decision` JSON (requires a non-stub backend, e.g. `TLG_LLM_BACKEND=openai`, `OPENAI_API_KEY`, and optionally `TLG_LLM_FRAMING_MODEL` or `--llm-framing-model`). Downstream stages stay Phase 0 stubs; `config.json` records `llm_framing` and `framing/metrics.json` records `llm.framing_completion`.
+
 Optional **filesystem retrieval**: pass `--corpus-labels-dir` to scan schema-valid `piece_label` `*.json` files and fill `retrieval/output.json` `ranked_hits` (ranked by archetype alignment with the Phase 0 stub framing id `data_dissection`, then the remaining pool). `config.json` gains `corpus_retrieval` (`labels_dir`, `recursive`, `max_hits`). This is not an embedding or full-text archive index.
 
 ```bash
@@ -51,7 +53,7 @@ Pull requests (and pushes to `main`) run the same suite in GitHub Actions; see `
 
 - **Stage → output schema:** `tlg_writer.stage_schemas.OUTPUT_SCHEMA_BY_STAGE` is the single registry for pipeline `output.json` validation (used by Phase 0 skeleton runners and integration tests).
 - **LLM calls:** use `tlg_writer.llm_client` (`StubLLMClient` by default; `llm_client_from_env()` reads `TLG_LLM_BACKEND` / `OPENAI_API_KEY`). Do not scatter raw HTTP across the codebase.
-- **Phase 0 skeleton:** each run performs one client **probe** (default stub) and mirrors probe metadata under `config.json` → `llm_client_probe`, every stage `metrics.json` → `llm.phase0_client_probe`, and `logs/run.log` → `llm_probe_model=…`. Pass `llm_client=` to `run_assigned_skeleton` / `run_auto_skeleton` only when you need a non-default client (tests or explicit opt-in); CLIs keep the default.
+- **Phase 0 skeleton:** each run performs at least one client **probe** (default stub) and mirrors probe metadata under `config.json` → `llm_client_probe`, every stage `metrics.json` → `llm.phase0_client_probe`, and `logs/run.log` → `llm_probe_model=…`. With `--llm-framing` on the assigned CLI (or `llm_framing=True` in the library), the framing stage adds a second completion and records `llm.framing_completion` under `framing/metrics.json`. Pass `llm_client=` to `run_assigned_skeleton` / `run_auto_skeleton` when you need a non-default client (tests or explicit opt-in); CLIs keep the default stub unless `--llm-framing` is set (then `llm_client_from_env()` is used if `llm_client` is not passed programmatically).
 
 ## Corpus metadata (existing)
 

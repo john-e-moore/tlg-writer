@@ -137,6 +137,7 @@ Public functions, CLIs, env vars, external APIs.
 
 Maintain a bullet list here for in-flight work:
 
+- `2026-04-24 — ExecPlan: LLM framing (assigned opt-in) — in progress — agent`
 - `2026-04-21 — ExecPlan: Corpus JSON schemas (metadata + label/feature contracts) — done (PR #2 merged) — agent`
 - `2026-04-21 — ExecPlan: Corpus batch stub (labels + features + manifest) — done (PR #3 merged) — agent`
 - `2026-04-21 — ExecPlan: Editorial archetype taxonomy v1 — done (PR #4 merged) — agent`
@@ -157,6 +158,81 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-24 — ExecPlan: Corpus batch statistics (stub manifest + summary) — done (PR #19 merged) — agent`
 - `2026-04-24 — ExecPlan: Validate corpus piece_label / piece_features dirs — done (PR #20 merged) — agent`
 - `2026-04-24 — ExecPlan: Filesystem corpus retrieval (skeleton) — done (PR #21 merged) — agent`
+
+---
+
+## ExecPlan: LLM framing (assigned opt-in) — 2026-04-24
+
+Links: branch `feature/llm-framing-stage`; brief `.agent/features/2026-04-24-llm-framing-stage/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Ship an env-gated **framing** stage that can consume a real chat completion, parse **JSON** into a `framing_decision` v1 document, and write inspectable `artifacts/runs/<run_id>/framing/*` (plus `config.json` / manifest / `run.log` notes) while the rest of Phase 0 remains stubbed. Matches **PROGRESS** Phase 2 “at least one stage using real structured LLM output” and **Current focus** on live assigned runs (narrow slice: framing only).
+
+### Progress
+
+- [x] (2026-04-24) Planning
+- [x] (2026-04-24) Implementation
+- [ ] (2026-04-24) Validation + merge (PR, CI, smoke paths)
+
+### Surprises & discoveries
+
+- (none yet)
+
+### Decision log
+
+- Decision: Reject `StubLLMClient` when `llm_framing=True` — Rationale: avoid silent no-op that looks like success — Date: 2026-04-24
+- Decision: Default framing model from `TLG_LLM_FRAMING_MODEL` or `gpt-4o-mini` — Rationale: small JSON task, explicit override via CLI — Date: 2026-04-24
+
+### Outcomes & retrospective
+
+- Pending merge.
+
+### Context and orientation
+
+Touch points: `src/tlg_writer/framing_decision.py`, `src/tlg_writer/skeleton_pipeline.py`, `scripts/run_assigned_skeleton.py`, `prompts/framing/*.md`, `tests/integration/test_skeleton_pipeline.py`, `tests/unit/test_framing_llm_json.py`, `.agent/SPEC.md` §21 step 17.
+
+### Plan of work
+
+1. Framing: JSON extract + `complete_framing_decision_via_llm`, prompt files.
+2. Pipeline: `llm_framing` / `framing_model`, custom framing metrics, manifest/config.
+3. CLI flags; tests (routing client + stub error); docs.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_assigned_skeleton.py --help
+# Stub smoke (no API):
+python scripts/run_assigned_skeleton.py --topic "doc smoke" --slug smoke --artifacts-root /tmp/tlg-writer-runs
+# With API (operator machine):
+# export TLG_LLM_BACKEND=openai OPENAI_API_KEY=... 
+# python scripts/run_assigned_skeleton.py --topic "Fed" --slug live-framing --llm-framing
+```
+
+### Validation and acceptance
+
+- `pytest -q` green; integration test with injected client proves valid `framing_decision` and `config["llm_framing"]`.
+- Default stub path unchanged when `llm_framing` is false.
+
+### Idempotence and recovery
+
+Unchanged: duplicate `run_id` → `FileExistsError`.
+
+### Artifacts and notes
+
+- Example stub run (no API): `…/2026-04-24T15-09-45Z__assigned__agent-smoke` under a chosen `--artifacts-root` (e.g. `/tmp/tlg-smoke-runs/`).
+- LLM run: operator-generated under `artifacts/runs/…` when credentials set.
+
+### Interfaces and dependencies
+
+- **Env:** `TLG_LLM_BACKEND`, `OPENAI_API_KEY`, optional `TLG_LLM_FRAMING_MODEL`.
+- **Library:** `run_assigned_skeleton(..., llm_framing=True)`.
 
 ---
 

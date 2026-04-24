@@ -42,7 +42,8 @@
 
 ### Not done yet (still Phase 0 / early Phase 2 depending on how you scope it)
 
-- [ ] Editorial stages consume **real** LLM completions (beyond probe) for any stage
+- [x] Optional **assigned** framing uses **real** structured LLM JSON (`llm_framing` / `--llm-framing`; other stages still stubs)
+- [ ] Editorial stages beyond framing consume **real** LLM completions for any additional stage
 - [x] Optional filesystem scan of `piece_label` JSON (`--corpus-labels-dir` on skeleton CLIs; `corpus_labels_dir=` on runners) fills `ranked_hits`; `config.json` → `corpus_retrieval` (SPEC §21 step 20)
 - [ ] Full-archive retrieval index / embedding or lexical search (beyond flat label-dir ranking)
 
@@ -84,7 +85,7 @@
 *Real prompts, retrieval integration, rubric-worthy outputs where applicable.*
 
 - [x] v1 schemas and stub-filled `output.json` for all editorial stages (observability-first)
-- [ ] End-to-end **assigned** run with at least one stage using **real** structured LLM output (still inspectable under `artifacts/runs/…`)
+- [x] End-to-end **assigned** run with at least one stage using **real** structured LLM output (`framing` when `llm_framing`; still inspectable under `artifacts/runs/…`)
 - [ ] Source reading / intake tied to **real** inputs (files, URLs, or agreed scope)
 - [ ] Retrieval integrated with **processed** corpus artifacts
 - [ ] Operator can **manually review** final piece against house rubric (process + artifacts documented)
