@@ -14,9 +14,9 @@ from tlg_writer.skeleton_pipeline import run_assigned_skeleton
 
 # Mirrors `run_assigned_skeleton` output_schema routing (see `skeleton_pipeline._write_stage`).
 _OUTPUT_SCHEMA_BY_STAGE: dict[str, str] = {
-    "inputs": "skeleton_stage_output",
-    "source_reading": "skeleton_stage_output",
-    "topic_selection": "skeleton_stage_output",
+    "inputs": "inputs_result",
+    "source_reading": "source_reading_result",
+    "topic_selection": "topic_selection_result",
     "framing": "framing_decision",
     "retrieval": "retrieval_result",
     "brief": "piece_brief",
@@ -52,7 +52,8 @@ def test_skeleton_run_layout_and_manifest(tmp_path: Path) -> None:
         assert (d / "metrics.json").is_file()
 
     validate_file(root / "manifest.json", "run_manifest")
-    validate_file(root / "source_reading" / "output.json", "skeleton_stage_output")
+    validate_file(root / "inputs" / "output.json", "inputs_result")
+    validate_file(root / "source_reading" / "output.json", "source_reading_result")
     validate_file(root / "framing" / "output.json", "framing_decision")
     validate_file(root / "retrieval" / "output.json", "retrieval_result")
     validate_file(root / "brief" / "output.json", "piece_brief")
@@ -61,7 +62,7 @@ def test_skeleton_run_layout_and_manifest(tmp_path: Path) -> None:
     validate_file(root / "evaluation" / "output.json", "evaluation_result")
     validate_file(root / "drafting" / "output.json", "draft_result")
     validate_file(root / "final" / "output.json", "final_deliverable")
-    validate_file(root / "topic_selection" / "output.json", "skeleton_stage_output")
+    validate_file(root / "topic_selection" / "output.json", "topic_selection_result")
     validate_file(root / "inputs" / "metrics.json", "stage_metrics")
 
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))

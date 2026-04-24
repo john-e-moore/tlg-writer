@@ -13,7 +13,10 @@ from tlg_writer.critique_result import build_stub_critique_result_assigned
 from tlg_writer.draft_result import build_stub_draft_result_assigned
 from tlg_writer.evaluation_result import build_stub_evaluation_result_assigned
 from tlg_writer.final_deliverable import build_stub_final_deliverable_assigned
+from tlg_writer.inputs_result import build_stub_inputs_result_assigned
 from tlg_writer.revision_result import build_stub_revision_result_assigned
+from tlg_writer.source_reading_result import build_stub_source_reading_result_assigned
+from tlg_writer.topic_selection_result import build_stub_topic_selection_result_assigned_skipped
 from tlg_writer.framing_decision import build_stub_framing_decision_assigned
 from tlg_writer.json_schema import validate
 from tlg_writer.layout import STAGE_DIRS
@@ -143,56 +146,47 @@ def run_assigned_skeleton(
         "raw_topic": topic,
         "mode": "assigned",
     }
-    inputs_out: dict[str, Any] = {
-        "schema_version": "0.1",
-        "stage": "inputs",
-        "status": "completed",
-        "message": "Normalized assigned-topic request (Phase 0 stub).",
-        "payload": {"topic": topic, "mode": "assigned"},
-    }
+    inputs_doc = build_stub_inputs_result_assigned(run_id=rid, topic=topic)
+    validate(inputs_doc, "inputs_result")
     _write_stage(
         run_dir,
         "inputs",
         inputs_in,
-        inputs_out,
+        inputs_doc,
         summary_md=(
             "## inputs\n\n"
             "Recorded CLI topic for **assigned** mode. No auto-topic selection.\n"
         ),
+        output_schema="inputs_result",
     )
 
-    prev = inputs_out["payload"]
-
-    # --- source_reading ---
-    src_out: dict[str, Any] = {
-        "schema_version": "0.1",
-        "stage": "source_reading",
-        "status": "stub",
-        "message": "Fixture-style source reading; no files ingested in Phase 0.",
-        "payload": {"highlights": [], "claims": [], "topic_echo": prev.get("topic")},
-    }
+    # --- source_reading (canonical source_reading_result on output.json) ---
+    source_doc = build_stub_source_reading_result_assigned(run_id=rid, topic=topic)
+    validate(source_doc, "source_reading_result")
     _write_stage(
         run_dir,
         "source_reading",
-        {"schema_version": "0.1", "upstream": "inputs", "topic": topic},
-        src_out,
-        "## source_reading\n\nStub stage. Operator should replace with real reader.\n",
+        {"schema_version": "0.1", "inputs_result": inputs_doc, "topic": topic},
+        source_doc,
+        "## source_reading\n\nStructured **source_reading_result**; "
+        "Phase 0 stub (no files ingested).\n",
+        output_schema="source_reading_result",
     )
 
-    # --- topic_selection (assigned: explicit skip) ---
-    ts_out: dict[str, Any] = {
-        "schema_version": "0.1",
-        "stage": "topic_selection",
-        "status": "skipped",
-        "message": "assigned mode: topic provided by user; auto-topic selection did not run.",
-        "payload": {"reason": "assigned_topic", "topic": topic},
-    }
+    # --- topic_selection (assigned: explicit skip; canonical topic_selection_result) ---
+    ts_doc = build_stub_topic_selection_result_assigned_skipped(run_id=rid, topic=topic)
+    validate(ts_doc, "topic_selection_result")
     _write_stage(
         run_dir,
         "topic_selection",
-        {"schema_version": "0.1", "mode": "assigned"},
-        ts_out,
+        {
+            "schema_version": "0.1",
+            "inputs_result": inputs_doc,
+            "source_reading_result": source_doc,
+        },
+        ts_doc,
         "## topic_selection\n\n**Skipped** for assigned mode (see `output.json`).\n",
+        output_schema="topic_selection_result",
     )
 
     # --- framing (canonical framing_decision on output.json) ---
@@ -205,7 +199,11 @@ def run_assigned_skeleton(
     _write_stage(
         run_dir,
         "framing",
-        {"schema_version": "0.1", "source_reading": src_out["payload"]},
+        {
+            "schema_version": "0.1",
+            "source_reading_result": source_doc,
+            "topic_selection_result": ts_doc,
+        },
         framing_doc,
         "## framing\n\nStructured **framing_decision** (`schemas/json/framing_decision.schema.json`); "
         "stub content pending real framing stage.\n",
@@ -359,8 +357,8 @@ def run_assigned_skeleton(
         },
         "limitations": [
             "No live LLM calls.",
-            "Stages from framing/ through final/ emit v1 domain JSON on disk; "
-            "inputs/, source_reading/, and topic_selection/ remain Phase 0 generic stubs.",
+            "All stage output.json files validate against v1 JSON Schemas (including intake); "
+            "content remains stub-quality until real agents are wired.",
         ],
     }
     gc = _git_commit()
