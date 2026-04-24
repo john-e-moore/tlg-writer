@@ -23,9 +23,10 @@ from tlg_writer.llm_client import (
     StubLLMClient,
 )
 from tlg_writer.layout import STAGE_DIRS
-from tlg_writer.paths import repo_root
+from tlg_writer.paths import as_repo_relative, repo_root
 from tlg_writer.piece_brief import build_stub_piece_brief_assigned
 from tlg_writer.retrieval_result import (
+    build_retrieval_result_from_labels_dir,
     build_stub_retrieval_result_assigned,
     ranked_piece_references,
 )
@@ -144,10 +145,15 @@ def _execute_phase0_run(
     topic_selection_summary_md: str,
     stage_status_topic_selection: str,
     llm_client: LLMClient | None = None,
+    corpus_labels_dir: Path | None = None,
+    corpus_labels_recursive: bool = False,
+    corpus_retrieval_max_hits: int = 12,
 ) -> AssignedSkeletonResult:
     run_dir = artifacts_root / rid
     if run_dir.exists():
         raise FileExistsError(f"run directory already exists: {run_dir}")
+    if corpus_labels_dir is not None and not corpus_labels_dir.is_dir():
+        raise NotADirectoryError(f"corpus_labels_dir is not a directory: {corpus_labels_dir}")
 
     run_dir.mkdir(parents=True)
     (run_dir / "logs").mkdir()
@@ -237,20 +243,37 @@ def _execute_phase0_run(
         output_schema=output_json_schema_for_stage("framing"),
     )
 
-    retr_doc = build_stub_retrieval_result_assigned(run_id=rid, topic=content_topic)
+    arch_id = str(framing_doc["primary_archetype_id"])
+    if corpus_labels_dir is not None:
+        retr_doc = build_retrieval_result_from_labels_dir(
+            run_id=rid,
+            topic=content_topic,
+            framing_primary_archetype_id=arch_id,
+            labels_dir=corpus_labels_dir,
+            max_hits=corpus_retrieval_max_hits,
+            recursive=corpus_labels_recursive,
+        )
+        retr_summary = (
+            "## retrieval\n\nStructured **retrieval_result**; **filesystem** scan of "
+            "schema-valid `piece_label` JSON under `corpus_retrieval.labels_dir` "
+            "(see `config.json`).\n"
+        )
+    else:
+        retr_doc = build_stub_retrieval_result_assigned(run_id=rid, topic=content_topic)
+        retr_summary = (
+            "## retrieval\n\nStructured **retrieval_result** (`schemas/json/retrieval_result.schema.json`); "
+            "empty ranked_hits until archive hooks exist.\n"
+        )
     validate_pipeline_stage_output("retrieval", retr_doc)
     _write_stage(
         run_dir,
         "retrieval",
         {"schema_version": "0.1", "framing_decision": framing_doc},
         retr_doc,
-        "## retrieval\n\nStructured **retrieval_result** (`schemas/json/retrieval_result.schema.json`); "
-        "empty ranked_hits until archive hooks exist.\n",
+        retr_summary,
         llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("retrieval"),
     )
-
-    arch_id = str(framing_doc["primary_archetype_id"])
     brief_doc = build_stub_piece_brief_assigned(
         run_id=rid,
         topic=content_topic,
@@ -387,6 +410,14 @@ def _execute_phase0_run(
             "stage outputs).",
             "All stage output.json files validate against v1 JSON Schemas (including intake); "
             "content remains stub-quality until real agents are wired.",
+            *(
+                [
+                    "Retrieval may use a flat (or `--corpus-labels-recursive`) filesystem scan of "
+                    "`piece_label` JSON; not a full archive index or embedding search."
+                ]
+                if corpus_labels_dir is not None
+                else []
+            ),
         ],
     }
     gc = _git_commit()
@@ -395,7 +426,7 @@ def _execute_phase0_run(
     validate(manifest, "run_manifest")
     _write_json(run_dir / "manifest.json", manifest)
 
-    config = {
+    config: dict[str, Any] = {
         "schema_version": "0.1",
         "mode": config_mode,
         "models_by_stage": {s: "stub" for s in stages},
@@ -407,6 +438,12 @@ def _execute_phase0_run(
             "latency_ms": llm_ping.latency_ms,
         },
     }
+    if corpus_labels_dir is not None:
+        config["corpus_retrieval"] = {
+            "labels_dir": as_repo_relative(corpus_labels_dir),
+            "recursive": corpus_labels_recursive,
+            "max_hits": corpus_retrieval_max_hits,
+        }
     _write_json(run_dir / "config.json", config)
 
     return AssignedSkeletonResult(run_dir=run_dir, run_id=rid)
@@ -420,6 +457,9 @@ def run_assigned_skeleton(
     when: datetime | None = None,
     run_id: str | None = None,
     llm_client: LLMClient | None = None,
+    corpus_labels_dir: Path | None = None,
+    corpus_labels_recursive: bool = False,
+    corpus_retrieval_max_hits: int = 12,
 ) -> AssignedSkeletonResult:
     """
     Create `artifacts_root / <run_id>` with full stage layout (Phase 0, **assigned**).
@@ -428,6 +468,10 @@ def run_assigned_skeleton(
 
     ``llm_client`` defaults to :class:`StubLLMClient` (deterministic, no network). Pass an
     explicit client only when you intend non-default behavior (tests or opt-in backends).
+
+    When ``corpus_labels_dir`` is set, retrieval ranks schema-valid ``piece_label`` JSON
+    files (see :func:`tlg_writer.retrieval_result.build_retrieval_result_from_labels_dir`)
+    instead of emitting empty ``ranked_hits``.
     """
     when = when or datetime.now(timezone.utc)
     if run_id is None:
@@ -458,6 +502,9 @@ def run_assigned_skeleton(
         ),
         stage_status_topic_selection="skipped",
         llm_client=llm_client,
+        corpus_labels_dir=corpus_labels_dir,
+        corpus_labels_recursive=corpus_labels_recursive,
+        corpus_retrieval_max_hits=corpus_retrieval_max_hits,
     )
 
 
@@ -469,6 +516,9 @@ def run_auto_skeleton(
     run_id: str | None = None,
     topic: str | None = None,
     llm_client: LLMClient | None = None,
+    corpus_labels_dir: Path | None = None,
+    corpus_labels_recursive: bool = False,
+    corpus_retrieval_max_hits: int = 12,
 ) -> AssignedSkeletonResult:
     """
     Create `artifacts_root / <run_id>` with full stage layout (Phase 0, **auto** stub).
@@ -476,7 +526,7 @@ def run_auto_skeleton(
     Uses ``build_run_id(..., "auto", slug)``. Topic label is ``topic`` when provided,
     otherwise :data:`DEFAULT_AUTO_TOPIC_LABEL`. No live topic search.
 
-    See :func:`run_assigned_skeleton` for ``llm_client`` semantics.
+    See :func:`run_assigned_skeleton` for ``llm_client`` and ``corpus_labels_dir`` semantics.
     """
     when = when or datetime.now(timezone.utc)
     if run_id is None:
@@ -511,4 +561,7 @@ def run_auto_skeleton(
         ),
         stage_status_topic_selection="completed",
         llm_client=llm_client,
+        corpus_labels_dir=corpus_labels_dir,
+        corpus_labels_recursive=corpus_labels_recursive,
+        corpus_retrieval_max_hits=corpus_retrieval_max_hits,
     )

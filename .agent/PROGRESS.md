@@ -43,7 +43,8 @@
 ### Not done yet (still Phase 0 / early Phase 2 depending on how you scope it)
 
 - [ ] Editorial stages consume **real** LLM completions (beyond probe) for any stage
-- [ ] Retrieval reads **real** archive / labeled corpus (non-empty `ranked_hits` path)
+- [x] Optional filesystem scan of `piece_label` JSON (`--corpus-labels-dir` on skeleton CLIs; `corpus_labels_dir=` on runners) fills `ranked_hits`; `config.json` → `corpus_retrieval` (SPEC §21 step 20)
+- [ ] Full-archive retrieval index / embedding or lexical search (beyond flat label-dir ranking)
 
 ---
 

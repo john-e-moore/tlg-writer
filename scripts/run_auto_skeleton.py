@@ -48,6 +48,26 @@ def main() -> int:
         help='Fixed UTC timestamp as "YYYY-MM-DDTHH:MM:SS" for reproducible run_id '
         "(only when --run-id is omitted).",
     )
+    p.add_argument(
+        "--corpus-labels-dir",
+        type=Path,
+        default=None,
+        help=(
+            "Optional directory of piece_label *.json files; retrieval ranks hits from disk "
+            "instead of empty Phase 0 stubs (same as run_assigned_skeleton)."
+        ),
+    )
+    p.add_argument(
+        "--corpus-labels-recursive",
+        action="store_true",
+        help="When set with --corpus-labels-dir, scan *.json recursively.",
+    )
+    p.add_argument(
+        "--corpus-retrieval-max-hits",
+        type=int,
+        default=12,
+        help="Cap ranked_hits when using --corpus-labels-dir (default: 12).",
+    )
     args = p.parse_args()
     try:
         normalize_slug(args.slug)
@@ -64,6 +84,9 @@ def main() -> int:
         when=when,
         run_id=args.run_id,
         topic=args.topic,
+        corpus_labels_dir=args.corpus_labels_dir,
+        corpus_labels_recursive=args.corpus_labels_recursive,
+        corpus_retrieval_max_hits=args.corpus_retrieval_max_hits,
     )
     print(res.run_dir.resolve())
     return 0

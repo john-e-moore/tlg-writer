@@ -156,6 +156,78 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-24 — ExecPlan: Phase 0 skeleton LLM client probe — done (PR #18 merged) — agent`
 - `2026-04-24 — ExecPlan: Corpus batch statistics (stub manifest + summary) — done (PR #19 merged) — agent`
 - `2026-04-24 — ExecPlan: Validate corpus piece_label / piece_features dirs — done (PR #20 merged) — agent`
+- `2026-04-24 — ExecPlan: Filesystem corpus retrieval (skeleton) — in_progress — agent`
+
+---
+
+## ExecPlan: Filesystem corpus retrieval (skeleton) — 2026-04-24
+
+Links: branch `feature/fs-corpus-retrieval`; brief `.agent/features/2026-04-24-fs-corpus-retrieval/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Let Phase 0 skeleton runs optionally read **on-disk** `piece_label` JSON and emit **non-empty** `retrieval_result.ranked_hits`, ranked by simple archetype alignment to framing—without LLMs, embeddings, or a separate retrieval index. Operators can wire `data/processed/pieces/labeled/` (or fixtures) into `run_assigned_skeleton` / `run_auto_skeleton` for inspectable end-to-end traces.
+
+### Progress
+
+- [x] (2026-04-24) Planning
+- [x] (2026-04-24) Implementation
+- [ ] (2026-04-24) Validation + docs (PR + merge)
+
+### Surprises & discoveries
+
+- Observation: (none yet)
+
+### Decision log
+
+- Decision: Keep default skeleton behavior (empty `ranked_hits`) unless `corpus_labels_dir` is set — Rationale: matches AGENTS default of no accidental dependency on local `data/` layout — Date: 2026-04-24
+
+### Outcomes & retrospective
+
+Deferred after PR: embedding / lexical archive index, framing driven by real LLM output.
+
+### Context and orientation
+
+Touch points: `src/tlg_writer/retrieval_result.py`, `src/tlg_writer/skeleton_pipeline.py`, `src/tlg_writer/paths.py`, `scripts/run_assigned_skeleton.py`, `scripts/run_auto_skeleton.py`, `tests/fixtures/corpus/retrieval_labels/`, `tests/unit/test_retrieval_from_labels.py`, `tests/integration/test_skeleton_pipeline.py`, `.agent/SPEC.md` §21 step 20, `README.md`.
+
+### Plan of work
+
+1. Add `build_retrieval_result_from_labels_dir` + `as_repo_relative`.
+2. Thread optional corpus dir through `_execute_phase0_run`, CLIs, config + manifest notes.
+3. Fixtures + pytest; smoke CLI run printing `artifacts/runs/<run_id>/`.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_assigned_skeleton.py --topic smoke --slug fs-smoke \
+  --corpus-labels-dir tests/fixtures/corpus/retrieval_labels
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (102+ tests).
+- With `--corpus-labels-dir`, `retrieval/output.json` validates as `retrieval_result` and has three ranked hits for bundled fixtures.
+- `config.json` includes `corpus_retrieval`.
+
+### Idempotence and recovery
+
+Unchanged run_id collision rules. Corpus dir must exist before the run directory is created.
+
+### Artifacts and notes
+
+- Example run: `artifacts/runs/<run_id>/` with populated `retrieval/output.json` after smoke command.
+- Fixtures: `tests/fixtures/corpus/retrieval_labels/*.json`.
+
+### Interfaces and dependencies
+
+- **Library:** `build_retrieval_result_from_labels_dir`, `run_assigned_skeleton`, `run_auto_skeleton`.
+- **External:** none.
 
 ---
 

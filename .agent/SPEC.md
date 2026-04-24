@@ -667,7 +667,7 @@ Initial schema set (extend as needed):
 - `source_reading_result.schema.json` (**v1 minimal, shipped:** skeleton writes schema-valid `source_reading/output.json`; see §21 step 14)
 - `topic_selection_result.schema.json` (**v1 minimal, shipped:** schema `oneOf` — assigned **skipped** branch or auto Phase 0 **completed** stub; see §21 steps 14–16)
 - `framing_decision.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `framing/output.json`; see §21 step 7)
-- `retrieval_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `retrieval/output.json`; see §21 step 7)
+- `retrieval_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `retrieval/output.json`; see §21 steps 7 and 20)
 - `piece_brief.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `brief/output.json`; see §21 step 7)
 - `draft_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `drafting/output.json`; see §21 step 12)
 - `critique_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `critique/output.json`; see §21 step 9)
@@ -967,6 +967,7 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 17. **LLM boundary in Phase 0 runs:** skeleton runners invoke `tlg_writer.llm_client` once per run (default `StubLLMClient`) and record a shared probe in each stage `metrics.json` (`llm.phase0_client_probe`), `config.json` (`llm_client_probe`), and `logs/run.log`; stage `output.json` documents remain stub-built (no completion text consumed).
 18. **Corpus batch statistics (stub):** `corpus_batch_manifest` carries optional `batch_statistics` v1 (skip breakdown, metadata title presence among written rows, `words_approx` min/max/sum, `labels.editorial.primary_archetype_id` histogram). `scripts/run_corpus_batch_stub.py` always emits it with enriched `summary.md` for operator review without ad-hoc JSON crunching.
 19. **Corpus piece JSON validation (read-only):** `tlg_writer.corpus_piece_artifacts` + `scripts/validate_corpus_piece_json.py` walk `*.json` under `--labels-dir` / `--features-dir` (optional `--recursive`) and validate each file as `piece_label` or `piece_features` respectively. Intended for spot-checking stub output, HITL labels, or future model batches before merge or retrieval indexing—without mutating `data/`.
+20. **Filesystem corpus retrieval (Phase 0 opt-in):** `tlg_writer.retrieval_result.build_retrieval_result_from_labels_dir` scans a `piece_label` directory; `run_assigned_skeleton` / `run_auto_skeleton` accept `corpus_labels_dir` (CLI: `--corpus-labels-dir`, optional `--corpus-labels-recursive`, `--corpus-retrieval-max-hits`) so `retrieval/output.json` can carry **non-empty** `ranked_hits` ranked by archetype alignment to the run’s framing `primary_archetype_id` (Phase 0 framing remains stub-driven). `config.json` records `corpus_retrieval` for reproducibility. **Not** an embedding index, lexical archive search, or retrieval-quality benchmark—those remain Phase 2+ work.
 
 ---
 

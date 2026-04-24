@@ -183,3 +183,44 @@ def test_auto_run_id_from_cli_slug_matches_pattern(tmp_path: Path) -> None:
         when=when,
     )
     assert res.run_id == "2026-01-02T03-04-05Z__auto__my-topic"
+
+
+def _retrieval_fixtures_dir() -> Path:
+    return Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "corpus" / "retrieval_labels"
+
+
+def test_assigned_skeleton_corpus_labels_dir_populates_retrieval(tmp_path: Path) -> None:
+    when = datetime(2026, 4, 24, 14, 0, 0, tzinfo=timezone.utc)
+    labels = _retrieval_fixtures_dir()
+    res = run_assigned_skeleton(
+        topic="Corpus retrieval smoke",
+        slug="corpus-retrieval",
+        artifacts_root=tmp_path,
+        when=when,
+        run_id="2026-04-24T14-00-00Z__assigned__corpus-retrieval",
+        corpus_labels_dir=labels,
+    )
+    retr = json.loads((res.run_dir / "retrieval" / "output.json").read_text(encoding="utf-8"))
+    validate_file(res.run_dir / "retrieval" / "output.json", "retrieval_result")
+    assert len(retr["ranked_hits"]) == 3
+    refs = [h["piece_reference"] for h in retr["ranked_hits"]]
+    assert refs[0].endswith("match-data-dissection.docx")
+    assert refs[1].endswith("alt-in-alternates.docx")
+    assert refs[2].endswith("other-archetype.docx")
+
+    cfg = json.loads((res.run_dir / "config.json").read_text(encoding="utf-8"))
+    assert cfg["corpus_retrieval"]["recursive"] is False
+    assert cfg["corpus_retrieval"]["max_hits"] == 12
+    assert "retrieval_labels" in cfg["corpus_retrieval"]["labels_dir"]
+
+
+def test_assigned_skeleton_rejects_non_dir_corpus_labels(tmp_path: Path) -> None:
+    missing = tmp_path / "not-a-dir"
+    with pytest.raises(NotADirectoryError):
+        run_assigned_skeleton(
+            topic="t",
+            slug="bad-corpus",
+            artifacts_root=tmp_path,
+            run_id="2026-04-24T14-00-00Z__assigned__bad-corpus",
+            corpus_labels_dir=missing,
+        )
