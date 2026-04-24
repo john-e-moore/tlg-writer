@@ -20,6 +20,7 @@ from tlg_writer.topic_selection_result import build_stub_topic_selection_result_
 from tlg_writer.framing_decision import build_stub_framing_decision_assigned
 from tlg_writer.json_schema import validate
 from tlg_writer.layout import STAGE_DIRS
+from tlg_writer.stage_schemas import output_json_schema_for_stage, validate_pipeline_stage_output
 from tlg_writer.paths import repo_root
 from tlg_writer.piece_brief import build_stub_piece_brief_assigned
 from tlg_writer.retrieval_result import (
@@ -147,7 +148,7 @@ def run_assigned_skeleton(
         "mode": "assigned",
     }
     inputs_doc = build_stub_inputs_result_assigned(run_id=rid, topic=topic)
-    validate(inputs_doc, "inputs_result")
+    validate_pipeline_stage_output("inputs", inputs_doc)
     _write_stage(
         run_dir,
         "inputs",
@@ -157,12 +158,12 @@ def run_assigned_skeleton(
             "## inputs\n\n"
             "Recorded CLI topic for **assigned** mode. No auto-topic selection.\n"
         ),
-        output_schema="inputs_result",
+        output_schema=output_json_schema_for_stage("inputs"),
     )
 
     # --- source_reading (canonical source_reading_result on output.json) ---
     source_doc = build_stub_source_reading_result_assigned(run_id=rid, topic=topic)
-    validate(source_doc, "source_reading_result")
+    validate_pipeline_stage_output("source_reading", source_doc)
     _write_stage(
         run_dir,
         "source_reading",
@@ -170,12 +171,12 @@ def run_assigned_skeleton(
         source_doc,
         "## source_reading\n\nStructured **source_reading_result**; "
         "Phase 0 stub (no files ingested).\n",
-        output_schema="source_reading_result",
+        output_schema=output_json_schema_for_stage("source_reading"),
     )
 
     # --- topic_selection (assigned: explicit skip; canonical topic_selection_result) ---
     ts_doc = build_stub_topic_selection_result_assigned_skipped(run_id=rid, topic=topic)
-    validate(ts_doc, "topic_selection_result")
+    validate_pipeline_stage_output("topic_selection", ts_doc)
     _write_stage(
         run_dir,
         "topic_selection",
@@ -186,7 +187,7 @@ def run_assigned_skeleton(
         },
         ts_doc,
         "## topic_selection\n\n**Skipped** for assigned mode (see `output.json`).\n",
-        output_schema="topic_selection_result",
+        output_schema=output_json_schema_for_stage("topic_selection"),
     )
 
     # --- framing (canonical framing_decision on output.json) ---
@@ -195,7 +196,7 @@ def run_assigned_skeleton(
         topic=topic,
         primary_archetype_id="data_dissection",
     )
-    validate(framing_doc, "framing_decision")
+    validate_pipeline_stage_output("framing", framing_doc)
     _write_stage(
         run_dir,
         "framing",
@@ -207,12 +208,12 @@ def run_assigned_skeleton(
         framing_doc,
         "## framing\n\nStructured **framing_decision** (`schemas/json/framing_decision.schema.json`); "
         "stub content pending real framing stage.\n",
-        output_schema="framing_decision",
+        output_schema=output_json_schema_for_stage("framing"),
     )
 
     # --- retrieval (canonical retrieval_result on output.json) ---
     retr_doc = build_stub_retrieval_result_assigned(run_id=rid, topic=topic)
-    validate(retr_doc, "retrieval_result")
+    validate_pipeline_stage_output("retrieval", retr_doc)
     _write_stage(
         run_dir,
         "retrieval",
@@ -220,7 +221,7 @@ def run_assigned_skeleton(
         retr_doc,
         "## retrieval\n\nStructured **retrieval_result** (`schemas/json/retrieval_result.schema.json`); "
         "empty ranked_hits until archive hooks exist.\n",
-        output_schema="retrieval_result",
+        output_schema=output_json_schema_for_stage("retrieval"),
     )
 
     # --- brief (canonical piece_brief on output.json) ---
@@ -231,7 +232,7 @@ def run_assigned_skeleton(
         primary_archetype_id=arch_id,
         ranked_retrieved_piece_ids=ranked_piece_references(retr_doc),
     )
-    validate(brief_doc, "piece_brief")
+    validate_pipeline_stage_output("brief", brief_doc)
     _write_stage(
         run_dir,
         "brief",
@@ -244,7 +245,7 @@ def run_assigned_skeleton(
         brief_doc,
         "## brief\n\nStructured **piece_brief** (`schemas/json/piece_brief.schema.json`); "
         "content is still stub-quality pending real brief builder.\n",
-        output_schema="piece_brief",
+        output_schema=output_json_schema_for_stage("brief"),
     )
 
     # --- drafting (canonical draft_result on output.json) ---
@@ -253,7 +254,7 @@ def run_assigned_skeleton(
         topic=topic,
         thesis=str(brief_doc["thesis"]),
     )
-    validate(draft_doc, "draft_result")
+    validate_pipeline_stage_output("drafting", draft_doc)
     _write_stage(
         run_dir,
         "drafting",
@@ -261,12 +262,12 @@ def run_assigned_skeleton(
         draft_doc,
         "## drafting\n\nStructured **draft_result** (`schemas/json/draft_result.schema.json`); "
         "stub prose only.\n",
-        output_schema="draft_result",
+        output_schema=output_json_schema_for_stage("drafting"),
     )
 
     # --- critique (canonical critique_result on output.json) ---
     critique_doc = build_stub_critique_result_assigned(run_id=rid)
-    validate(critique_doc, "critique_result")
+    validate_pipeline_stage_output("critique", critique_doc)
     _write_stage(
         run_dir,
         "critique",
@@ -278,7 +279,7 @@ def run_assigned_skeleton(
         critique_doc,
         "## critique\n\nStructured **critique_result** (`schemas/json/critique_result.schema.json`); "
         "null rubric scores until real critics run.\n",
-        output_schema="critique_result",
+        output_schema=output_json_schema_for_stage("critique"),
     )
 
     # --- revision (canonical revision_result on output.json) ---
@@ -286,7 +287,7 @@ def run_assigned_skeleton(
         run_id=rid,
         draft_markdown=draft_doc["body_markdown"],
     )
-    validate(revision_doc, "revision_result")
+    validate_pipeline_stage_output("revision", revision_doc)
     _write_stage(
         run_dir,
         "revision",
@@ -298,12 +299,12 @@ def run_assigned_skeleton(
         revision_doc,
         "## revision\n\nStructured **revision_result** (`schemas/json/revision_result.schema.json`); "
         "stub pass appends a single cosmetic line.\n",
-        output_schema="revision_result",
+        output_schema=output_json_schema_for_stage("revision"),
     )
 
     # --- evaluation (canonical evaluation_result on output.json) ---
     evaluation_doc = build_stub_evaluation_result_assigned(run_id=rid)
-    validate(evaluation_doc, "evaluation_result")
+    validate_pipeline_stage_output("evaluation", evaluation_doc)
     _write_stage(
         run_dir,
         "evaluation",
@@ -311,7 +312,7 @@ def run_assigned_skeleton(
         evaluation_doc,
         "## evaluation\n\nStructured **evaluation_result** (`schemas/json/evaluation_result.schema.json`); "
         "explicit **human_review_required** until a real evaluator runs.\n",
-        output_schema="evaluation_result",
+        output_schema=output_json_schema_for_stage("evaluation"),
     )
 
     # --- final (canonical final_deliverable on output.json + piece.md) ---
@@ -320,7 +321,7 @@ def run_assigned_skeleton(
         run_id=rid,
         body_markdown=piece_md,
     )
-    validate(final_doc, "final_deliverable")
+    validate_pipeline_stage_output("final", final_doc)
     _write_stage(
         run_dir,
         "final",
@@ -328,7 +329,7 @@ def run_assigned_skeleton(
         final_doc,
         "## final\n\nStructured **final_deliverable** (`schemas/json/final_deliverable.schema.json`); "
         "`piece.md` mirrors `body_markdown`.\n",
-        output_schema="final_deliverable",
+        output_schema=output_json_schema_for_stage("final"),
     )
     _write_text(run_dir / "final" / "piece.md", piece_md)
 

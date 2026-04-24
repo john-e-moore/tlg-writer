@@ -148,6 +148,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: draft_result v1 + drafting stage wiring — done (PR #13 merged) — agent`
 - `2026-04-21 — ExecPlan: final_deliverable v1 + final stage wiring — done (PR #14 merged) — agent`
 - `2026-04-21 — ExecPlan: Intake stage v1 schemas (inputs, source_reading, topic_selection) — done (PR #15 merged) — agent`
+- `2026-04-21 — ExecPlan: Stage schema registry + LLM client module — in_progress (PR pending) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -1174,3 +1175,71 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 - **Library:** `build_stub_inputs_result_assigned`, `build_stub_source_reading_result_assigned`, `build_stub_topic_selection_result_assigned_skipped`.
 - **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
 - **External:** none.
+
+---
+
+## ExecPlan: Stage schema registry + LLM client module — 2026-04-21
+
+Links: branch `feature/schema-registry-llm-client`; brief `.agent/features/2026-04-21-schema-registry-llm-client/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Centralize pipeline **stage → output JSON Schema** mapping in `tlg_writer.stage_schemas` and introduce a small **LLM HTTP boundary** in `tlg_writer.llm_client` (stub default; optional OpenAI Chat Completions via stdlib when env is set). No change to emitted artifact shapes beyond using the registry for validation.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [ ] (2026-04-21) Validation + docs (PR evidence)
+
+### Surprises & discoveries
+
+- (none yet)
+
+### Decision log
+
+- Decision: OpenAI path uses **stdlib urllib** (no `openai` package) — Rationale: keeps default install lean; callers can add SDK later if needed — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+(pending merge)
+
+### Context and orientation
+
+Touch points: `src/tlg_writer/stage_schemas.py`, `src/tlg_writer/llm_client.py`, `src/tlg_writer/skeleton_pipeline.py`, `tests/integration/test_skeleton_pipeline.py`, `tests/unit/test_stage_schemas.py`, `tests/unit/test_llm_client.py`, `README.md`, `.agent/SPEC.md` §13 / §21.
+
+### Plan of work
+
+1. Add `stage_schemas` registry + `validate_pipeline_stage_output`; refactor skeleton and integration tests to consume it.
+2. Add `llm_client` module (Protocol, stub, OpenAI urllib implementation, `llm_client_from_env`) + unit tests (mocked HTTP).
+3. Update README, SPEC §21 step 15 + §13 note, feature brief, PLANS index, and this ExecPlan with validation evidence.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (registry alignment with `STAGE_DIRS`; LLM stub + mocked OpenAI).
+- Skeleton behavior unchanged aside from registry imports.
+
+### Idempotence and recovery
+
+N/A (library-only refactor plus new modules).
+
+### Artifacts and notes
+
+- N/A for new `artifacts/runs/` paths.
+
+### Interfaces and dependencies
+
+- **Library:** `tlg_writer.stage_schemas`, `tlg_writer.llm_client`.
+- **External:** optional `OPENAI_API_KEY` when `TLG_LLM_BACKEND=openai` (not used in CI).
+

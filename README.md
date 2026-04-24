@@ -30,6 +30,11 @@ pytest -q
 
 Pull requests (and pushes to `main`) run the same suite in GitHub Actions; see `.github/workflows/ci.yml`.
 
+## Library notes
+
+- **Stage → output schema:** `tlg_writer.stage_schemas.OUTPUT_SCHEMA_BY_STAGE` is the single registry for pipeline `output.json` validation (used by the assigned skeleton and integration tests).
+- **LLM calls:** use `tlg_writer.llm_client` (`StubLLMClient` by default; `llm_client_from_env()` reads `TLG_LLM_BACKEND` / `OPENAI_API_KEY`). Do not scatter raw HTTP across the codebase.
+
 ## Corpus metadata (existing)
 
 Writes `data/raw/pieces/metadata/pieces_metadata_<YYYYMMDDHHMM>.json` (UTC). Output is validated against `schemas/json/pieces_metadata_batch.schema.json` before the file is written.

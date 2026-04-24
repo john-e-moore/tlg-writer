@@ -11,21 +11,7 @@ import pytest
 from tlg_writer.json_schema import validate_file
 from tlg_writer.layout import STAGE_DIRS
 from tlg_writer.skeleton_pipeline import run_assigned_skeleton
-
-# Mirrors `run_assigned_skeleton` output_schema routing (see `skeleton_pipeline._write_stage`).
-_OUTPUT_SCHEMA_BY_STAGE: dict[str, str] = {
-    "inputs": "inputs_result",
-    "source_reading": "source_reading_result",
-    "topic_selection": "topic_selection_result",
-    "framing": "framing_decision",
-    "retrieval": "retrieval_result",
-    "brief": "piece_brief",
-    "drafting": "draft_result",
-    "critique": "critique_result",
-    "revision": "revision_result",
-    "evaluation": "evaluation_result",
-    "final": "final_deliverable",
-}
+from tlg_writer.stage_schemas import OUTPUT_SCHEMA_BY_STAGE
 
 
 def test_skeleton_run_layout_and_manifest(tmp_path: Path) -> None:
@@ -115,7 +101,7 @@ def test_skeleton_each_stage_output_and_metrics_are_schema_valid(tmp_path: Path)
     )
     root = res.run_dir
     for stage in STAGE_DIRS:
-        schema = _OUTPUT_SCHEMA_BY_STAGE[stage]
+        schema = OUTPUT_SCHEMA_BY_STAGE[stage]
         validate_file(root / stage / "output.json", schema)
         validate_file(root / stage / "metrics.json", "stage_metrics")
         summary = (root / stage / "summary.md").read_text(encoding="utf-8")
