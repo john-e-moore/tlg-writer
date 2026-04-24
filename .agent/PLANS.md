@@ -151,7 +151,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Stage schema registry + LLM client module — done (PR #16 merged) — agent`
 - `2026-04-21 — ExecPlan: Phase 0 auto-topic skeleton (stub) — done (PR #17 merged) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
-- `2026-04-24 — ExecPlan: Phase 0 skeleton LLM client probe — in_progress (PR #18) — agent`
+- `2026-04-24 — ExecPlan: Phase 0 skeleton LLM client probe — done (PR #18 merged) — agent`
 
 ---
 
@@ -1324,7 +1324,7 @@ New runs under `artifacts/runs/<run_id>/` when using default `--artifacts-root`.
 
 Links: branch `feature/skeleton-llm-probe`; brief `.agent/features/2026-04-24-skeleton-llm-probe/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/18`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -1334,11 +1334,12 @@ Connect the existing `tlg_writer.llm_client` boundary to Phase 0 skeleton runs w
 
 - [x] (2026-04-24) Planning
 - [x] (2026-04-24) Implementation
-- [ ] (2026-04-24) Validation + docs (PR evidence)
+- [x] (2026-04-24) Validation + docs (PR #18; GitHub **Tests** green)
 
 ### Surprises & discoveries
 
-- (none yet)
+- Observation: Full `pytest -q` is **84** tests after this slice (was 83 on prior `main`).  
+  Evidence: local and CI on PR #18.
 
 ### Decision log
 
@@ -1346,7 +1347,7 @@ Connect the existing `tlg_writer.llm_client` boundary to Phase 0 skeleton runs w
 
 ### Outcomes & retrospective
 
-Pending merge.
+Merged via PR #18 (`https://github.com/john-e-moore/tlg-writer/pull/18`). Default remains `StubLLMClient`; optional `llm_client=` for tests or explicit opt-in.
 
 ### Context and orientation
 
