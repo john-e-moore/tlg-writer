@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/final_deliverable.schema.json",
+  "title": "final_deliverable",
+  "description": "Packaged run output for operators (SPEC §7.10 deliverable, §12.3). v1: markdown body plus explicit limitations; Phase 0 is low-quality by design.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "format",
+    "body_markdown",
+    "limitations",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1",
+      "description": "Final deliverable document revision."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
+    },
+    "format": {
+      "type": "string",
+      "const": "markdown",
+      "description": "Primary body format for v1 (extend later for HTML/PDF, etc.)."
+    },
+    "body_markdown": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Deliverable body aligned with `final/piece.md` for this run."
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Known caveats for this run (SPEC §12.6 legibility; §15.3 when weaknesses remain)."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Short operator-facing recap of packaging / readiness."
+    }
+  }
+}

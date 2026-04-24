@@ -20,7 +20,7 @@ python scripts/run_assigned_skeleton.py --topic "US payrolls and Fed cuts" --slu
 
 The command prints the absolute path to the new run folder. Re-running always uses a new `run_id` (UTC timestamp in the id); a second run never overwrites the first.
 
-The `framing/`, `retrieval/`, `brief/`, `drafting/`, `critique/`, `revision/`, and `evaluation/` stages write canonical **`framing_decision`**, **`retrieval_result`**, **`piece_brief`**, **`draft_result`**, **`critique_result`**, **`revision_result`**, and **`evaluation_result`** JSON (v1 schemas under `schemas/json/`); only the `final/` stage still uses the generic skeleton envelope until a packaging schema lands.
+Editorial stages from **`framing/`** through **`final/`** write canonical v1 JSON validated under `schemas/json/` (**`framing_decision`**, **`retrieval_result`**, **`piece_brief`**, **`draft_result`**, **`critique_result`**, **`revision_result`**, **`evaluation_result`**, **`final_deliverable`**). Early intake stages (`inputs/`, `source_reading/`, `topic_selection/`) still use the generic skeleton envelope until those domains get schemas.
 
 ## Tests
 
