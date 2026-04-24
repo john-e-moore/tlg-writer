@@ -1,0 +1,8 @@
+{
+  "schema_version": "v1",
+  "run_id": "2026-04-21T12-00-00Z__assigned__fixture",
+  "mode": "assigned",
+  "topic": { "label": "Fixture topic", "source": "cli" },
+  "intake_status": "completed",
+  "summary": "Fixture: minimal inputs_result for schema tests."
+}
