@@ -8,14 +8,16 @@ How coding agents work in **tlg-writer**. Complements `README.md` and `.agent/SP
 - Modes: `assigned-topic` and `auto-topic`.
 - Corpus and batch outputs live under `data/`; treat them as canonical inputs for labeling, retrieval, evaluation, and voice work.
 - Requirements baseline: `.agent/SPEC.md`.
+- **Where we are:** `.agent/PROGRESS.md` (phase checkboxes; keep in sync after merges).
 
 ## Instruction priority
 
 1. Direct user request in the active session.
 2. This file (`.agent/AGENTS.md`).
 3. `.agent/SPEC.md`.
-4. Other repo docs and local conventions.
-5. Default toolchain habits.
+4. `.agent/PROGRESS.md` — human-readable phase checklist; **update it when substantive work completes** (see **Progress tracking** below). It does not replace SPEC.
+5. Other repo docs and local conventions.
+6. Default toolchain habits.
 
 If something is missing, choose the safest assumption, record it in the active plan, and continue.
 
@@ -109,8 +111,16 @@ For non-trivial work:
 5. Run tests; paste concise evidence into the PR / ExecPlan.
 6. Update docs touched by behavior.
 7. Confirm new artifacts stay readable and attributable (`run_id`, `stage`, `agent` in logs and metrics).
+8. **Update `.agent/PROGRESS.md`** when the merge completes substantive scope (tick boxes, adjust **Current focus** if priorities shifted, bump **Last updated**). Skip for typos, comment-only edits, or test-only tweaks with no behavior change.
 
 Do not stop at partial delivery unless blocked (credentials, missing inputs, network, or explicit user stop). Partial **pipeline** delivery is acceptable when the ExecPlan scope is explicitly “skeleton + mocks”; it is not acceptable when stages claim to run but omit outputs without documentation.
+
+## Progress tracking (`.agent/PROGRESS.md`)
+
+- **Who:** Any agent (or human) completing work that changes **operator-visible** capability, corpus tooling, pipeline stages, or phase status.
+- **When:** After implementation is merged or handed off as “done” for the slice—not before tests pass / scope is agreed.
+- **What:** Check or uncheck the relevant items; edit **Current focus** if the next priority changed; update **Last updated**. Keep entries short—ExecPlans in `.agent/PLANS.md` hold detail and evidence.
+- **Why:** `.agent/PLANS.md` is long and ExecPlan-centric; SPEC is normative but not a checklist. **PROGRESS** is the fast answer to “what shipped / what’s next?”
 
 ## Feature branch flow
 
@@ -184,6 +194,7 @@ Run the mix that fits the change: unit tests, schema/contract tests, artifact la
 ## Completion checklist
 
 - [ ] Requirements trace to `.agent/SPEC.md`.
+- [ ] `.agent/PROGRESS.md` updated if the change completes or reopens phase-level work (checkboxes / current focus / date).
 - [ ] `.agent/PLANS.md` updated if scope warrants it.
 - [ ] Code, prompts, schemas, tests, docs aligned.
 - [ ] Artifacts remain inspectable.
