@@ -10,7 +10,7 @@ import pytest
 
 from tlg_writer.json_schema import validate_file
 from tlg_writer.layout import STAGE_DIRS
-from tlg_writer.llm_client import StubLLMClient
+from tlg_writer.llm_client import ChatCompletionResult, StubLLMClient
 from tlg_writer.skeleton_pipeline import run_assigned_skeleton, run_auto_skeleton
 from tlg_writer.stage_schemas import OUTPUT_SCHEMA_BY_STAGE
 
@@ -212,6 +212,91 @@ def test_assigned_skeleton_corpus_labels_dir_populates_retrieval(tmp_path: Path)
     assert cfg["corpus_retrieval"]["recursive"] is False
     assert cfg["corpus_retrieval"]["max_hits"] == 12
     assert "retrieval_labels" in cfg["corpus_retrieval"]["labels_dir"]
+
+
+_LLM_FRAMING_FIXTURE = json.dumps(
+    {
+        "schema_version": "v1",
+        "run_id": "ignored-by-pipeline",
+        "primary_archetype_id": "data_dissection",
+        "rationale": "Integration test: synthetic LLM framing body.",
+        "candidate_analogs": ["analog-a"],
+        "key_implications_to_explore": ["implication-1"],
+        "proposed_structure_outline": ["Act I", "Act II", "Act III"],
+    }
+)
+
+
+class _RoutingFramingLlmClient:
+    """Probe uses phase0-probe; framing uses a separate model id."""
+
+    def complete_chat(  # type: ignore[no-untyped-def]
+        self,
+        *,
+        messages,
+        model,
+        temperature=0.0,
+        max_tokens=1024,
+    ):
+        if model == "phase0-probe":
+            return ChatCompletionResult(
+                text="ok",
+                model="phase0-probe",
+                input_tokens=1,
+                output_tokens=1,
+                latency_ms=0.1,
+            )
+        return ChatCompletionResult(
+            text=_LLM_FRAMING_FIXTURE,
+            model="test-framing-llm",
+            input_tokens=100,
+            output_tokens=200,
+            latency_ms=12.0,
+        )
+
+
+def test_assigned_skeleton_llm_framing_produces_valid_framing_and_config(tmp_path: Path) -> None:
+    when = datetime(2026, 4, 24, 16, 0, 0, tzinfo=timezone.utc)
+    rid = "2026-04-24T16-00-00Z__assigned__llm-framing"
+    res = run_assigned_skeleton(
+        topic="LLM framing topic",
+        slug="llm-framing",
+        artifacts_root=tmp_path,
+        when=when,
+        run_id=rid,
+        llm_framing=True,
+        framing_model="framing-cheap-test",
+        llm_client=_RoutingFramingLlmClient(),
+    )
+    root = res.run_dir
+    validate_file(root / "framing" / "output.json", "framing_decision")
+    framing = json.loads((root / "framing" / "output.json").read_text(encoding="utf-8"))
+    assert framing["run_id"] == rid
+    assert "Integration test" in framing["rationale"]
+
+    cfg = json.loads((root / "config.json").read_text(encoding="utf-8"))
+    assert cfg["llm_framing"]["enabled"] is True
+    assert cfg["llm_framing"]["model_requested"] == "framing-cheap-test"
+    assert cfg["llm_framing"]["model_effective"] == "test-framing-llm"
+    assert cfg["models_by_stage"]["framing"] == "test-framing-llm"
+
+    m = json.loads((root / "framing" / "metrics.json").read_text(encoding="utf-8"))
+    assert m["llm"]["framing_completion"]["model"] == "test-framing-llm"
+    assert m["validation"]["source"] == "llm_json_framing"
+
+    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["stage_status"]["framing"] == "llm_structured_json"
+
+
+def test_assigned_skeleton_llm_framing_rejects_default_stub_client(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="non-stub"):
+        run_assigned_skeleton(
+            topic="t",
+            slug="x",
+            artifacts_root=tmp_path,
+            run_id="2026-04-24T16-00-00Z__assigned__stub-framing",
+            llm_framing=True,
+        )
 
 
 def test_assigned_skeleton_rejects_non_dir_corpus_labels(tmp_path: Path) -> None:

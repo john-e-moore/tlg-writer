@@ -66,6 +66,20 @@ def main() -> int:
         default=12,
         help="Cap ranked_hits when using --corpus-labels-dir (default: 12).",
     )
+    p.add_argument(
+        "--llm-framing",
+        action="store_true",
+        help=(
+            "Run the framing stage with a real LLM JSON completion (requires TLG_LLM_BACKEND=openai "
+            "and OPENAI_API_KEY, or inject a client via the library API). Default model: "
+            "TLG_LLM_FRAMING_MODEL or gpt-4o-mini."
+        ),
+    )
+    p.add_argument(
+        "--llm-framing-model",
+        default=None,
+        help="Override TLG_LLM_FRAMING_MODEL / default for this run when --llm-framing is set.",
+    )
     args = p.parse_args()
     try:
         normalize_slug(args.slug)
@@ -85,6 +99,8 @@ def main() -> int:
         corpus_labels_dir=args.corpus_labels_dir,
         corpus_labels_recursive=args.corpus_labels_recursive,
         corpus_retrieval_max_hits=args.corpus_retrieval_max_hits,
+        llm_framing=args.llm_framing,
+        framing_model=args.llm_framing_model,
     )
     print(res.run_dir.resolve())
     return 0
