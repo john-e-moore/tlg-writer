@@ -147,7 +147,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: evaluation_result v1 + evaluation stage wiring — done (PR #12 merged) — agent`
 - `2026-04-21 — ExecPlan: draft_result v1 + drafting stage wiring — done (PR #13 merged) — agent`
 - `2026-04-21 — ExecPlan: final_deliverable v1 + final stage wiring — done (PR #14 merged) — agent`
-- `2026-04-21 — ExecPlan: Intake stage v1 schemas (inputs, source_reading, topic_selection) — in_progress (PR pending) — agent`
+- `2026-04-21 — ExecPlan: Intake stage v1 schemas (inputs, source_reading, topic_selection) — done (PR #15 merged) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -1104,9 +1104,9 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 
 ## ExecPlan: Intake stage v1 schemas (inputs, source_reading, topic_selection) — 2026-04-21
 
-Links: branch `feature/intake-results-v1`; brief `.agent/features/2026-04-21-intake-results-v1/SPEC.md`; PR `pending`.
+Links: branch `feature/intake-results-v1`; brief `.agent/features/2026-04-21-intake-results-v1/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/15`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -1116,11 +1116,14 @@ Ship SPEC §21 step 14: **`inputs_result`**, **`source_reading_result`**, and **
 
 - [x] (2026-04-21) Planning
 - [x] (2026-04-21) Implementation
-- [ ] (2026-04-21) Validation + docs (PR evidence)
+- [x] (2026-04-21) Validation + docs (PR #15 evidence)
 
 ### Surprises & discoveries
 
-- (none yet)
+- Observation: Full `pytest -q` is **71** tests after this slice (was 66 on prior `main`).  
+  Evidence: `pytest -q` on `feature/intake-results-v1`.
+- Observation: Smoke validation of all three intake `output.json` on a temp skeleton run.  
+  Evidence: local one-liner post-`run_assigned_skeleton`.
 
 ### Decision log
 
@@ -1129,7 +1132,7 @@ Ship SPEC §21 step 14: **`inputs_result`**, **`source_reading_result`**, and **
 
 ### Outcomes & retrospective
 
-(pending merge)
+Merged via PR #15 (`https://github.com/john-e-moore/tlg-writer/pull/15`). Validation: `pytest -q` (71 passed) on branch before merge; smoke intake validation on temp run dir.
 
 ### Context and orientation
 
