@@ -43,6 +43,7 @@ Pull requests (and pushes to `main`) run the same suite in GitHub Actions; see `
 
 - **Stage → output schema:** `tlg_writer.stage_schemas.OUTPUT_SCHEMA_BY_STAGE` is the single registry for pipeline `output.json` validation (used by Phase 0 skeleton runners and integration tests).
 - **LLM calls:** use `tlg_writer.llm_client` (`StubLLMClient` by default; `llm_client_from_env()` reads `TLG_LLM_BACKEND` / `OPENAI_API_KEY`). Do not scatter raw HTTP across the codebase.
+- **Phase 0 skeleton:** each run performs one client **probe** (default stub) and mirrors probe metadata under `config.json` → `llm_client_probe`, every stage `metrics.json` → `llm.phase0_client_probe`, and `logs/run.log` → `llm_probe_model=…`. Pass `llm_client=` to `run_assigned_skeleton` / `run_auto_skeleton` only when you need a non-default client (tests or explicit opt-in); CLIs keep the default.
 
 ## Corpus metadata (existing)
 

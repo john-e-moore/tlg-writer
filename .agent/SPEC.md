@@ -964,6 +964,7 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 14. **Deepen** intake observability: **`inputs_result`**, **`source_reading_result`**, and **`topic_selection_result`** v1 JSON Schemas with assigned skeleton `inputs/`, `source_reading/`, and `topic_selection/output.json` validated accordingly (`topic_selection` v1 **skipped** branch for assigned; framing consumes canonical intake artifacts on `input.json`).
 15. **Infra:** shared **stage → JSON Schema** registry (`tlg_writer.stage_schemas`) and a small **LLM client** boundary (`tlg_writer.llm_client`: stub + optional OpenAI via stdlib, env-gated) so validation mapping and HTTP stay centralized.
 16. **Phase 0 auto stub:** runnable **`auto`** skeleton (`run_auto_skeleton`, `scripts/run_auto_skeleton.py`) with the same stage layout as assigned, `manifest`/`config` `mode: auto`, `inputs_result` auto stub, and `topic_selection_result` **completed** stub (no live topic search); `pytest` locks manifest and schema contracts.
+17. **LLM boundary in Phase 0 runs:** skeleton runners invoke `tlg_writer.llm_client` once per run (default `StubLLMClient`) and record a shared probe in each stage `metrics.json` (`llm.phase0_client_probe`), `config.json` (`llm_client_probe`), and `logs/run.log`; stage `output.json` documents remain stub-built (no completion text consumed).
 
 ---
 
