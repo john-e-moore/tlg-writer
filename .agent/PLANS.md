@@ -151,7 +151,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Stage schema registry + LLM client module — done (PR #16 merged) — agent`
 - `2026-04-21 — ExecPlan: Phase 0 auto-topic skeleton (stub) — done (PR #17 merged) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
-- `2026-04-24 — ExecPlan: Phase 0 skeleton LLM client probe — in_progress — agent`
+- `2026-04-24 — ExecPlan: Phase 0 skeleton LLM client probe — in_progress (PR #18) — agent`
 
 ---
 
@@ -1322,7 +1322,7 @@ New runs under `artifacts/runs/<run_id>/` when using default `--artifacts-root`.
 
 ## ExecPlan: Phase 0 skeleton LLM client probe — 2026-04-24
 
-Links: branch `feature/skeleton-llm-probe`; brief `.agent/features/2026-04-24-skeleton-llm-probe/SPEC.md`; PR `pending`.
+Links: branch `feature/skeleton-llm-probe`; brief `.agent/features/2026-04-24-skeleton-llm-probe/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/18`.
 
 Status: `in_progress`
 
