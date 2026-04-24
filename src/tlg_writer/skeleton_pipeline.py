@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -13,7 +14,10 @@ from tlg_writer.critique_result import build_stub_critique_result_assigned
 from tlg_writer.draft_result import build_stub_draft_result_assigned
 from tlg_writer.evaluation_result import build_stub_evaluation_result_assigned
 from tlg_writer.final_deliverable import build_stub_final_deliverable_assigned
-from tlg_writer.framing_decision import build_stub_framing_decision_assigned
+from tlg_writer.framing_decision import (
+    build_stub_framing_decision_assigned,
+    complete_framing_decision_via_llm,
+)
 from tlg_writer.inputs_result import build_stub_inputs_result_assigned, build_stub_inputs_result_auto
 from tlg_writer.json_schema import validate
 from tlg_writer.llm_client import (
@@ -21,6 +25,7 @@ from tlg_writer.llm_client import (
     ChatMessage,
     LLMClient,
     StubLLMClient,
+    llm_client_from_env,
 )
 from tlg_writer.layout import STAGE_DIRS
 from tlg_writer.paths import as_repo_relative, repo_root
@@ -38,6 +43,12 @@ from tlg_writer.topic_selection_result import (
     build_stub_topic_selection_result_assigned_skipped,
     build_stub_topic_selection_result_auto_completed,
 )
+
+
+def _default_framing_model(explicit: str | None) -> str:
+    if explicit and str(explicit).strip():
+        return str(explicit).strip()
+    return (os.environ.get("TLG_LLM_FRAMING_MODEL") or "gpt-4o-mini").strip() or "gpt-4o-mini"
 
 
 def _git_commit() -> str | None:
@@ -100,6 +111,37 @@ def _validate_stage_bundle(
     validate(metrics_obj, "stage_metrics")
 
 
+def _framing_stage_metrics(
+    stage: str,
+    *,
+    framing: ChatCompletionResult,
+    llm_ping: ChatCompletionResult,
+) -> dict[str, Any]:
+    return {
+        "stage": stage,
+        "model_id": framing.model,
+        "tokens_input": framing.input_tokens or 0,
+        "tokens_output": framing.output_tokens or 0,
+        "latency_ms": framing.latency_ms,
+        "retries": 0,
+        "validation": {"output_schema": "ok", "source": "llm_json_framing"},
+        "llm": {
+            "phase0_client_probe": {
+                "model": llm_ping.model,
+                "input_tokens": llm_ping.input_tokens,
+                "output_tokens": llm_ping.output_tokens,
+                "latency_ms": llm_ping.latency_ms,
+            },
+            "framing_completion": {
+                "model": framing.model,
+                "input_tokens": framing.input_tokens,
+                "output_tokens": framing.output_tokens,
+                "latency_ms": framing.latency_ms,
+            },
+        },
+    }
+
+
 def _write_stage(
     run_dir: Path,
     stage: str,
@@ -109,8 +151,10 @@ def _write_stage(
     *,
     llm_ping: ChatCompletionResult,
     output_schema: str = "skeleton_stage_output",
+    metrics_obj: dict[str, Any] | None = None,
 ) -> None:
-    metrics_obj = _stage_metrics(stage, llm_ping=llm_ping)
+    if metrics_obj is None:
+        metrics_obj = _stage_metrics(stage, llm_ping=llm_ping)
     _validate_stage_bundle(stage, output_obj, metrics_obj, output_schema=output_schema)
     base = run_dir / stage
     _write_json(base / "input.json", input_obj)
@@ -148,6 +192,8 @@ def _execute_phase0_run(
     corpus_labels_dir: Path | None = None,
     corpus_labels_recursive: bool = False,
     corpus_retrieval_max_hits: int = 12,
+    llm_framing: bool = False,
+    framing_model: str = "gpt-4o-mini",
 ) -> AssignedSkeletonResult:
     run_dir = artifacts_root / rid
     if run_dir.exists():
@@ -162,6 +208,11 @@ def _execute_phase0_run(
         (run_dir / d).mkdir()
 
     resolved_llm: LLMClient = llm_client if llm_client is not None else StubLLMClient()
+    if llm_framing and isinstance(resolved_llm, StubLLMClient):
+        raise ValueError(
+            "llm_framing=True requires a non-stub LLM client. Set TLG_LLM_BACKEND=openai and "
+            "OPENAI_API_KEY, or pass llm_client= explicitly (tests may inject a client)."
+        )
     llm_ping = resolved_llm.complete_chat(
         messages=[
             ChatMessage(
@@ -177,7 +228,8 @@ def _execute_phase0_run(
     _write_text(
         run_dir / "logs" / "run.log",
         f"run_id={rid}\nmode={run_log_mode_tag}\nphase=0_skeleton\n"
-        f"llm_probe_model={llm_ping.model}\n",
+        f"llm_probe_model={llm_ping.model}\n"
+        + (f"llm_framing_model={framing_model}\n" if llm_framing else ""),
     )
 
     created_at = when.astimezone(timezone.utc)
@@ -222,11 +274,35 @@ def _execute_phase0_run(
         output_schema=output_json_schema_for_stage("topic_selection"),
     )
 
-    framing_doc = build_stub_framing_decision_assigned(
-        run_id=rid,
-        topic=content_topic,
-        primary_archetype_id="data_dissection",
-    )
+    framing_metrics_override: dict[str, Any] | None = None
+    framing_model_for_config: str = "stub"
+    if llm_framing:
+        framing_doc, framing_completion = complete_framing_decision_via_llm(
+            client=resolved_llm,
+            run_id=rid,
+            topic=content_topic,
+            source_reading_result=source_doc,
+            topic_selection_result=ts_doc,
+            model=framing_model,
+        )
+        framing_model_for_config = str(framing_completion.model)
+        framing_metrics_override = _framing_stage_metrics(
+            "framing", framing=framing_completion, llm_ping=llm_ping
+        )
+        framing_summary_md = (
+            "## framing\n\nStructured **framing_decision** from **LLM** output "
+            "(JSON validated; see `metrics.json` → `llm.framing_completion`).\n"
+        )
+    else:
+        framing_doc = build_stub_framing_decision_assigned(
+            run_id=rid,
+            topic=content_topic,
+            primary_archetype_id="data_dissection",
+        )
+        framing_summary_md = (
+            "## framing\n\nStructured **framing_decision** (`schemas/json/framing_decision.schema.json`); "
+            "stub content pending real framing stage.\n"
+        )
     validate_pipeline_stage_output("framing", framing_doc)
     _write_stage(
         run_dir,
@@ -237,10 +313,10 @@ def _execute_phase0_run(
             "topic_selection_result": ts_doc,
         },
         framing_doc,
-        "## framing\n\nStructured **framing_decision** (`schemas/json/framing_decision.schema.json`); "
-        "stub content pending real framing stage.\n",
+        framing_summary_md,
         llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("framing"),
+        metrics_obj=framing_metrics_override,
     )
 
     arch_id = str(framing_doc["primary_archetype_id"])
@@ -387,6 +463,8 @@ def _execute_phase0_run(
     stage_status["inputs"] = "completed"
     stage_status["topic_selection"] = stage_status_topic_selection
     stage_status["final"] = "completed"
+    if llm_framing:
+        stage_status["framing"] = "llm_structured_json"
 
     artifact_index = {"manifest": "manifest.json", "config": "config.json", "logs": "logs/"}
     for s in stages:
@@ -403,13 +481,28 @@ def _execute_phase0_run(
         "stage_status": stage_status,
         "artifact_index": artifact_index,
         "pipeline_phases": {
-            "note": "Phase 0 vertical slice: stubs/mocks only; see `.agent/SPEC.md` §18.",
+            "note": (
+                "Phase 0: `framing` may use live LLM JSON when enabled; other stages remain stubs. "
+                "See `.agent/SPEC.md` §18."
+                if llm_framing
+                else "Phase 0 vertical slice: stubs/mocks only; see `.agent/SPEC.md` §18."
+            ),
         },
         "limitations": [
-            "One `llm_client` observability probe per run (default: stub; no completion text used in "
-            "stage outputs).",
-            "All stage output.json files validate against v1 JSON Schemas (including intake); "
-            "content remains stub-quality until real agents are wired.",
+            *(
+                [
+                    "Framing used a chat completion whose text was parsed as JSON and validated as "
+                    "`framing_decision` (see `framing/metrics.json` → `llm.framing_completion`).",
+                    "One `llm_client` observability probe still runs per run; other stages remain stub outputs.",
+                ]
+                if llm_framing
+                else [
+                    "One `llm_client` observability probe per run (default: stub; no completion text used in "
+                    "stage outputs).",
+                    "All stage output.json files validate against v1 JSON Schemas (including intake); "
+                    "content remains stub-quality until real agents are wired.",
+                ]
+            ),
             *(
                 [
                     "Retrieval may use a flat (or `--corpus-labels-recursive`) filesystem scan of "
@@ -426,10 +519,13 @@ def _execute_phase0_run(
     validate(manifest, "run_manifest")
     _write_json(run_dir / "manifest.json", manifest)
 
+    models_by_stage: dict[str, str] = {s: "stub" for s in stages}
+    if llm_framing:
+        models_by_stage["framing"] = framing_model_for_config
     config: dict[str, Any] = {
         "schema_version": "0.1",
         "mode": config_mode,
-        "models_by_stage": {s: "stub" for s in stages},
+        "models_by_stage": models_by_stage,
         "prompts": "see prompts/<stage>/ on disk (placeholders in Phase 0)",
         "llm_client_probe": {
             "model": llm_ping.model,
@@ -438,6 +534,12 @@ def _execute_phase0_run(
             "latency_ms": llm_ping.latency_ms,
         },
     }
+    if llm_framing:
+        config["llm_framing"] = {
+            "enabled": True,
+            "model_requested": framing_model,
+            "model_effective": framing_model_for_config,
+        }
     if corpus_labels_dir is not None:
         config["corpus_retrieval"] = {
             "labels_dir": as_repo_relative(corpus_labels_dir),
@@ -460,6 +562,8 @@ def run_assigned_skeleton(
     corpus_labels_dir: Path | None = None,
     corpus_labels_recursive: bool = False,
     corpus_retrieval_max_hits: int = 12,
+    llm_framing: bool = False,
+    framing_model: str | None = None,
 ) -> AssignedSkeletonResult:
     """
     Create `artifacts_root / <run_id>` with full stage layout (Phase 0, **assigned**).
@@ -468,6 +572,11 @@ def run_assigned_skeleton(
 
     ``llm_client`` defaults to :class:`StubLLMClient` (deterministic, no network). Pass an
     explicit client only when you intend non-default behavior (tests or opt-in backends).
+
+    When ``llm_framing`` is true, the framing stage calls the LLM once to produce JSON validated
+    as ``framing_decision``; requires a **non-stub** client. If ``llm_client`` is omitted,
+    :func:`llm_client_from_env` is used (e.g. ``TLG_LLM_BACKEND=openai`` and ``OPENAI_API_KEY``).
+    Model id defaults to ``TLG_LLM_FRAMING_MODEL`` or ``gpt-4o-mini``.
 
     When ``corpus_labels_dir`` is set, retrieval ranks schema-valid ``piece_label`` JSON
     files (see :func:`tlg_writer.retrieval_result.build_retrieval_result_from_labels_dir`)
@@ -479,6 +588,11 @@ def run_assigned_skeleton(
     else:
         rid = run_id
         normalize_slug(slug)
+
+    resolved_client: LLMClient | None = llm_client
+    if llm_framing and resolved_client is None:
+        resolved_client = llm_client_from_env()
+    fm = _default_framing_model(framing_model)
 
     inputs_doc = build_stub_inputs_result_assigned(run_id=rid, topic=topic)
     return _execute_phase0_run(
@@ -501,10 +615,12 @@ def run_assigned_skeleton(
             "## topic_selection\n\n**Skipped** for assigned mode (see `output.json`).\n"
         ),
         stage_status_topic_selection="skipped",
-        llm_client=llm_client,
+        llm_client=resolved_client,
         corpus_labels_dir=corpus_labels_dir,
         corpus_labels_recursive=corpus_labels_recursive,
         corpus_retrieval_max_hits=corpus_retrieval_max_hits,
+        llm_framing=llm_framing,
+        framing_model=fm,
     )
 
 
