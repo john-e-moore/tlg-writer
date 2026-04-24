@@ -152,7 +152,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Phase 0 auto-topic skeleton (stub) — done (PR #17 merged) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 - `2026-04-24 — ExecPlan: Phase 0 skeleton LLM client probe — done (PR #18 merged) — agent`
-- `2026-04-24 — ExecPlan: Corpus batch statistics (stub manifest + summary) — PR #19 — agent`
+- `2026-04-24 — ExecPlan: Corpus batch statistics (stub manifest + summary) — done (PR #19 merged) — agent`
 
 ---
 
@@ -1394,7 +1394,7 @@ Unchanged: duplicate `run_id` directory raises `FileExistsError`.
 
 Links: branch `feature/corpus-batch-statistics`; brief `.agent/features/2026-04-24-corpus-batch-statistics/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/19`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -1404,11 +1404,12 @@ Ship PROGRESS “summary statistics” for **stub** corpus batch runs: extend `c
 
 - [x] (2026-04-24) Planning
 - [x] (2026-04-24) Implementation
-- [x] (2026-04-24) Validation + docs (local `pytest -q`: 88 passed; PR pending)
+- [x] (2026-04-24) Validation + docs (PR #19; GitHub **Tests** green; local `pytest -q`: 88 passed)
 
 ### Surprises & discoveries
 
-- (pending)
+- Observation: Full `pytest -q` is **88** tests after this slice (was 84 on prior `main`).  
+  Evidence: local and CI on PR #19.
 
 ### Decision log
 
@@ -1416,7 +1417,7 @@ Ship PROGRESS “summary statistics” for **stub** corpus batch runs: extend `c
 
 ### Outcomes & retrospective
 
-(pending merge)
+Merged via PR #19 (`https://github.com/john-e-moore/tlg-writer/pull/19`). Stub corpus runs always emit `batch_statistics` v1 and enriched `summary.md`. Follow-up: real labeling/extraction should reuse or extend the same contract (PROGRESS).
 
 ### Context and orientation
 
