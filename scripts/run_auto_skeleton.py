@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+"""CLI: Phase 0 auto-topic skeleton run (stub selection; inspectable `artifacts/runs/` tree)."""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT / "src"))
+
+from tlg_writer.run_id import normalize_slug
+from tlg_writer.skeleton_pipeline import run_auto_skeleton
+
+
+def main() -> int:
+    p = argparse.ArgumentParser(
+        description=(
+            "Create a Phase 0 auto-topic skeleton run under artifacts/runs/ "
+            "(stub topic_selection completed; no live models)."
+        )
+    )
+    p.add_argument(
+        "--slug",
+        required=True,
+        help="Kebab-case slug for run_id (e.g. macro-stub).",
+    )
+    p.add_argument(
+        "--topic",
+        default=None,
+        help="Optional topic label override (default: deterministic Phase 0 stub label).",
+    )
+    p.add_argument(
+        "--artifacts-root",
+        type=Path,
+        default=_REPO_ROOT / "artifacts" / "runs",
+        help="Directory in which the run folder is created (default: artifacts/runs).",
+    )
+    p.add_argument(
+        "--run-id",
+        help="Override run_id (for tests). Must not collide with an existing directory.",
+    )
+    p.add_argument(
+        "--utc",
+        help='Fixed UTC timestamp as "YYYY-MM-DDTHH:MM:SS" for reproducible run_id '
+        "(only when --run-id is omitted).",
+    )
+    args = p.parse_args()
+    try:
+        normalize_slug(args.slug)
+    except ValueError as e:
+        p.error(str(e))
+
+    when: datetime | None = None
+    if args.utc:
+        when = datetime.strptime(args.utc, "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)
+
+    res = run_auto_skeleton(
+        slug=args.slug,
+        artifacts_root=args.artifacts_root,
+        when=when,
+        run_id=args.run_id,
+        topic=args.topic,
+    )
+    print(res.run_dir.resolve())
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

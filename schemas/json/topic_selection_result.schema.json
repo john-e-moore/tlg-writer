@@ -2,47 +2,95 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://tlg-writer.local/schemas/topic_selection_result.schema.json",
   "title": "topic_selection_result",
-  "description": "topic_selection stage output (SPEC §7.3). v1: assigned-topic skip record only; extend when auto-topic selection ships.",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "schema_version",
-    "run_id",
-    "selection_status",
-    "skip_reason",
-    "carried_topic_label",
-    "summary"
-  ],
-  "properties": {
-    "schema_version": {
-      "type": "string",
-      "const": "v1",
-      "description": "Topic selection document revision."
+  "description": "topic_selection stage output (SPEC §7.3). v1: assigned skip or Phase 0 auto completed stub (no real candidate search).",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "run_id",
+        "selection_status",
+        "skip_reason",
+        "carried_topic_label",
+        "summary"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "v1",
+          "description": "Topic selection document revision."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
+        },
+        "selection_status": {
+          "type": "string",
+          "const": "skipped",
+          "description": "assigned path: auto-selection did not run."
+        },
+        "skip_reason": {
+          "type": "string",
+          "const": "assigned_topic",
+          "description": "Why selection did not run."
+        },
+        "carried_topic_label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Topic label propagated from assigned intake."
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short operator-facing recap."
+        }
+      }
     },
-    "run_id": {
-      "type": "string",
-      "minLength": 1,
-      "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
-    },
-    "selection_status": {
-      "type": "string",
-      "const": "skipped",
-      "description": "v1 assigned path: selection stage is skipped."
-    },
-    "skip_reason": {
-      "type": "string",
-      "const": "assigned_topic",
-      "description": "Why selection did not run."
-    },
-    "carried_topic_label": {
-      "type": "string",
-      "minLength": 1,
-      "description": "Topic label propagated from assigned intake."
-    },
-    "summary": {
-      "type": "string",
-      "minLength": 1,
-      "description": "Short operator-facing recap."
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "run_id",
+        "selection_status",
+        "selected_topic_label",
+        "candidates_considered",
+        "summary"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "v1",
+          "description": "Topic selection document revision."
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
+        },
+        "selection_status": {
+          "type": "string",
+          "const": "completed",
+          "description": "Selection finished (Phase 0 may still be stub-only)."
+        },
+        "selected_topic_label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Chosen topic label for downstream stages."
+        },
+        "candidates_considered": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Candidate labels or ids considered (empty in Phase 0 stub)."
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short operator-facing recap."
+        }
+      }
     }
-  }
+  ]
 }

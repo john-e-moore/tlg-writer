@@ -663,9 +663,9 @@ Initial schema set (extend as needed):
 - `piece_features.schema.json`
 - `source_summary.schema.json`
 - `topic_candidate.schema.json`
-- `inputs_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `inputs/output.json`; see §21 step 14)
-- `source_reading_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `source_reading/output.json`; see §21 step 14)
-- `topic_selection_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `topic_selection/output.json` for assigned skip; see §21 step 14)
+- `inputs_result.schema.json` (**v1 minimal, shipped:** assigned and auto stub skeletons write schema-valid `inputs/output.json`; `mode` + `topic.source` distinguish paths; see §21 steps 14–16)
+- `source_reading_result.schema.json` (**v1 minimal, shipped:** skeleton writes schema-valid `source_reading/output.json`; see §21 step 14)
+- `topic_selection_result.schema.json` (**v1 minimal, shipped:** schema `oneOf` — assigned **skipped** branch or auto Phase 0 **completed** stub; see §21 steps 14–16)
 - `framing_decision.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `framing/output.json`; see §21 step 7)
 - `retrieval_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `retrieval/output.json`; see §21 step 7)
 - `piece_brief.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `brief/output.json`; see §21 step 7)
@@ -804,7 +804,7 @@ JSON Schemas stay in **`schemas/json/`** (not inside `src/`) so scripts and test
 
 Phases below are ordered by **dependency for eventual quality**, not by mandatory calendar sequence. For **early feedback loops**, land **Phase 0** as soon as manifests, artifact I/O, and minimal schemas exist so operators can run something, open `artifacts/runs/<run_id>/`, and debug stage boundaries **before** archive labeling (Phase 1) or retrieval quality work is exhaustive. Phase 0 and Phase 1 may proceed **in parallel** once the run harness is real.
 
-### Phase 0: runnable assigned-topic skeleton (vertical slice)
+### Phase 0: runnable skeleton runs (assigned and auto stubs)
 
 Goal:
 
@@ -814,6 +814,7 @@ Deliverables:
 
 - A documented entry point (CLI under `scripts/` and/or library in `src/` as the repo evolves) that creates a timestamped `artifacts/runs/<run_id>/` with top-level `manifest.json` (and `config.json` when used) and the stage directories named in §12 and `.agent/AGENTS.md`.
 - **`assigned` mode path**: `topic_selection/` may contain only a stub or skip artifact, with the manifest and/or stage `summary.md` stating that auto-topic selection did not run—never silent omission of a stage directory when the pipeline claims it ran.
+- **`auto` mode path (Phase 0 stub):** same directory layout; `topic_selection/` holds a **completed** stub result (deterministic label, no candidate search) so manifests, configs, and downstream inputs can be exercised before real auto-topic search exists.
 - Stages may use **fixtures, stubs, or mocked LLM responses**; CI must not require live API keys for the default test path.
 - A human-openable deliverable under `final/` (quality may be intentionally low; stage summaries should state limitations honestly).
 
@@ -960,8 +961,9 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 11. **Deepen** final-evaluation observability: **`evaluation_result` v1** JSON Schema (SPEC §7.10: pass/fail, recommendation, scorecard; §15.3 explicit weaknesses in `summary`) with assigned skeleton `evaluation/output.json` validated accordingly (null scorecard = not evaluated in Phase 0).
 12. **Deepen** drafting observability: **`draft_result` v1** JSON Schema (SPEC §7.7: body, writer notes, uncertainty flags) with assigned skeleton `drafting/output.json` validated accordingly (stub prose; critique/revision inputs reference the canonical `draft_result` document).
 13. **Deepen** packaging observability: **`final_deliverable` v1** JSON Schema (markdown body, limitations, operator summary) with assigned skeleton `final/output.json` validated accordingly (`final/piece.md` mirrors `body_markdown`; Phase 0 quality by design).
-14. **Deepen** intake observability: **`inputs_result`**, **`source_reading_result`**, and **`topic_selection_result`** v1 JSON Schemas with assigned skeleton `inputs/`, `source_reading/`, and `topic_selection/output.json` validated accordingly (`topic_selection` v1 models assigned skip only; framing consumes canonical intake artifacts on `input.json`).
+14. **Deepen** intake observability: **`inputs_result`**, **`source_reading_result`**, and **`topic_selection_result`** v1 JSON Schemas with assigned skeleton `inputs/`, `source_reading/`, and `topic_selection/output.json` validated accordingly (`topic_selection` v1 **skipped** branch for assigned; framing consumes canonical intake artifacts on `input.json`).
 15. **Infra:** shared **stage → JSON Schema** registry (`tlg_writer.stage_schemas`) and a small **LLM client** boundary (`tlg_writer.llm_client`: stub + optional OpenAI via stdlib, env-gated) so validation mapping and HTTP stay centralized.
+16. **Phase 0 auto stub:** runnable **`auto`** skeleton (`run_auto_skeleton`, `scripts/run_auto_skeleton.py`) with the same stage layout as assigned, `manifest`/`config` `mode: auto`, `inputs_result` auto stub, and `topic_selection_result` **completed** stub (no live topic search); `pytest` locks manifest and schema contracts.
 
 ---
 

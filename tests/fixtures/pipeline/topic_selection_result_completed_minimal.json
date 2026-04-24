@@ -1,0 +1,8 @@
+{
+  "schema_version": "v1",
+  "run_id": "2026-04-21T12-00-00Z__auto__fixture",
+  "selection_status": "completed",
+  "selected_topic_label": "Fixture completed topic",
+  "candidates_considered": [],
+  "summary": "Fixture: completed stub for schema tests."
+}

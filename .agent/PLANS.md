@@ -149,6 +149,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: final_deliverable v1 + final stage wiring — done (PR #14 merged) — agent`
 - `2026-04-21 — ExecPlan: Intake stage v1 schemas (inputs, source_reading, topic_selection) — done (PR #15 merged) — agent`
 - `2026-04-21 — ExecPlan: Stage schema registry + LLM client module — done (PR #16 merged) — agent`
+- `2026-04-21 — ExecPlan: Phase 0 auto-topic skeleton (stub) — in_progress — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -1243,4 +1244,73 @@ N/A (library-only refactor plus new modules).
 
 - **Library:** `tlg_writer.stage_schemas`, `tlg_writer.llm_client`.
 - **External:** optional `OPENAI_API_KEY` when `TLG_LLM_BACKEND=openai` (not used in CI).
+
+## ExecPlan: Phase 0 auto-topic skeleton (stub) — 2026-04-21
+
+Links: branch `feature/auto-skeleton-phase0`; brief `N/A`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Ship SPEC §21 step 16: a second Phase 0 runner for **`auto`** mode that reuses the full stage directory layout, writes schema-valid **`inputs_result`** (auto stub) and **`topic_selection_result`** (**completed** stub, empty candidates), and exposes `scripts/run_auto_skeleton.py` — no live topic search and no LLM calls.
+
+### Progress
+
+- [x] (2026-04-21) Schemas + builders + `run_auto_skeleton` / shared `_execute_phase0_run`
+- [x] (2026-04-21) CLI `scripts/run_auto_skeleton.py`
+- [x] (2026-04-21) Unit + integration tests; README / SPEC / prompts
+- [ ] PR opened, CI green, merge
+
+### Surprises & discoveries
+
+- Observation: `test_inputs_result_rejects_bad_mode` previously flipped `mode` to `"auto"` on an assigned-shaped doc; that is now schema-valid, so the test asserts an invalid enum instead.  
+  Evidence: `pytest -q` (83 passed) after the change.
+
+### Decision log
+
+- Decision: `topic_selection_result` uses JSON Schema **`oneOf`** for skipped vs completed branches — Rationale: one artifact type, two explicit shapes — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+Pending merge.
+
+### Context and orientation
+
+Touch points: `schemas/json/inputs_result.schema.json`, `schemas/json/topic_selection_result.schema.json`, `src/tlg_writer/inputs_result.py`, `src/tlg_writer/topic_selection_result.py`, `src/tlg_writer/skeleton_pipeline.py`, `scripts/run_auto_skeleton.py`, `tests/integration/test_skeleton_pipeline.py`, `tests/unit/test_intake_results_schema.py`, `tests/fixtures/pipeline/topic_selection_result_completed_minimal.json`, `README.md`, `.agent/SPEC.md` §13 / §18 / §21, `prompts/topic_selection/system.md`.
+
+### Plan of work
+
+1. Extend contracts and builders for auto stub intake and completed topic_selection.
+2. Refactor skeleton execution so assigned and auto share one writer path.
+3. CLI + tests + docs; open PR.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_auto_skeleton.py --help
+python scripts/run_auto_skeleton.py --slug smoke-auto
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes.
+- `run_auto_skeleton` produces `manifest.mode == "auto"`, `run_id` contains `__auto__`, and `topic_selection/output.json` validates as `topic_selection_result` (completed branch).
+
+### Idempotence and recovery
+
+Same as assigned skeleton: duplicate `run_id` directory raises `FileExistsError`.
+
+### Artifacts and notes
+
+New runs under `artifacts/runs/<run_id>/` when using default `--artifacts-root`.
+
+### Interfaces and dependencies
+
+- **Library:** `tlg_writer.skeleton_pipeline.run_auto_skeleton`
+- **CLI:** `scripts/run_auto_skeleton.py`
 
