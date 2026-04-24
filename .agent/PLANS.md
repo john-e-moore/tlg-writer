@@ -153,6 +153,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 - `2026-04-24 — ExecPlan: Phase 0 skeleton LLM client probe — done (PR #18 merged) — agent`
 - `2026-04-24 — ExecPlan: Corpus batch statistics (stub manifest + summary) — done (PR #19 merged) — agent`
+- `2026-04-24 — ExecPlan: Validate corpus piece_label / piece_features dirs — in_progress (PR pending) — agent`
 
 ---
 
@@ -1456,5 +1457,78 @@ Unchanged: duplicate `run_id` directory raises `FileExistsError`.
 ### Interfaces and dependencies
 
 - **Library:** `run_corpus_batch_stub`, `build_batch_statistics_v1`.
+- **External:** none.
+
+---
+
+## ExecPlan: Validate corpus piece_label / piece_features dirs — 2026-04-24
+
+Links: branch `feature/validate-corpus-piece-json`; brief `.agent/features/2026-04-24-validate-corpus-piece-json/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Ship SPEC §21 step 19: operators can **read-only** validate every `*.json` under a corpus **labels** or **features** directory against `piece_label` / `piece_features` schemas before retrieval, reporting, or human review of large batches. No writes, no LLM.
+
+### Progress
+
+- [x] (2026-04-24) Planning
+- [x] (2026-04-24) Implementation
+- [x] (2026-04-24) Validation + docs (local `pytest -q`: 96 passed; PR evidence pending)
+
+### Surprises & discoveries
+
+- Observation: (none yet)
+
+### Decision log
+
+- Decision: Default non-recursive glob so flat `piece_<hash>.json` trees match stub output; `--recursive` for optional nested layouts — Rationale: predictable performance and fewer accidental picks of unrelated JSON — Date: 2026-04-24
+
+### Outcomes & retrospective
+
+Pending merge.
+
+### Context and orientation
+
+Touch points: `src/tlg_writer/corpus_piece_artifacts.py`, `scripts/validate_corpus_piece_json.py`, `tests/unit/test_corpus_piece_artifacts.py`, `schemas/json/piece_label.schema.json`, `schemas/json/piece_features.schema.json`, `.agent/SPEC.md` §21, `README.md`.
+
+### Plan of work
+
+1. Add `validate_corpus_json_files` + `iter_json_files` helpers.
+2. CLI mirroring `validate_gold_set_index.py` style.
+3. Unit tests + subprocess smoke for the script.
+4. SPEC §21 step 19, README, PROGRESS, feature brief, PLANS index.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/validate_corpus_piece_json.py --help
+mkdir -p /tmp/tlg-validate-smoke && cp tests/fixtures/corpus/minimal_piece_label.json /tmp/tlg-validate-smoke/
+python scripts/validate_corpus_piece_json.py --labels-dir /tmp/tlg-validate-smoke
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (96 tests after this slice on branch).
+- Smoke: CLI validates a directory containing only `minimal_piece_label.json` copy.
+- `--help` documents `--recursive` and dual-dir usage.
+
+### Idempotence and recovery
+
+Read-only; no artifact dirs created.
+
+### Artifacts and notes
+
+- N/A for new `artifacts/runs/` contract paths.
+
+### Interfaces and dependencies
+
+- **Library:** `tlg_writer.corpus_piece_artifacts.validate_corpus_json_files`, `iter_json_files`.
+- **CLI:** `scripts/validate_corpus_piece_json.py` (`--labels-dir`, `--features-dir`, `--recursive`).
 - **External:** none.
 

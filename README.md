@@ -67,6 +67,16 @@ python scripts/run_corpus_batch_stub.py \
 
 Use `--labels-dir` / `--features-dir` / `--artifacts-root` to redirect outputs (defaults write under `data/processed/pieces/…` and `artifacts/runs/`). Same `--run-id` twice errors if the run folder already exists.
 
+Each directory you pass to validation below should contain **only** per-piece `piece_label` or `piece_features` JSON (not metadata batches, gold-set index files, or other mixed types).
+
+```bash
+python scripts/validate_corpus_piece_json.py \
+  --labels-dir data/processed/pieces/labeled \
+  --features-dir data/processed/pieces/extracted_features
+```
+
+Use `--recursive` if artifacts live in subfolders. Non-zero exit when any file fails JSON parse or schema validation.
+
 ## Editorial archetype taxonomy (v1)
 
 SPEC §8 archetypes are bundled as validated JSON (`src/tlg_writer/editorial_archetype_taxonomy.v1.json`, schema `schemas/json/editorial_archetype_taxonomy.schema.json`). List them:
