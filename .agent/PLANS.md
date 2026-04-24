@@ -148,7 +148,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: draft_result v1 + drafting stage wiring — done (PR #13 merged) — agent`
 - `2026-04-21 — ExecPlan: final_deliverable v1 + final stage wiring — done (PR #14 merged) — agent`
 - `2026-04-21 — ExecPlan: Intake stage v1 schemas (inputs, source_reading, topic_selection) — done (PR #15 merged) — agent`
-- `2026-04-21 — ExecPlan: Stage schema registry + LLM client module — in_progress (PR pending) — agent`
+- `2026-04-21 — ExecPlan: Stage schema registry + LLM client module — done (PR #16 merged) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -1180,9 +1180,9 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 
 ## ExecPlan: Stage schema registry + LLM client module — 2026-04-21
 
-Links: branch `feature/schema-registry-llm-client`; brief `.agent/features/2026-04-21-schema-registry-llm-client/SPEC.md`; PR `pending`.
+Links: branch `feature/schema-registry-llm-client`; brief `.agent/features/2026-04-21-schema-registry-llm-client/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/16`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -1192,11 +1192,12 @@ Centralize pipeline **stage → output JSON Schema** mapping in `tlg_writer.stag
 
 - [x] (2026-04-21) Planning
 - [x] (2026-04-21) Implementation
-- [ ] (2026-04-21) Validation + docs (PR evidence)
+- [x] (2026-04-21) Validation + docs (PR #16 evidence)
 
 ### Surprises & discoveries
 
-- (none yet)
+- Observation: Full `pytest -q` is **79** tests after this slice (was 71 on prior `main`).  
+  Evidence: `pytest -q` on `feature/schema-registry-llm-client`.
 
 ### Decision log
 
@@ -1204,7 +1205,7 @@ Centralize pipeline **stage → output JSON Schema** mapping in `tlg_writer.stag
 
 ### Outcomes & retrospective
 
-(pending merge)
+Merged via PR #16 (`https://github.com/john-e-moore/tlg-writer/pull/16`). Validation: `pytest -q` (79 passed) on branch before merge.
 
 ### Context and orientation
 
