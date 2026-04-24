@@ -149,7 +149,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: final_deliverable v1 + final stage wiring — done (PR #14 merged) — agent`
 - `2026-04-21 — ExecPlan: Intake stage v1 schemas (inputs, source_reading, topic_selection) — done (PR #15 merged) — agent`
 - `2026-04-21 — ExecPlan: Stage schema registry + LLM client module — done (PR #16 merged) — agent`
-- `2026-04-21 — ExecPlan: Phase 0 auto-topic skeleton (stub) — in_progress (PR #17) — agent`
+- `2026-04-21 — ExecPlan: Phase 0 auto-topic skeleton (stub) — done (PR #17 merged) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -1249,7 +1249,7 @@ N/A (library-only refactor plus new modules).
 
 Links: branch `feature/auto-skeleton-phase0`; brief `N/A`; PR `https://github.com/john-e-moore/tlg-writer/pull/17`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -1261,12 +1261,14 @@ Ship SPEC §21 step 16: a second Phase 0 runner for **`auto`** mode that reuses 
 - [x] (2026-04-21) CLI `scripts/run_auto_skeleton.py`
 - [x] (2026-04-21) Unit + integration tests; README / SPEC / prompts
 - [x] (2026-04-21) PR #17 opened (`gh pr create`)
-- [ ] CI green + merge to `main`
+- [x] (2026-04-21) CI green + squash merge to `main` (PR #17)
 
 ### Surprises & discoveries
 
 - Observation: `test_inputs_result_rejects_bad_mode` previously flipped `mode` to `"auto"` on an assigned-shaped doc; that is now schema-valid, so the test asserts an invalid enum instead.  
   Evidence: `pytest -q` (83 passed) after the change.
+- Observation: `gh pr merge --auto` failed with “Auto merge is not allowed for this repository”; merged with `gh pr merge 17 --squash` after **Tests** passed.  
+  Evidence: `gh pr checks 17 --watch` then successful squash merge.
 
 ### Decision log
 
@@ -1274,7 +1276,7 @@ Ship SPEC §21 step 16: a second Phase 0 runner for **`auto`** mode that reuses 
 
 ### Outcomes & retrospective
 
-Pending merge.
+Merged via PR #17 (`https://github.com/john-e-moore/tlg-writer/pull/17`). GitHub Actions **Tests** job passed on the PR branch. Repository auto-merge was unavailable; merge completed with `gh pr merge 17 --squash`. Follow-up: real auto-topic search and non-stub `topic_selection` when Phase 4 work begins.
 
 ### Context and orientation
 
