@@ -3,14 +3,16 @@
 **Purpose:** A single page to see **what is done** and **what is next** without reading every ExecPlan in `.agent/PLANS.md` or every line of `.agent/SPEC.md`.  
 **Normative requirements** still live in `.agent/SPEC.md`; **agent behavior** in `.agent/AGENTS.md`.
 
+**Agent delivery:** Implement, merge when CI is green, **run** commands that materialize operator-visible paths (`artifacts/runs/…`, relevant `data/…`, or declared fixture paths). **Pause** with concrete paths when outputs are ready for human inspection—not before. See **`.agent/AGENTS.md`** → *Infra and contracts phase: auto-merge and when to stop* (and “Also pause” when blocked).
+
 **Last updated:** 2026-04-24
 
 ---
 
 ## Current focus (optional; edit when priorities shift)
 
-- [ ] **Product:** Replace corpus **stub** labeling with **real** batch labeling (or HITL), validate outputs, add **summary statistics** for a run.
-- [ ] **Product:** First **assigned-topic** run that uses **live** (or env-gated) model work for **new piece generation**, with operator review of `artifacts/runs/…`.
+- [ ] **Product:** Replace corpus **stub** labeling with **real** batch labeling (or HITL), validate outputs, add **summary statistics** for a run (agents ship + **run** to produce outputs, then pause with paths for your review).
+- [ ] **Product:** First **assigned-topic** run that uses **live** (or env-gated) model work for **new piece generation**; agents merge pipeline work, **run** to emit `artifacts/runs/…`, then pause with paths for your review.
 
 ---
 

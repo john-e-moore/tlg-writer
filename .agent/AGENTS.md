@@ -113,7 +113,7 @@ For non-trivial work:
 7. Confirm new artifacts stay readable and attributable (`run_id`, `stage`, `agent` in logs and metrics).
 8. **Update `.agent/PROGRESS.md`** when the merge completes substantive scope (tick boxes, adjust **Current focus** if priorities shifted, bump **Last updated**). Skip for typos, comment-only edits, or test-only tweaks with no behavior change.
 
-Do not stop at partial delivery unless blocked (credentials, missing inputs, network, or explicit user stop). Partial **pipeline** delivery is acceptable when the ExecPlan scope is explicitly “skeleton + mocks”; it is not acceptable when stages claim to run but omit outputs without documentation.
+Do not stop at partial delivery unless blocked (credentials, missing inputs, network, or explicit user stop). Partial **pipeline** delivery is acceptable when the ExecPlan scope is explicitly “skeleton + mocks”; it is not acceptable when stages claim to run but omit outputs without documentation. When a merged slice introduces or changes **emitters** for `artifacts/runs/…` or `data/processed/pieces/…`, run the documented command(s) so concrete paths exist, **then** apply the human pause rule in **Infra and contracts phase** below—not earlier.
 
 ## Progress tracking (`.agent/PROGRESS.md`)
 
@@ -142,21 +142,24 @@ Target flow: **new branch → implement in logical commits → test → open PR 
 
 ### Infra and contracts phase: auto-merge and when to stop
 
-Until **infra and contracts** work is done (schemas, layout, stubs/mocks, tests, docs—without expecting a human to judge prose quality or batch labeling output), it is reasonable to **minimize manual merge toil**:
+While building **schemas, layout, stubs/mocks, tests, and docs**—and slices that **emit** operator-visible trees—it is reasonable to **minimize manual merge toil**:
 
 1. Open the PR as usual; confirm **Tests** is green on GitHub (same suite as local `pytest -q`).
 2. Either enable **Auto-merge** (squash or merge) on the PR in the GitHub UI, or from a trusted machine with `gh` and permissions: `gh pr merge <n> --auto --squash` (merges when required checks pass).
 3. After merge: `git checkout main && git pull`, then start the next `feature/<short-slug>` from updated `main`.
 
-**Default for agents in this phase:** after opening a PR, you may merge it once **Tests** is green (via `gh pr merge … --auto` or explicit merge if auto-merge is unavailable), then continue the next scoped slice on a fresh branch—**unless** a pause trigger applies.
+**Default for agents:** keep **implementing and merging** scoped work. Roadmap bullets that mention “human review,” “operator rubric,” or “HITL” describe **who owns quality of the outputs**, not a reason to defer merges or skip running the pipeline. Ship the PR when CI is green, then **run** the CLIs or library entry points needed so **concrete paths on disk** exist for inspection (stub runs, fixtures under `tests/fixtures/`, env-gated **live** calls when the slice scope and credentials allow—document mocks or skips when they do not).
 
-**Pause (do not auto-merge chain; stop and wait for the human):**
+**Pause and wait for the human** when **both** are true:
 
-- The slice or ExecPlan is the first where **the human is expected to read or judge output** from a real or representative run (for example under `artifacts/runs/<run_id>/`, or generated labels/features under `data/processed/pieces/`), not only fixtures in `tests/`.
-- The work turns on **live model calls**, **paid API usage**, or **bulk writes** to corpus paths where spot-checking matters.
-- The user or brief explicitly asks for **review before merge** or marks the plan **blocked** pending a decision.
+1. **Artifacts to inspect exist**—for example a completed `artifacts/runs/<run_id>/`, new files under `data/processed/pieces/…`, or other outputs the ExecPlan / acceptance criteria name (including a **fixture path** under `tests/fixtures/` when the slice is intentionally test-only and no new run dir is required), **and**
+2. The meaningful **next** step is for the human to read, judge, or curate those outputs (or otherwise continue outside the agent loop).
 
-When in doubt, treat “operator reads new writing or labeling results” as a **hard pause**: open the PR, summarize what to open on disk, and stop until the user confirms.
+When you pause: list **exact repository-relative paths** (and how to reproduce the run). Do **not** start a **new unrelated** slice until the user continues.
+
+**Also pause** (artifacts optional) when **blocked**: missing credentials or network where the slice requires them, merge/`gh` permissions, an ExecPlan marked **`blocked`**, a genuinely **ambiguous** next step after reading `.agent/PLANS.md` and `.agent/PROGRESS.md`, or the user explicitly requests **review before merge** on a specific PR.
+
+**Do not pause** merely because upcoming roadmap work will eventually need human judgment—**merge, run, materialize outputs first**, then pause with paths when something is actually on disk (or explicitly declared N/A in the ExecPlan) for the human to open.
 
 **Phased / roadmap work:** align branches with **vertical slices** you would merge independently (see **Early feedback loops**), not necessarily one git branch per numbered subsection of `.agent/SPEC.md`. Split a large spec phase across **multiple PRs** when review or rollback boundaries warrant it; prefer **frequent small merges** to `main` over one long-lived mega-branch or bulk unreviewed work on `main`.
 

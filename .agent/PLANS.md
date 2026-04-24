@@ -74,6 +74,8 @@ Done means: scoped behavior works end-to-end (or end-to-end **with mocks** when 
 
 If live models or APIs are unavailable: document mocks used and list follow-up checks when keys exist.
 
+**Agents:** for slices meant to produce **human-inspected** outputs, “done” still includes **merging** and **running** enough to materialize the paths the ExecPlan names (then pausing with those paths per `.agent/AGENTS.md`—**not** pausing before merge solely because a later human review is listed in `.agent/PROGRESS.md`).
+
 ## Template (copy inside a new `## ExecPlan: …` section)
 
 ### Purpose / big picture
