@@ -966,6 +966,7 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 16. **Phase 0 auto stub:** runnable **`auto`** skeleton (`run_auto_skeleton`, `scripts/run_auto_skeleton.py`) with the same stage layout as assigned, `manifest`/`config` `mode: auto`, `inputs_result` auto stub, and `topic_selection_result` **completed** stub (no live topic search); `pytest` locks manifest and schema contracts.
 17. **LLM boundary in Phase 0 runs:** skeleton runners invoke `tlg_writer.llm_client` once per run (default `StubLLMClient`) and record a shared probe in each stage `metrics.json` (`llm.phase0_client_probe`), `config.json` (`llm_client_probe`), and `logs/run.log`; stage `output.json` documents remain stub-built (no completion text consumed).
 18. **Corpus batch statistics (stub):** `corpus_batch_manifest` carries optional `batch_statistics` v1 (skip breakdown, metadata title presence among written rows, `words_approx` min/max/sum, `labels.editorial.primary_archetype_id` histogram). `scripts/run_corpus_batch_stub.py` always emits it with enriched `summary.md` for operator review without ad-hoc JSON crunching.
+19. **Corpus piece JSON validation (read-only):** `tlg_writer.corpus_piece_artifacts` + `scripts/validate_corpus_piece_json.py` walk `*.json` under `--labels-dir` / `--features-dir` (optional `--recursive`) and validate each file as `piece_label` or `piece_features` respectively. Intended for spot-checking stub output, HITL labels, or future model batches before merge or retrieval indexing—without mutating `data/`.
 
 ---
 

@@ -62,6 +62,7 @@
 ### Batch processing (corpus)
 
 - [x] **Stub** batch run: `scripts/run_corpus_batch_stub.py` → `piece_label` / `piece_features` files + `artifacts/runs/…` with `corpus_batch_manifest`, `summary.md`, `run.log`
+- [x] Read-only validation: `scripts/validate_corpus_piece_json.py` walks `*.json` under label/feature dirs and checks `piece_label` / `piece_features` schemas (SPEC §21 step 19)
 - [ ] **Real** labeling pipeline (model or HITL) writing schema-valid `data/processed/pieces/labeled/`
 - [ ] **Real** feature extraction pipeline writing schema-valid `data/processed/pieces/extracted_features/`
 - [x] **Summary statistics** for **stub** corpus batch runs (`corpus_batch_manifest.batch_statistics` v1 + `summary.md` tables: skips, titles, `words_approx`, primary archetype counts)
