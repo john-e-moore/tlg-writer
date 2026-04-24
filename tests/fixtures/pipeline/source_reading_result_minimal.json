@@ -1,0 +1,9 @@
+{
+  "schema_version": "v1",
+  "run_id": "2026-04-21T12-00-00Z__assigned__fixture",
+  "reading_status": "stub",
+  "highlights": [],
+  "claims": [],
+  "topic_echo": null,
+  "summary": "Fixture: empty reading pass for schema tests."
+}

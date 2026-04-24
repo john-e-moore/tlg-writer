@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/inputs_result.schema.json",
+  "title": "inputs_result",
+  "description": "Normalized CLI / operator topic intake for a run (SPEC §12, intake before framing). v1: assigned-topic path only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "mode",
+    "topic",
+    "intake_status",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1",
+      "description": "Inputs document revision."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["assigned"],
+      "description": "Run mode at intake; extend when auto-topic ships."
+    },
+    "topic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "source"],
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable topic label from the operator."
+        },
+        "source": {
+          "type": "string",
+          "const": "cli",
+          "description": "Where the topic label originated for v1."
+        }
+      }
+    },
+    "intake_status": {
+      "type": "string",
+      "enum": ["completed", "stub"],
+      "description": "Whether intake normalization finished."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Short operator-facing recap of intake."
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tlg-writer.local/schemas/source_reading_result.schema.json",
+  "title": "source_reading_result",
+  "description": "Structured output of the source_reading stage (SPEC §12.3). v1: Phase 0 stub lists only; no file ingestion.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "reading_status",
+    "highlights",
+    "claims",
+    "topic_echo",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1",
+      "description": "Source reading document revision."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Editorial run id (same as run manifest run_id, SPEC §12.1)."
+    },
+    "reading_status": {
+      "type": "string",
+      "enum": ["stub", "completed", "failed"],
+      "description": "Lifecycle of the reading pass."
+    },
+    "highlights": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Extracted highlights (empty in Phase 0)."
+    },
+    "claims": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Structured claims (empty in Phase 0)."
+    },
+    "topic_echo": {
+      "type": ["string", "null"],
+      "description": "Topic string echoed from upstream intake when applicable."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Short operator-facing recap."
+    }
+  }
+}

@@ -661,6 +661,9 @@ Initial schema set (extend as needed):
 - `piece_features.schema.json`
 - `source_summary.schema.json`
 - `topic_candidate.schema.json`
+- `inputs_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `inputs/output.json`; see §21 step 14)
+- `source_reading_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `source_reading/output.json`; see §21 step 14)
+- `topic_selection_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `topic_selection/output.json` for assigned skip; see §21 step 14)
 - `framing_decision.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `framing/output.json`; see §21 step 7)
 - `retrieval_result.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `retrieval/output.json`; see §21 step 7)
 - `piece_brief.schema.json` (**v1 minimal, shipped:** assigned skeleton writes schema-valid `brief/output.json`; see §21 step 7)
@@ -955,6 +958,7 @@ The first useful version is a disciplined editorial pipeline, not an agent free-
 11. **Deepen** final-evaluation observability: **`evaluation_result` v1** JSON Schema (SPEC §7.10: pass/fail, recommendation, scorecard; §15.3 explicit weaknesses in `summary`) with assigned skeleton `evaluation/output.json` validated accordingly (null scorecard = not evaluated in Phase 0).
 12. **Deepen** drafting observability: **`draft_result` v1** JSON Schema (SPEC §7.7: body, writer notes, uncertainty flags) with assigned skeleton `drafting/output.json` validated accordingly (stub prose; critique/revision inputs reference the canonical `draft_result` document).
 13. **Deepen** packaging observability: **`final_deliverable` v1** JSON Schema (markdown body, limitations, operator summary) with assigned skeleton `final/output.json` validated accordingly (`final/piece.md` mirrors `body_markdown`; Phase 0 quality by design).
+14. **Deepen** intake observability: **`inputs_result`**, **`source_reading_result`**, and **`topic_selection_result`** v1 JSON Schemas with assigned skeleton `inputs/`, `source_reading/`, and `topic_selection/output.json` validated accordingly (`topic_selection` v1 models assigned skip only; framing consumes canonical intake artifacts on `input.json`).
 
 ---
 

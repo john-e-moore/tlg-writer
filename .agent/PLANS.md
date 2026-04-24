@@ -147,6 +147,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-21 — ExecPlan: evaluation_result v1 + evaluation stage wiring — done (PR #12 merged) — agent`
 - `2026-04-21 — ExecPlan: draft_result v1 + drafting stage wiring — done (PR #13 merged) — agent`
 - `2026-04-21 — ExecPlan: final_deliverable v1 + final stage wiring — done (PR #14 merged) — agent`
+- `2026-04-21 — ExecPlan: Intake stage v1 schemas (inputs, source_reading, topic_selection) — in_progress (PR pending) — agent`
 - `2026-04-21 — ExecPlan: Assigned-topic skeleton run (mocked LLM) — done (PR #1 merged) — agent`
 
 ---
@@ -1096,5 +1097,77 @@ Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `File
 ### Interfaces and dependencies
 
 - **Library:** `tlg_writer.final_deliverable.build_stub_final_deliverable_assigned`.
+- **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
+- **External:** none.
+
+---
+
+## ExecPlan: Intake stage v1 schemas (inputs, source_reading, topic_selection) — 2026-04-21
+
+Links: branch `feature/intake-results-v1`; brief `.agent/features/2026-04-21-intake-results-v1/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Ship SPEC §21 step 14: **`inputs_result`**, **`source_reading_result`**, and **`topic_selection_result`** v1 JSON Schemas so assigned skeleton runs have schema-valid intake `output.json` files and framing consumes canonical intake artifacts. No live models.
+
+### Progress
+
+- [x] (2026-04-21) Planning
+- [x] (2026-04-21) Implementation
+- [ ] (2026-04-21) Validation + docs (PR evidence)
+
+### Surprises & discoveries
+
+- (none yet)
+
+### Decision log
+
+- Decision: `topic_selection_result` v1 encodes **assigned skip only** (`selection_status` const `skipped`) — Rationale: auto-topic completed shape ships with auto runner — Date: 2026-04-21
+- Decision: `framing/input.json` carries `source_reading_result` and `topic_selection_result` full documents — Rationale: consistent with other stages — Date: 2026-04-21
+
+### Outcomes & retrospective
+
+(pending merge)
+
+### Context and orientation
+
+Touch points: `schemas/json/inputs_result.schema.json`, `schemas/json/source_reading_result.schema.json`, `schemas/json/topic_selection_result.schema.json`, `src/tlg_writer/inputs_result.py`, `src/tlg_writer/source_reading_result.py`, `src/tlg_writer/topic_selection_result.py`, `src/tlg_writer/skeleton_pipeline.py`, `tests/unit/test_intake_results_schema.py`, `tests/integration/test_skeleton_pipeline.py`, `tests/fixtures/pipeline/`, `prompts/inputs/`, `prompts/source_reading/system.md`, `prompts/topic_selection/system.md`, `.agent/SPEC.md` §13 / §21.
+
+### Plan of work
+
+1. Add three v1 schemas + stub builders + fixtures + unit tests.
+2. Wire skeleton intake stages; update framing intake `input.json`; add `prompts/inputs/`.
+3. Update README, SPEC §21 step 14 + §13 list, feature brief, PLANS index, and this ExecPlan with validation evidence.
+
+### Concrete steps
+
+```bash
+cd /path/to/tlg-writer
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+python scripts/run_assigned_skeleton.py --topic "smoke" --slug intake-smoke
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes (intake unit tests; integration maps all stages to named schemas).
+- Smoke: skeleton run; `inputs`, `source_reading`, `topic_selection` `output.json` validate.
+- `--help` for `run_assigned_skeleton.py` and `extract_docx_metadata.py` unchanged.
+
+### Idempotence and recovery
+
+Same as Phase 0 runner: new `run_id` each invocation; duplicate dir raises `FileExistsError`.
+
+### Artifacts and notes
+
+- Editorial runs: `inputs/output.json`, `source_reading/output.json`, `topic_selection/output.json` are v1 intake documents (stub content).
+- Fixtures: `tests/fixtures/pipeline/inputs_result_minimal.json`, `source_reading_result_minimal.json`, `topic_selection_result_minimal.json`.
+
+### Interfaces and dependencies
+
+- **Library:** `build_stub_inputs_result_assigned`, `build_stub_source_reading_result_assigned`, `build_stub_topic_selection_result_assigned_skipped`.
 - **Pipeline:** `tlg_writer.skeleton_pipeline.run_assigned_skeleton`.
 - **External:** none.
