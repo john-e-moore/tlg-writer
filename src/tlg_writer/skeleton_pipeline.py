@@ -37,7 +37,8 @@ from tlg_writer.retrieval_result import (
 )
 from tlg_writer.revision_result import build_stub_revision_result_assigned
 from tlg_writer.run_id import build_run_id, normalize_slug
-from tlg_writer.source_reading_result import build_stub_source_reading_result_assigned
+from tlg_writer.source_inputs import collect_source_notes
+from tlg_writer.source_reading_result import build_source_reading_result_assigned
 from tlg_writer.stage_schemas import output_json_schema_for_stage, validate_pipeline_stage_output
 from tlg_writer.topic_selection_result import (
     build_stub_topic_selection_result_assigned_skipped,
@@ -206,6 +207,7 @@ def _execute_phase0_run(
     corpus_retrieval_max_hits: int = 12,
     llm_framing: bool = False,
     framing_model: str = "gpt-4o-mini",
+    source_paths: list[Path] | None = None,
 ) -> AssignedSkeletonResult:
     run_dir = artifacts_root / rid
     if run_dir.exists():
@@ -259,15 +261,34 @@ def _execute_phase0_run(
         output_schema=output_json_schema_for_stage("inputs"),
     )
 
-    source_doc = build_stub_source_reading_result_assigned(run_id=rid, topic=content_topic)
+    source_notes = collect_source_notes(
+        source_paths=source_paths or [],
+        repo_root=repo_root(),
+    )
+    source_doc = build_source_reading_result_assigned(
+        run_id=rid,
+        topic=content_topic,
+        source_notes=source_notes,
+    )
     validate_pipeline_stage_output("source_reading", source_doc)
+    source_summary = (
+        "## source_reading\n\nStructured **source_reading_result** from local source files; "
+        "see `input.json` `source_notes`.\n"
+        if source_notes
+        else "## source_reading\n\nStructured **source_reading_result**; "
+        "Phase 0 stub (no files ingested).\n"
+    )
     _write_stage(
         run_dir,
         "source_reading",
-        {"schema_version": "0.1", "inputs_result": inputs_doc, "topic": content_topic},
+        {
+            "schema_version": "0.1",
+            "inputs_result": inputs_doc,
+            "topic": content_topic,
+            "source_notes": source_notes,
+        },
         source_doc,
-        "## source_reading\n\nStructured **source_reading_result**; "
-        "Phase 0 stub (no files ingested).\n",
+        source_summary,
         llm_ping=llm_ping,
         output_schema=output_json_schema_for_stage("source_reading"),
     )
@@ -559,6 +580,11 @@ def _execute_phase0_run(
             "recursive": corpus_labels_recursive,
             "max_hits": corpus_retrieval_max_hits,
         }
+    if source_notes:
+        config["source_ingestion"] = {
+            "count": len(source_notes),
+            "paths": [str(n["path"]) for n in source_notes],
+        }
     _write_json(run_dir / "config.json", config)
 
     return AssignedSkeletonResult(run_dir=run_dir, run_id=rid)
@@ -577,6 +603,7 @@ def run_assigned_skeleton(
     corpus_retrieval_max_hits: int = 12,
     llm_framing: bool = False,
     framing_model: str | None = None,
+    source_paths: list[Path] | None = None,
 ) -> AssignedSkeletonResult:
     """
     Create `artifacts_root / <run_id>` with full stage layout (Phase 0, **assigned**).
@@ -634,6 +661,7 @@ def run_assigned_skeleton(
         corpus_retrieval_max_hits=corpus_retrieval_max_hits,
         llm_framing=llm_framing,
         framing_model=fm,
+        source_paths=source_paths,
     )
 
 
