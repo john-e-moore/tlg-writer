@@ -30,6 +30,8 @@ python scripts/run_assigned_skeleton.py --topic "Smoke" --slug smoke \
 # Same flags on run_auto_skeleton.py
 ```
 
+Optional **source-file ingestion (assigned)**: pass one or more `--source-path` flags to ingest local `.txt`, `.md`, `.json`, or `.docx` files. `source_reading/output.json` will move from stub to `reading_status: completed` with deterministic preview-based highlights/claims, `source_reading/input.json` will include `source_notes`, and `config.json` will include `source_ingestion`.
+
 ## Phase 0: auto-topic skeleton run (stub)
 
 Same full stage layout and stub downstream stages as the assigned runner, but `run_id` uses `__auto__`, manifest/config `mode` is `auto`, `inputs/output.json` is an **`inputs_result`** with `topic.source: auto_stub`, and `topic_selection/output.json` is a **`topic_selection_result`** **completed** stub (empty `candidates_considered`; no search, no LLM):

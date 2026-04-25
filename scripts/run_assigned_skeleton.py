@@ -80,6 +80,16 @@ def main() -> int:
         default=None,
         help="Override TLG_LLM_FRAMING_MODEL / default for this run when --llm-framing is set.",
     )
+    p.add_argument(
+        "--source-path",
+        action="append",
+        default=[],
+        type=Path,
+        help=(
+            "Optional local source file to ingest for source_reading "
+            "(.txt/.md/.json/.docx). Repeat to provide multiple files."
+        ),
+    )
     args = p.parse_args()
     try:
         normalize_slug(args.slug)
@@ -101,6 +111,7 @@ def main() -> int:
         corpus_retrieval_max_hits=args.corpus_retrieval_max_hits,
         llm_framing=args.llm_framing,
         framing_model=args.llm_framing_model,
+        source_paths=args.source_path,
     )
     print(res.run_dir.resolve())
     return 0

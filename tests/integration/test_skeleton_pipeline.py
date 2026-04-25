@@ -310,3 +310,31 @@ def test_assigned_skeleton_rejects_non_dir_corpus_labels(tmp_path: Path) -> None
             run_id="2026-04-24T14-00-00Z__assigned__bad-corpus",
             corpus_labels_dir=missing,
         )
+
+
+def test_assigned_skeleton_source_paths_populate_source_reading(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    source_a = repo_root / "tests" / "fixtures" / "pipeline" / "source_note_a.txt"
+    source_b = repo_root / "tests" / "fixtures" / "pipeline" / "source_note_b.md"
+    res = run_assigned_skeleton(
+        topic="Source ingestion run",
+        slug="source-ingestion",
+        artifacts_root=tmp_path,
+        run_id="2026-04-25T12-00-00Z__assigned__source-ingestion",
+        source_paths=[source_a, source_b],
+    )
+
+    source_reading = json.loads(
+        (res.run_dir / "source_reading" / "output.json").read_text(encoding="utf-8")
+    )
+    assert source_reading["reading_status"] == "completed"
+    assert source_reading["highlights"]
+    assert any("source_note_a.txt" in h for h in source_reading["highlights"])
+
+    source_input = json.loads(
+        (res.run_dir / "source_reading" / "input.json").read_text(encoding="utf-8")
+    )
+    assert len(source_input["source_notes"]) == 2
+
+    cfg = json.loads((res.run_dir / "config.json").read_text(encoding="utf-8"))
+    assert cfg["source_ingestion"]["count"] == 2

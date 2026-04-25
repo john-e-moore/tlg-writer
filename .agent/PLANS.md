@@ -158,6 +158,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-24 — ExecPlan: Corpus batch statistics (stub manifest + summary) — done (PR #19 merged) — agent`
 - `2026-04-24 — ExecPlan: Validate corpus piece_label / piece_features dirs — done (PR #20 merged) — agent`
 - `2026-04-24 — ExecPlan: Filesystem corpus retrieval (skeleton) — done (PR #21 merged) — agent`
+- `2026-04-25 — ExecPlan: Assigned source-file ingestion (Phase 0 deterministic) — in_progress (PR pending) — agent`
 
 ---
 
@@ -1683,4 +1684,78 @@ Read-only; no artifact dirs created.
 - **Library:** `tlg_writer.corpus_piece_artifacts.validate_corpus_json_files`, `iter_json_files`.
 - **CLI:** `scripts/validate_corpus_piece_json.py` (`--labels-dir`, `--features-dir`, `--recursive`).
 - **External:** none.
+
+---
+
+## ExecPlan: Assigned source-file ingestion (Phase 0 deterministic) — 2026-04-25
+
+Links: branch `feature/assigned-source-ingestion`; brief `.agent/features/2026-04-25-assigned-source-ingestion/SPEC.md`; PR `pending`.
+
+Status: `in_progress`
+
+### Purpose / big picture
+
+Deepen assigned-topic runs so `source_reading` can ingest explicit local files and emit non-stub highlights/claims while preserving deterministic, no-network Phase 0 behavior for all other stages.
+
+### Progress
+
+- [x] (2026-04-25) Planning
+- [x] (2026-04-25) Implementation
+- [x] (2026-04-25) Validation + docs
+
+### Surprises & discoveries
+
+- Observation: Existing `source_reading_result` contract already supports `completed` status and freeform highlight/claim arrays, so this slice did not require schema changes.  
+  Evidence: `schemas/json/source_reading_result.schema.json`.
+
+### Decision log
+
+- Decision: Support local files first (`.txt`, `.md`, `.json`, `.docx`) and defer URL/network ingestion — Rationale: keeps the first real-input slice deterministic and CI-safe — Date: 2026-04-25
+
+### Outcomes & retrospective
+
+In progress. Shipped code paths for `--source-path` ingestion on the assigned runner, deterministic parsing helpers, tests, and docs updates. Pending final validation and PR/merge.
+
+### Context and orientation
+
+Touch points: `scripts/run_assigned_skeleton.py`, `src/tlg_writer/skeleton_pipeline.py`, `src/tlg_writer/source_inputs.py`, `src/tlg_writer/source_reading_result.py`, `tests/integration/test_skeleton_pipeline.py`, `tests/unit/test_source_inputs.py`, `tests/fixtures/pipeline/`, `README.md`.
+
+### Plan of work
+
+1. Add source-file ingestion helpers with deterministic parsing and clear extension limits.
+2. Thread `source_paths` through assigned runner and persist ingestion traces in stage inputs/config.
+3. Expand tests for source ingestion behavior and missing-file errors.
+4. Run `pytest -q`, open PR, wait for CI, merge, and run a concrete local command to materialize artifacts.
+
+### Concrete steps
+
+```bash
+cd /home/john/tlg/tlg-writer
+pytest -q
+python scripts/run_assigned_skeleton.py --topic "source smoke" --slug source-smoke \
+  --source-path tests/fixtures/pipeline/source_note_a.txt \
+  --source-path tests/fixtures/pipeline/source_note_b.md
+```
+
+### Validation and acceptance
+
+- `pytest -q` passes.
+- Assigned run with `--source-path` writes schema-valid `source_reading/output.json` with `reading_status: completed`.
+- `source_reading/input.json` includes `source_notes`; `config.json` includes `source_ingestion`.
+- Re-running with the same explicit `--run-id` still raises `FileExistsError`.
+
+### Idempotence and recovery
+
+No behavior change for run directory collisions (`FileExistsError`). If a source path is missing, the run raises before stage artifacts are written for that run id.
+
+### Artifacts and notes
+
+- Editorial run under `artifacts/runs/<run_id>/` from a command using `--source-path`.
+- New test fixtures under `tests/fixtures/pipeline/source_note_a.txt` and `tests/fixtures/pipeline/source_note_b.md`.
+
+### Interfaces and dependencies
+
+- **Library:** `run_assigned_skeleton(..., source_paths=...)`, `tlg_writer.source_inputs.collect_source_notes`.
+- **CLI:** `scripts/run_assigned_skeleton.py --source-path ...` (repeatable).
+- **External:** none (no network calls).
 
