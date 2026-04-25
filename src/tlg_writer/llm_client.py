@@ -98,26 +98,29 @@ class OpenAIChatLLMClient:
         body = {
             "model": model,
             "messages": [{"role": msg.role, "content": msg.content} for msg in messages],
-            "temperature": temperature,
             "max_tokens": max_tokens,
         }
-        data = json.dumps(body).encode("utf-8")
-        req = urllib.request.Request(
-            url,
-            data=data,
-            method="POST",
-            headers={
-                "Authorization": f"Bearer {self._api_key}",
-                "Content-Type": "application/json",
-            },
-        )
         started = time.perf_counter()
         try:
-            with urllib.request.urlopen(req, timeout=self._timeout_s) as resp:
-                raw = resp.read().decode("utf-8")
+            raw = self._post_chat(url=url, body=body)
         except urllib.error.HTTPError as e:
             detail = e.read().decode("utf-8", errors="replace")[:2000]
-            raise RuntimeError(f"OpenAI HTTP {e.code}: {detail}") from e
+            if (
+                e.code == 400
+                and "max_tokens" in detail
+                and "max_completion_tokens" in detail
+            ):
+                # Some newer OpenAI models reject ``max_tokens`` in chat/completions.
+                fallback_body = dict(body)
+                fallback_body.pop("max_tokens", None)
+                fallback_body["max_completion_tokens"] = max_tokens
+                try:
+                    raw = self._post_chat(url=url, body=fallback_body)
+                except urllib.error.HTTPError as e2:
+                    detail2 = e2.read().decode("utf-8", errors="replace")[:2000]
+                    raise RuntimeError(f"OpenAI HTTP {e2.code}: {detail2}") from e2
+            else:
+                raise RuntimeError(f"OpenAI HTTP {e.code}: {detail}") from e
         latency_ms = (time.perf_counter() - started) * 1000.0
         payload = json.loads(raw)
         try:
@@ -132,6 +135,20 @@ class OpenAIChatLLMClient:
             output_tokens=_as_int(usage.get("completion_tokens")),
             latency_ms=latency_ms,
         )
+
+    def _post_chat(self, *, url: str, body: dict[str, object]) -> str:
+        data = json.dumps(body).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=data,
+            method="POST",
+            headers={
+                "Authorization": f"Bearer {self._api_key}",
+                "Content-Type": "application/json",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=self._timeout_s) as resp:
+            return resp.read().decode("utf-8")
 
 
 def _as_int(value: object) -> int | None:

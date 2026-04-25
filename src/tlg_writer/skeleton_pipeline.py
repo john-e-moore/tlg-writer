@@ -51,6 +51,18 @@ def _default_framing_model(explicit: str | None) -> str:
     return (os.environ.get("TLG_LLM_FRAMING_MODEL") or "gpt-4o-mini").strip() or "gpt-4o-mini"
 
 
+def _probe_model_for_client(client: LLMClient, *, framing_model: str) -> str:
+    """
+    Pick a safe probe model for the selected client.
+
+    - Stub client keeps the synthetic ``phase0-probe`` identifier.
+    - Non-stub clients must receive a real model id.
+    """
+    if isinstance(client, StubLLMClient):
+        return "phase0-probe"
+    return framing_model
+
+
 def _git_commit() -> str | None:
     try:
         out = subprocess.run(
@@ -213,6 +225,7 @@ def _execute_phase0_run(
             "llm_framing=True requires a non-stub LLM client. Set TLG_LLM_BACKEND=openai and "
             "OPENAI_API_KEY, or pass llm_client= explicitly (tests may inject a client)."
         )
+    probe_model = _probe_model_for_client(resolved_llm, framing_model=framing_model)
     llm_ping = resolved_llm.complete_chat(
         messages=[
             ChatMessage(
@@ -221,7 +234,7 @@ def _execute_phase0_run(
             ),
             ChatMessage(role="user", content="ping"),
         ],
-        model="phase0-probe",
+        model=probe_model,
         temperature=0.0,
         max_tokens=8,
     )

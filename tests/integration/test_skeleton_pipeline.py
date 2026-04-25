@@ -296,6 +296,7 @@ def test_assigned_skeleton_llm_framing_rejects_default_stub_client(tmp_path: Pat
             artifacts_root=tmp_path,
             run_id="2026-04-24T16-00-00Z__assigned__stub-framing",
             llm_framing=True,
+            llm_client=StubLLMClient(),
         )
 
 
