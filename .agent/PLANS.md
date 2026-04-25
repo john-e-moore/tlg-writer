@@ -158,7 +158,7 @@ Maintain a bullet list here for in-flight work:
 - `2026-04-24 — ExecPlan: Corpus batch statistics (stub manifest + summary) — done (PR #19 merged) — agent`
 - `2026-04-24 — ExecPlan: Validate corpus piece_label / piece_features dirs — done (PR #20 merged) — agent`
 - `2026-04-24 — ExecPlan: Filesystem corpus retrieval (skeleton) — done (PR #21 merged) — agent`
-- `2026-04-25 — ExecPlan: Assigned source-file ingestion (Phase 0 deterministic) — in_progress (PR pending) — agent`
+- `2026-04-25 — ExecPlan: Assigned source-file ingestion (Phase 0 deterministic) — done (PR #23 merged) — agent`
 
 ---
 
@@ -1689,9 +1689,9 @@ Read-only; no artifact dirs created.
 
 ## ExecPlan: Assigned source-file ingestion (Phase 0 deterministic) — 2026-04-25
 
-Links: branch `feature/assigned-source-ingestion`; brief `.agent/features/2026-04-25-assigned-source-ingestion/SPEC.md`; PR `pending`.
+Links: branch `feature/assigned-source-ingestion` (merged); brief `.agent/features/2026-04-25-assigned-source-ingestion/SPEC.md`; PR `https://github.com/john-e-moore/tlg-writer/pull/23`.
 
-Status: `in_progress`
+Status: `done`
 
 ### Purpose / big picture
 
@@ -1714,7 +1714,7 @@ Deepen assigned-topic runs so `source_reading` can ingest explicit local files a
 
 ### Outcomes & retrospective
 
-In progress. Shipped code paths for `--source-path` ingestion on the assigned runner, deterministic parsing helpers, tests, and docs updates. Pending final validation and PR/merge.
+Merged via PR #23 (`https://github.com/john-e-moore/tlg-writer/pull/23`). Assigned runs can now ingest local source files deterministically and emit completed `source_reading` artifacts. Deferred: URL ingestion, auto-mode parity, and model-based source summarization.
 
 ### Context and orientation
 

@@ -5,7 +5,7 @@
 
 **Agent delivery:** Implement, merge when CI is green, **run** commands that materialize operator-visible paths (`artifacts/runs/…`, relevant `data/…`, or declared fixture paths). **Pause** with concrete paths when outputs are ready for human inspection—not before. See **`.agent/AGENTS.md`** → *Infra and contracts phase: auto-merge and when to stop* (and “Also pause” when blocked).
 
-**Last updated:** 2026-04-24
+**Last updated:** 2026-04-25
 
 ---
 
@@ -86,7 +86,7 @@
 
 - [x] v1 schemas and stub-filled `output.json` for all editorial stages (observability-first)
 - [x] End-to-end **assigned** run with at least one stage using **real** structured LLM output (`framing` when `llm_framing`; still inspectable under `artifacts/runs/…`)
-- [ ] Source reading / intake tied to **real** inputs (files, URLs, or agreed scope)
+- [x] Source reading / intake tied to **real** inputs (files, URLs, or agreed scope)
 - [ ] Retrieval integrated with **processed** corpus artifacts
 - [ ] Operator can **manually review** final piece against house rubric (process + artifacts documented)
 
